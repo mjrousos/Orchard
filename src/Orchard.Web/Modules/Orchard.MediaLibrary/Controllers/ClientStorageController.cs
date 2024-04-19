@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using Orchard.ContentManagement;
+using Orchard.ContentManagement.Handlers;
 using Orchard.FileSystems.Media;
 using Orchard.Localization;
 using Orchard.Logging;
@@ -186,13 +187,15 @@ namespace Orchard.MediaLibrary.Controllers {
                     if (mediaItemsUsingTheFile == 1) { // if the file is referenced only by the deleted media content, the file too can be removed.
                         try {
                             _mediaLibraryService.DeleteFile(replaceMedia.FolderPath, replaceMedia.FileName);
-                        } catch (ArgumentException) { // File not found by FileSystemStorageProvider is thrown as ArgumentException.
+                        }
+                        catch (ArgumentException) { // File not found by FileSystemStorageProvider is thrown as ArgumentException.
                             statuses.Add(new {
                                 error = T("Error when deleting file to replace: file {0} does not exist in folder {1}. Media has been updated anyway.", replaceMedia.FileName, replaceMedia.FolderPath).Text,
                                 progress = 1.0
                             });
                         }
-                    } else {
+                    }
+                    else {
                         // it changes the media file name
                         replaceMedia.FileName = filename;
                     }

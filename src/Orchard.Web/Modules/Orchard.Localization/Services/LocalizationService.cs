@@ -41,7 +41,7 @@ namespace Orchard.Localization.Services {
                 return null;
             }
 
-            if (localized?.Culture.Culture == culture) return localized;
+            if (localized.Culture?.Culture == culture) return localized;
 
             return GetLocalizationsQuery(localized, versionOptions)
                 .Where<LocalizationPartRecord>(localization => localization.CultureId == cultureRecord.Id)
@@ -74,33 +74,8 @@ namespace Orchard.Localization.Services {
             var localized = content.As<LocalizationPart>();
 
             return GetLocalizationsQuery(localized, versionOptions)
-                .Where<LocalizationPartRecord>(l => l.Id != localized.Id) // Exclude the current content.
+                .Where<LocalizationPartRecord>(localization => localization.Id != localized.Id) // Exclude the current content.
                 .List();
-        }
-
-
-        private IContentQuery<LocalizationPart> GetLocalizationsQuery(LocalizationPart localizationPart, VersionOptions versionOptions) {
-            var masterId = localizationPart.HasTranslationGroup ?
-                localizationPart.Record.MasterContentItemId : localizationPart.Id;
-
-            var query = versionOptions == null ?
-                _contentManager.Query<LocalizationPart>(localized.ContentItem.ContentType) :
-                _contentManager.Query<LocalizationPart>(versionOptions, localized.ContentItem.ContentType);
-
-            int contentItemId = localized.ContentItem.Id;
-
-            if (localized.HasTranslationGroup) {
-                int masterContentItemId = localized.MasterContentItem.ContentItem.Id;
-
-                query = query.Where<LocalizationPartRecord>(localization =>
-                    localization.Id != contentItemId && // Exclude the content
-                    (localization.Id == masterContentItemId || localization.MasterContentItemId == masterContentItemId));
-            }
-            else {
-                query = query.Where<LocalizationPartRecord>(localization => localization.MasterContentItemId == contentItemId);
-            }
-
-            return query.List().ToList();
         }
 
         public bool TryGetRouteForUrl(string url, out AutoroutePart route) {
@@ -144,6 +119,24 @@ namespace Orchard.Localization.Services {
             localizedRoute = localizationPart?.As<AutoroutePart>();
 
             return localizedRoute != null;
+        }
+
+        /// <summary>
+        /// Warning: May contain more than one localization of the same culture.
+        /// </summary>
+        private IContentQuery<LocalizationPart> GetLocalizationsQuery(LocalizationPart localizationPart, VersionOptions versionOptions) {
+            var masterId = localizationPart.HasTranslationGroup
+                ? localizationPart.Record.MasterContentItemId
+                : localizationPart.Id;
+
+            var query = _contentManager.Query<LocalizationPart>(localizationPart.ContentItem.ContentType);
+
+            if (versionOptions == null) {
+                query = query.ForVersion(versionOptions);
+            }
+
+            return query
+                .Where<LocalizationPartRecord>(localization => localization.Id == masterId || localization.MasterContentItemId == masterId);
         }
     }
 }
