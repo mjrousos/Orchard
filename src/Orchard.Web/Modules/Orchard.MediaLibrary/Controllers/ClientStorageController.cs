@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Web.Mvc;
 using Orchard.ContentManagement;
-using Orchard.ContentManagement.Handlers;
 using Orchard.FileSystems.Media;
 using Orchard.Localization;
 using Orchard.Logging;
@@ -111,10 +110,16 @@ namespace Orchard.MediaLibrary.Controllers {
                         url = mediaPart.FileName,
                     });
                 }
-                catch (Exception ex) {
-                    Logger.Error(ex, "Unexpected exception when uploading a media.");
+                catch (InvalidNameCharacterException) {
                     statuses.Add(new {
-                        error = T(ex.Message).Text,
+                        error = T("The file name contains invalid character(s)").Text,
+                        progress = 1.0,
+                    });
+                }
+                catch (Exception ex) {
+                    Logger.Error(ex, T("Unexpected exception when uploading a media.").Text);
+                    statuses.Add(new {
+                        error = ex.Message,
                         progress = 1.0,
                     });
                 }
@@ -134,7 +139,7 @@ namespace Orchard.MediaLibrary.Controllers {
                 return HttpNotFound();
 
             // Check permission
-            if (!(_mediaLibraryService.CheckMediaFolderPermission(Permissions.EditMediaContent, replaceMedia.FolderPath) && _mediaLibraryService.CheckMediaFolderPermission(Permissions.ImportMediaContent, replaceMedia.FolderPath)) 
+            if (!(_mediaLibraryService.CheckMediaFolderPermission(Permissions.EditMediaContent, replaceMedia.FolderPath) && _mediaLibraryService.CheckMediaFolderPermission(Permissions.ImportMediaContent, replaceMedia.FolderPath))
                 && !_mediaLibraryService.CanManageMediaFolder(replaceMedia.FolderPath)) {
                 return new HttpUnauthorizedResult();
             }
@@ -142,7 +147,7 @@ namespace Orchard.MediaLibrary.Controllers {
             var statuses = new List<object>();
 
             var settings = Services.WorkContext.CurrentSite.As<MediaLibrarySettingsPart>();
-            
+
             // Loop through each file in the request
             for (int i = 0; i < HttpContext.Request.Files.Count; i++) {
                 // Pointer to file
@@ -150,7 +155,8 @@ namespace Orchard.MediaLibrary.Controllers {
                 var filename = Path.GetFileName(file.FileName);
 
                 // if the file has been pasted, provide a default name
-                if (file.ContentType.Equals("image/png", StringComparison.InvariantCultureIgnoreCase) && !filename.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase)) {
+                if (file.ContentType.Equals("image/png", StringComparison.InvariantCultureIgnoreCase)
+                    && !filename.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase)) {
                     filename = "clipboard.png";
                 }
 
@@ -210,7 +216,7 @@ namespace Orchard.MediaLibrary.Controllers {
                     });
                 }
                 catch (Exception ex) {
-                    Logger.Error(ex, "Unexpected exception when uploading a media.");
+                    Logger.Error(ex, T("Unexpected exception when uploading a media.").Text);
 
                     statuses.Add(new {
                         error = T(ex.Message).Text,
