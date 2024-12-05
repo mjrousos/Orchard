@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Themes", "Themes", "{74492C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Specs", "Specs", "{3E10BF6D-ADA5-417D-B36C-EBB0660B475E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchard.Compat", "Orchard.Compat\Orchard.Compat.csproj", "{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchard.Compat", "Orchard.Web\Modules\Orchard.Compat\Orchard.Compat.csproj", "{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchard.Web", "Orchard.Web\Orchard.Web.csproj", "{50B779EA-EC00-4699-84C0-03B395C365D2}"
 	ProjectSection(ProjectDependencies) = postProject
