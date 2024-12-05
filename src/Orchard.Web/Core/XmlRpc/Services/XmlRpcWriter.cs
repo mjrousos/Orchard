@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,10 +22,7 @@ namespace Orchard.Core.XmlRpc.Services {
         /// Provides the mapping function based on a type.
         /// </summary>
         private readonly IDictionary<Type, Func<XRpcData, XElement>> _dispatch;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="XmlRpcWriter"/> class.
-        /// </summary>
         public XmlRpcWriter() {
             _dispatch = new Dictionary<Type, Func<XRpcData, XElement>>
                 {
@@ -32,21 +37,16 @@ namespace Orchard.Core.XmlRpc.Services {
                     { typeof(XRpcArray), p => MapArray((XRpcArray)p.Value) },
                 };
         }
-
-        /// <summary>
         /// Maps a method response to XML.
-        /// </summary>
         /// <param name="rpcMethodResponse">The method response to be mapped.</param>
         /// <returns>The XML element.</returns>
         public XElement MapMethodResponse(XRpcMethodResponse rpcMethodResponse) {
             Argument.ThrowIfNull(rpcMethodResponse, "rpcMethodResponse");
-
             // return a valid fault as per http://xmlrpc.scripting.com/spec.html
             if(rpcMethodResponse.Fault != null) {
                 var members = new XRpcStruct();
                 members.Set("faultCode", rpcMethodResponse.Fault.Code);
                 members.Set("faultString", rpcMethodResponse.Fault.Message);
-
                 return new XElement("methodResponse",
                     new XElement("fault",
                         new XElement("value", MapStruct(members))
@@ -54,29 +54,17 @@ namespace Orchard.Core.XmlRpc.Services {
                 );
                             
             }
-
             return new XElement("methodResponse",
                 new XElement("params",
                     rpcMethodResponse.Params.Select(
                         p => new XElement("param", MapValue(p)))));
-        }
-
-        /// <summary>
         /// Maps rpc data to XML.
-        /// </summary>
         /// <param name="rpcData">The rpc data.</param>
-        /// <returns>The XML element.</returns>
         public XElement MapData(XRpcData rpcData) {
             Argument.ThrowIfNull(rpcData, "rpcData");
-
             return new XElement("param", MapValue(rpcData));
-        }
-
-        /// <summary>
         /// Maps a rpc struct to XML.
-        /// </summary>
         /// <param name="rpcStruct">The rpc struct.</param>
-        /// <returns>The XML element.</returns>
         public XElement MapStruct(XRpcStruct rpcStruct) {
             return new XElement(
                 "struct",
@@ -85,28 +73,14 @@ namespace Orchard.Core.XmlRpc.Services {
                               "member",
                               new XElement("name", kv.Key),
                               MapValue(kv.Value))));
-        }
-
-        /// <summary>
         /// Maps a rpc array to XML.
-        /// </summary>
         /// <param name="rpcArray">The rpc array.</param>
-        /// <returns>The XML element.</returns>
         public XElement MapArray(XRpcArray rpcArray) {
-            return new XElement(
                 "array",
                 new XElement(
                     "data",
                     rpcArray.Data.Select(MapValue)));
-        }
-
-        /// <summary>
-        /// Maps rpc data to XML.
-        /// </summary>
-        /// <param name="rpcData">The rpc data.</param>
-        /// <returns>The XML element.</returns>
         private XElement MapValue(XRpcData rpcData) {
             return new XElement("value", _dispatch[rpcData.Type](rpcData));
-        }
     }
 }

@@ -1,4 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -7,7 +15,6 @@ using System.Xml.Linq;
 
 namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
     public class VideoTrack {
-
         private readonly XElement _xml;
 
         public VideoTrack(XElement xml) {
@@ -24,7 +31,8 @@ namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
         }
 
         /// <summary>
-        /// The average video bit rate in bits per second, as calculated from the media file. Counts only the elementary stream payload, and does not include the packaging overhead.
+        /// The average video bit rate in bits per second, as calculated from the media file.
+        /// Counts only the elementary stream payload, and does not include the packaging overhead.
         /// </summary>
         public int Bitrate {
             get {
@@ -96,7 +104,7 @@ namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
         }
 
         /// <summary>
-        /// The demoninator of the video display aspect ratio.
+        /// The denominator of the video display aspect ratio.
         /// </summary>
         public decimal DisplayAspectRatioY {
             get {

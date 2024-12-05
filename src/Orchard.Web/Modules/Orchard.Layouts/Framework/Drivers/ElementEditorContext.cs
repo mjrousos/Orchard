@@ -1,5 +1,12 @@
-﻿using System.Web.Mvc;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Web.Mvc;
 using Orchard.Layouts.Framework.Elements;
 
 namespace Orchard.Layouts.Framework.Drivers {
@@ -7,7 +14,6 @@ namespace Orchard.Layouts.Framework.Drivers {
         public ElementEditorContext() {
             EditorResult = new EditorResult();
         }
-
         public Element Element { get; set; }
         public dynamic ShapeFactory { get; set; }
         public IValueProvider ValueProvider { get; set; }

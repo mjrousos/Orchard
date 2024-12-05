@@ -1,18 +1,21 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
-using System.Web.Mvc;
 using System.Web.Routing;
 using Autofac.Features.Metadata;
 using Orchard;
 using Orchard.Caching;
-using Orchard.ContentManagement;
-using Orchard.Localization;
 using Orchard.Mvc.Routes;
 using Orchard.OutputCache.Models;
 using Orchard.OutputCache.Services;
 using Orchard.OutputCache.ViewModels;
-using Orchard.Security;
-using Orchard.UI.Admin;
 using Orchard.UI.Notify;
 
 namespace Orchard.OutputCache.Controllers {
@@ -21,7 +24,6 @@ namespace Orchard.OutputCache.Controllers {
         private readonly IEnumerable<Meta<IRouteProvider>> _routeProviders;
         private readonly ISignals _signals;
         private readonly ICacheService _cacheService;
-
         public AdminController(
             IOrchardServices services,
             IEnumerable<Meta<IRouteProvider>> routeProviders,
@@ -32,43 +34,32 @@ namespace Orchard.OutputCache.Controllers {
             _cacheService = cacheService;
             Services = services;
             }
-
         public IOrchardServices Services { get; set; }
         public Localizer T { get; set; }
-
         public ActionResult Index() {
             if (!Services.Authorizer.Authorize(StandardPermissions.SiteOwner, T("You do not have permission to manage output cache.")))
                 return new HttpUnauthorizedResult();
-
             var routeConfigs = new List<CacheRouteConfig>();
             var settings = Services.WorkContext.CurrentSite.As<CacheSettingsPart>();
-
             foreach (var routeProvider in _routeProviders) {
                 // Right now, ignore generic routes.
                 if (routeProvider.Value is StandardExtensionRouteProvider) continue;
-
                 var routes = new List<RouteDescriptor>();
                 routeProvider.Value.GetRoutes(routes);
                 var feature = routeProvider.Metadata["Feature"] as Orchard.Environment.Extensions.Models.Feature;
-
                 // If there is no feature, skip route.
                 if (feature == null) continue;
-
                 foreach (var routeDescriptor in routes) {
                     var route = routeDescriptor.Route as Route;
-
                     if(route == null) {
                         continue;
                     }
-
                     // Ignore admin routes.
                     if (route.Url.StartsWith("Admin/") || route.Url == "Admin") continue;
-
                     var cacheParameterKey = _cacheService.GetRouteDescriptorKey(HttpContext, route);
                     var cacheParameter = _cacheService.GetCacheParameterByKey(cacheParameterKey);
                     var duration = cacheParameter == null ? default(int?) : cacheParameter.Duration;
                     var graceTime = cacheParameter == null ? default(int?) : cacheParameter.GraceTime;
-
                     routeConfigs.Add(new CacheRouteConfig {
                         RouteKey = cacheParameterKey,
                         Url = route.Url,
@@ -81,8 +72,6 @@ namespace Orchard.OutputCache.Controllers {
                                 : feature.Descriptor.Name
                     });
                 }
-            }
-
             var model = new IndexViewModel {
                 RouteConfigs = routeConfigs,
                 DefaultCacheDuration = settings.DefaultCacheDuration,
@@ -99,19 +88,11 @@ namespace Orchard.OutputCache.Controllers {
                 VaryByAuthenticationState = settings.VaryByAuthenticationState,
                 DebugMode = settings.DebugMode
             };
-
             return View(model);
         }
-
         [HttpPost, ActionName("Index")]
         public ActionResult IndexPost() {
-            if (!Services.Authorizer.Authorize(StandardPermissions.SiteOwner, T("You do not have permission to manage output cache.")))
-                return new HttpUnauthorizedResult();
-
-            var model = new IndexViewModel {
                 RouteConfigs = new List<CacheRouteConfig>()
-            };
-
             if(TryUpdateModel(model)) {
                 var settings = Services.WorkContext.CurrentSite.As<CacheSettingsPart>();
                 settings.DefaultCacheDuration = model.DefaultCacheDuration;
@@ -127,19 +108,12 @@ namespace Orchard.OutputCache.Controllers {
                 settings.CacheAuthenticatedRequests = model.CacheAuthenticatedRequests;
                 settings.VaryByAuthenticationState = model.VaryByAuthenticationState;
                 settings.DebugMode = model.DebugMode;
-
                 // Invalidate the settings cache.
                 _signals.Trigger(CacheSettings.CacheKey);
                 _cacheService.SaveRouteConfigs(model.RouteConfigs);
-
                 Services.Notifier.Success(T("Output cache settings saved successfully."));
-            }
             else {
                 Services.Notifier.Error(T("Could not save output cache settings."));
-            }
-
             return RedirectToAction("Index");
-        }
-
     }
 }

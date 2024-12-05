@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.UI.Resources;
 
 namespace Orchard.Core.Shapes {
@@ -7,14 +15,11 @@ namespace Orchard.Core.Shapes {
             manifest.DefineScript("ShapesBase").SetUrl("base.js").SetDependencies("jQuery");
             manifest.DefineStyle("Shapes").SetUrl("site.css");
             manifest.DefineStyle("ShapesSpecial").SetUrl("special.css");
-
             manifest.DefineScript("Html5Shiv").SetUrl("html5.js");
-
             manifest.DefineScript("Switchable").SetUrl("jquery.switchable.js")
                 .SetDependencies("jQuery")
                 .SetDependencies("ShapesBase");
             manifest.DefineStyle("Switchable").SetUrl("jquery.switchable.css");
-
             manifest.DefineScript("LocalNavigation").SetUrl("admin-localnavigation.js").SetDependencies("jQuery");
         }
     }

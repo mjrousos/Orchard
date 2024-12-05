@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Orchard.ContentManagement;
 
 namespace Orchard.Core.Navigation.Services {
     /// <summary>
@@ -8,11 +15,9 @@ namespace Orchard.Core.Navigation.Services {
     /// </summary>
     public class DefaultMenuManager : IMenuManager {
         private readonly IContentManager _contentManager;
-
         public DefaultMenuManager(IContentManager contentManager) {
             _contentManager = contentManager;
         }
-
         public IEnumerable<MenuItemDescriptor> GetMenuItemTypes() {
             return _contentManager.GetContentTypeDefinitions()
                 .Where(contentTypeDefinition => contentTypeDefinition.Settings.ContainsKey("Stereotype") && contentTypeDefinition.Settings["Stereotype"] == "MenuItem")
@@ -22,7 +27,5 @@ namespace Orchard.Core.Navigation.Services {
                         DisplayName = contentTypeDefinition.DisplayName,
                         Description = contentTypeDefinition.Settings.ContainsKey("Description") ? contentTypeDefinition.Settings["Description"] : null
                     });
-        }
     }
-
 }

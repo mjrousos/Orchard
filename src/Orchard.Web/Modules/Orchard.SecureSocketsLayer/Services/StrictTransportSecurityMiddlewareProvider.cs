@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.Caching;
-using Orchard.ContentManagement;
 using Orchard.Logging;
 using Orchard.Owin;
 using Orchard.SecureSocketsLayer.Models;
@@ -11,21 +18,16 @@ namespace Orchard.SecureSocketsLayer.Services {
         private readonly IWorkContextAccessor _wca;
         private readonly ICacheManager _cacheManager;
         private readonly ISignals _signals;
-
         public ILogger Logger { get; set; }
-
         public StrictTransportSecurityMiddlewareProvider(
             IWorkContextAccessor wca,
             ICacheManager cacheManager,
             ISignals signals) {
-
             _wca = wca;
             _cacheManager = cacheManager;
             _signals = signals;
-
             Logger = NullLogger.Instance;
         }
-
         public IEnumerable<OwinMiddlewareRegistration> GetOwinMiddlewares() {
             return new[] {
                 new OwinMiddlewareRegistration {
@@ -38,24 +40,18 @@ namespace Orchard.SecureSocketsLayer.Services {
                                 // cache this and save recomputing it each call
                                 return _wca.GetContext().CurrentSite.As<SslSettingsPart>();
                             });
-
                             if (sslSettings.SendStrictTransportSecurityHeaders) {
                                 string responseValue = "max-age=" + sslSettings.StrictTransportSecurityMaxAge;
-
                                 if (sslSettings.StrictTransportSecurityIncludeSubdomains) {
                                     responseValue += "; includeSubDomains";
                                 }
-
                                 if (sslSettings.StrictTransportSecurityPreload) {
                                     responseValue += "; preload";
-                                }
                                 context.Response.Headers.Append("Strict-Transport-Security", responseValue);
                             }
-
                             await next.Invoke();
                         })
                 }
             };
-        }
     }
 }

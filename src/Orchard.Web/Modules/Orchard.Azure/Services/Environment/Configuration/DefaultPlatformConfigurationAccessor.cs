@@ -1,9 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Configuration;
 using System;
 using Microsoft.Azure;
 
 namespace Orchard.Azure.Services.Environment.Configuration {
-
     /// <summary>
     /// Provides a default <c>IPlatformConfigurationAccessor</c> implementation that reads configuration settings
     /// from cloud service role configuration, app settings and connection strings.
@@ -17,19 +24,15 @@ namespace Orchard.Azure.Services.Environment.Configuration {
     /// before proceeding to the next one.
     /// </remarks>
     public class DefaultPlatformConfigurationAccessor : IPlatformConfigurationAccessor {
-
         public string GetSetting(string name, string tenant, string namePrefix = null) {
             var tenantName = String.Format("{0}:{1}{2}", tenant, namePrefix, name);
             var fallbackName = String.Format("{0}{1}", namePrefix, name);
-
             var cloudConfigurationValue = CloudConfigurationManager.GetSetting(tenantName) ?? CloudConfigurationManager.GetSetting(fallbackName);
             if (!String.IsNullOrEmpty(cloudConfigurationValue))
                 return cloudConfigurationValue;
-
             var connectionStringValue = ConfigurationManager.ConnectionStrings[tenantName] ?? ConfigurationManager.ConnectionStrings[fallbackName];
             if (connectionStringValue != null)
                 return connectionStringValue.ConnectionString;
-
             return null;
         }
     }

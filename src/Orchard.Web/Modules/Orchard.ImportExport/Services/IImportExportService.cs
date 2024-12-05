@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -13,9 +21,7 @@ namespace Orchard.ImportExport.Services {
         IEnumerable<IExportAction> ParseExportActions(XDocument configurationDocument);
         void ConfigureImportActions(ConfigureImportActionsContext context);
     }
-
     public static class ImportExportServiceExtensions {
-
         public static string Import(this IImportExportService service, string recipeText) {
             var context = new ImportActionContext {
                 RecipeDocument = XDocument.Parse(recipeText, LoadOptions.PreserveWhitespace)
@@ -23,10 +29,8 @@ namespace Orchard.ImportExport.Services {
             service.Import(context);
             return context.ExecutionId;
         }
-
         public static string GetExportFileName(this Recipe recipe) {
             string format;
-
             if (String.IsNullOrWhiteSpace(recipe.Name) && String.IsNullOrWhiteSpace(recipe.Version))
                 format = "export.xml";
             else if (String.IsNullOrWhiteSpace(recipe.Version))
@@ -35,8 +39,5 @@ namespace Orchard.ImportExport.Services {
                 format = "export-{1}.recipe.xml";
             else
                 format = "{0}-{1}.recipe.xml";
-
             return String.Format(format, recipe.Name.HtmlClassify(), recipe.Version);
-        }
-    }
 }

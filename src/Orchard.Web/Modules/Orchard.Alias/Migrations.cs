@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Data.Migration;
 
 namespace Orchard.Alias {
@@ -12,20 +20,16 @@ namespace Orchard.Alias {
                                           .Column<string>("RouteValues", c => c.Unlimited())
                                           .Column<string>("Source", c => c.WithLength(256)))
                 .CreateTable("ActionRecord",
-                             table => table
-                                          .Column<int>("Id", column => column.PrimaryKey().Identity())
                                           .Column<string>("Area")
                                           .Column<string>("Controller")
                                           .Column<string>("Action"));
             return 1;
         }
-
         public int UpdateFrom1() {
             SchemaBuilder.AlterTable("AliasRecord",
                     table => table
                         .AddColumn<bool>("IsManaged", column => column.WithDefault(false))
                 );
             return 2;
-        }
     }
 }

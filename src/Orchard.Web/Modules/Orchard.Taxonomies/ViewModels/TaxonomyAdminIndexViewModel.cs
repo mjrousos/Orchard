@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 
 namespace Orchard.Taxonomies.ViewModels {
     public class TaxonomyAdminIndexViewModel {
@@ -7,7 +14,6 @@ namespace Orchard.Taxonomies.ViewModels {
         public TaxonomiesAdminIndexBulkAction BulkAction { get; set; }
         public dynamic Pager { get; set; }
     }
-
     public class TaxonomyEntry {
         public int Id { get; set; }
         public bool IsInternal { get; set; }
@@ -15,10 +21,7 @@ namespace Orchard.Taxonomies.ViewModels {
         public ContentItem ContentItem { get; set; }
         public bool IsChecked { get; set; }
         public bool HasDraft { get; set; }
-    }
-
     public enum TaxonomiesAdminIndexBulkAction {
         None,
         Delete,
-    }
 }

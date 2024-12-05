@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Web;
 using System.Web.Routing;
@@ -10,17 +18,13 @@ using Orchard.Recipes.Services;
 namespace Orchard.Alias.Recipes.Executors {
     public class AliasStep : RecipeExecutionStep {
         private readonly IAliasService _aliasService;
-
         public AliasStep(
             IAliasService aliasService,
             RecipeExecutionLogger logger) : base(logger) {
             _aliasService = aliasService;
         }
-
         public override string Name {
             get { return "Aliases"; }
-        }
-
         /*
         <Aliases>
         <Alias Path="Profile/Edit" Area="Custom.Profile">
@@ -32,31 +36,22 @@ namespace Orchard.Alias.Recipes.Executors {
         </Alias>
         */
         public override void Execute(RecipeExecutionContext context) {
-
             foreach (var aliasElement in context.RecipeStep.Step.Elements()) {
                 var aliasPath = aliasElement.Attribute("Path").Value;
-
                 Logger.Information("Importing alias '{0}'.", aliasPath);
-
                 try {
                     var rvd = new RouteValueDictionary();
-
                     var routeValuesElement = aliasElement.Descendants("RouteValues").FirstOrDefault();
-
                     if (routeValuesElement != null) {
                         foreach (var routeValue in routeValuesElement.Descendants("Add")) {
                             rvd.Add(routeValue.Attribute("Key").Value, routeValue.Attribute("Value").Value);
                         }
                     }
-
                     _aliasService.Set(aliasPath, rvd, "Custom", false);
                 }
-
                 catch (Exception ex) {
                     Logger.Error(ex, "Error while processing alias '{0}'.", aliasPath);
                     throw;
-                }
             }
-        }
     }
 }

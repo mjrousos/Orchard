@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Linq;
 using Orchard.DynamicForms.Elements;
@@ -14,39 +22,25 @@ namespace Orchard.DynamicForms.Handlers {
         public ClientValidationRegistrationCoordinator(IFormService formService) {
             _formService = formService;
         }
-
         void IFormElementEventHandler.RegisterClientValidation(FormElement element, RegisterClientValidationAttributesContext context) {
             var validators = _formService.GetValidators(element).ToArray();
-
             foreach (var validator in validators) {
                 validator.RegisterClientValidation(element, context);
             }
-        }
-
         void IElementEventHandler.Displaying(ElementDisplayingContext context) {
             if (context.DisplayType == "Design")
                 return;
-
             var element = context.Element as FormElement;
-
             if (element == null)
-                return;
-
             var registrationContext = new RegisterClientValidationAttributesContext {
                 FieldName = element.Name
             };
-
             if (element.Form != null && element.Form.EnableClientValidation == true) {
                 _formService.RegisterClientValidationAttributes(element, registrationContext);
-
                 if (registrationContext.ClientAttributes.Any()) {
                     registrationContext.ClientAttributes["data-val"] = "true";
                 }
-            }
-
             context.ElementShape.ClientValidationAttributes = registrationContext.ClientAttributes;
-        }
-
         void IElementEventHandler.CreatingDisplay(ElementCreatingDisplayShapeContext context) { }
         void IElementEventHandler.Displayed(ElementDisplayedContext context) { }
         void IFormElementEventHandler.GetElementValue(FormElement element, ReadElementValuesContext context) { }

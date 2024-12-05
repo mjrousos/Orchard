@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Xml.Linq;
 using Orchard.Core.XmlRpc.Models;
 
@@ -12,26 +20,14 @@ namespace Orchard.Core.XmlRpc.Services {
         /// <param name="rpcMethodResponse">The method response to be mapped.</param>
         /// <returns>The XML element.</returns>
         XElement MapMethodResponse(XRpcMethodResponse rpcMethodResponse);
-
-        /// <summary>
         /// Maps rpc data to XML.
-        /// </summary>
         /// <param name="rpcData">The rpc data.</param>
-        /// <returns>The XML element.</returns>
         XElement MapData(XRpcData rpcData);
-
-        /// <summary>
         /// Maps a rpc struct to XML.
-        /// </summary>
         /// <param name="rpcStruct">The rpc struct.</param>
-        /// <returns>The XML element.</returns>
         XElement MapStruct(XRpcStruct rpcStruct);
-
-        /// <summary>
         /// Maps a rpc array to XML.
-        /// </summary>
         /// <param name="rpcArray">The rpc array.</param>
-        /// <returns>The XML element.</returns>
         XElement MapArray(XRpcArray rpcArray);
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +16,6 @@ namespace Orchard.ContentPermissions.ViewModels {
         
         // list of available roles
         public IList<RoleEntry> AllRoles { get; set; }
-        
         public IList<RoleEntry> ViewRoles { get; set; }
         public IList<RoleEntry> ViewOwnRoles { get; set; }
         public IList<RoleEntry> PublishRoles { get; set; }
@@ -19,25 +26,18 @@ namespace Orchard.ContentPermissions.ViewModels {
         public IList<RoleEntry> DeleteOwnRoles { get; set; }
         public IList<RoleEntry> PreviewRoles { get; set; }
         public IList<RoleEntry> PreviewOwnRoles { get; set; }
-
         public static IList<RoleEntry> ExtractRoleEntries(IEnumerable<string> allRoles, string allowed) {
             if(String.IsNullOrWhiteSpace(allowed)) {
                 allowed = String.Empty;
             }
-
             var allowedRoles = allowed.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
             return allRoles.OrderBy(x => x).Select(x => new RoleEntry { Role = x, Checked = allowedRoles.Contains(x, StringComparer.OrdinalIgnoreCase) }).ToList();
         }
-
         public static string SerializePermissions(IEnumerable<RoleEntry> roleEntries) {
             return String.Join(",", roleEntries.Where(x => x.Checked).Select(x => x.Role).ToArray());
-        }
     }
-
     public class RoleEntry {
         public string Role { get; set; }
         public bool Default { get; set; }
         public bool Checked { get; set; }
-        public bool Enabled { get; set; }
-    }
 }

@@ -1,11 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Orchard.Localization;
 
 namespace Orchard.Rules.Models {
     public class DescribeActionContext {
         private readonly Dictionary<string, DescribeActionFor> _describes = new Dictionary<string, DescribeActionFor>();
-
         public IEnumerable<TypeDescriptor<ActionDescriptor>> Describe() {
             return _describes.Select(kp => new TypeDescriptor<ActionDescriptor> {
                 Category = kp.Key,
@@ -14,11 +20,8 @@ namespace Orchard.Rules.Models {
                 Descriptors = kp.Value.Types
             });
         }
-
         public DescribeActionFor For(string category) {
             return For(category, null, null);
-        }
-
         public DescribeActionFor For(string category, LocalizedString name, LocalizedString description) {
             DescribeActionFor describeFor;
             if (!_describes.TryGetValue(category, out describeFor)) {
@@ -26,8 +29,5 @@ namespace Orchard.Rules.Models {
                 _describes[category] = describeFor;
             }
             return describeFor;
-        }
     }
-
-
 }

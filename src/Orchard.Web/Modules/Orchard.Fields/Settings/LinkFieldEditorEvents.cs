@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
@@ -8,18 +16,15 @@ using System.Globalization;
 
 namespace Orchard.Fields.Settings {
     public class LinkFieldListModeEvents : ContentDefinitionEditorEventsBase {
-
         public override IEnumerable<TemplateViewModel> PartFieldEditor(ContentPartFieldDefinition definition) {
             if (definition.FieldDefinition.Name == "LinkField") {
                 var model = definition.Settings.GetModel<LinkFieldSettings>();
                 yield return DefinitionTemplate(model);
             }
         }
-
         public override IEnumerable<TemplateViewModel> PartFieldEditorUpdate(ContentPartFieldDefinitionBuilder builder, IUpdateModel updateModel) {
             if (builder.FieldType != "LinkField") {
                 yield break;
-            }
             
             var model = new LinkFieldSettings();
             if (updateModel.TryUpdateModel(model, "LinkFieldSettings", null, null)) {
@@ -32,9 +37,5 @@ namespace Orchard.Fields.Settings {
                 builder.WithSetting("LinkFieldSettings.TextPlaceholder", model.TextPlaceholder);
                 builder.WithSetting("LinkFieldSettings.DefaultValue", model.DefaultValue);
                 builder.WithSetting("LinkFieldSettings.TextDefaultValue", model.TextDefaultValue);
-
-                yield return DefinitionTemplate(model);
-            }
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,27 +31,19 @@ using Configuration = NHibernate.Cfg.Configuration;
 namespace Orchard.Data.Providers {
     [Serializable]
     public abstract class AbstractDataServicesProvider : IDataServicesProvider {
-
         public abstract IPersistenceConfigurer GetPersistenceConfigurer(bool createDatabase);
-
         protected AbstractDataServicesProvider() {
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public Configuration BuildConfiguration(SessionFactoryParameters parameters) {
             var database = GetPersistenceConfigurer(parameters.CreateDatabase);
             var persistenceModel = CreatePersistenceModel(parameters.RecordDescriptors.ToList());
-
             var config = Fluently.Configure();
-
             foreach (var c in parameters.Configurers.OfType<ISessionConfigurationEventsWithParameters>()) {
                 c.Parameters = parameters;
             }
-
             parameters.Configurers.Invoke(c => c.Created(config, persistenceModel), Logger);
-
             config = config.Database(database)
                            .Mappings(m => m.AutoMappings.Add(persistenceModel))
                            .ExposeConfiguration(cfg => {
@@ -60,34 +60,21 @@ namespace Orchard.Data.Providers {
                                     .SetProperty(NHibernate.Cfg.Environment.WrapResultSets, Boolean.TrueString)
                                     .SetProperty(NHibernate.Cfg.Environment.BatchSize, "256")
                                     ;
-
                                cfg.EventListeners.LoadEventListeners = new ILoadEventListener[] { new OrchardLoadEventListener() };
                                cfg.EventListeners.PostLoadEventListeners = new IPostLoadEventListener[0];
                                cfg.EventListeners.PreLoadEventListeners = new IPreLoadEventListener[0];
-
                                // don't enable PrepareSql by default as it breaks on SqlCe
                                // this can be done per driver by overriding AlterConfiguration
                                AlterConfiguration(cfg);
-
                                parameters.Configurers.Invoke(c => c.Building(cfg), Logger);
-
                            })
                            ;
-
             parameters.Configurers.Invoke(c => c.Prepared(config), Logger);
-
             return config.BuildConfiguration();
-        }
-
         protected virtual void AlterConfiguration(Configuration config) {
-
-        }
-
         public static AutoPersistenceModel CreatePersistenceModel(ICollection<RecordBlueprint> recordDescriptors) {
             if (recordDescriptors == null) {
                 throw new ArgumentNullException("recordDescriptors");
-            }
-
             return AutoMap.Source(new TypeSource(recordDescriptors))
                 // Ensure that namespaces of types are never auto-imported, so that 
                 // identical type names from different namespaces can be mapped without ambiguity
@@ -103,28 +90,15 @@ namespace Orchard.Data.Providers {
                     alt.Add(new ContentItemAlteration(recordDescriptors));
                 })
                 .Conventions.AddFromAssemblyOf<DataModule>();
-        }
-
         [Serializable]
         class TypeSource : ITypeSource {
             private readonly IEnumerable<RecordBlueprint> _recordDescriptors;
-
             public TypeSource(IEnumerable<RecordBlueprint> recordDescriptors) { _recordDescriptors = recordDescriptors; }
-
             public IEnumerable<Type> GetTypes() { return _recordDescriptors.Select(descriptor => descriptor.Type); }
-
             public void LogSource(IDiagnosticLogger logger) {
                 throw new NotImplementedException();
-            }
-
             public string GetIdentifier() {
-                throw new NotImplementedException();
-            }
-        }
-
-        [Serializable]
         class OrchardLoadEventListener : DefaultLoadEventListener, ILoadEventListener {
-
             public new void OnLoad(LoadEvent @event, LoadType loadType) {
                 var source = (ISessionImplementor)@event.Session;
                 IEntityPersister entityPersister;
@@ -135,10 +109,8 @@ namespace Orchard.Data.Providers {
                     entityPersister = source.Factory.GetEntityPersister(@event.EntityClassName);
                 if (entityPersister == null)
                     throw new HibernateException("Unable to locate persister: " + @event.EntityClassName);
-
                 //a hack to handle unused ContentPartRecord proxies on ContentItemRecord or ContentItemVersionRecord.
                 //I don't know why it actually works, or how to do it right
-
                 //if (!entityPersister.IdentifierType.IsComponentType)
                 //{
                 //    Type returnedClass = entityPersister.IdentifierType.ReturnedClass;
@@ -151,9 +123,7 @@ namespace Orchard.Data.Providers {
                 //      (object) @event.EntityId.GetType()
                 //    }));
                 //}
-
                 var keyToLoad = new EntityKey(@event.EntityId, entityPersister);
-
                 if (loadType.IsNakedEntityReturned) {
                     @event.Result = Load(@event, entityPersister, keyToLoad, loadType);
                 } else if (@event.LockMode == LockMode.None) {
@@ -161,7 +131,5 @@ namespace Orchard.Data.Providers {
                 } else {
                     @event.Result = LockAndLoad(@event, entityPersister, keyToLoad, loadType, source);
                 }
-            }
-        }
     }
 }

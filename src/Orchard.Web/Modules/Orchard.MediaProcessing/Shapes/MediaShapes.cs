@@ -1,9 +1,15 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Orchard.ContentManagement;
-using Orchard.DisplayManagement;
 using Orchard.Environment;
 using Orchard.Forms.Services;
 using Orchard.Logging;
@@ -14,13 +20,10 @@ namespace Orchard.MediaProcessing.Shapes {
     
     public class MediaShapes : IDependency {
         private readonly Work<IImageProfileManager> _imageProfileManager;
-
         public MediaShapes(Work<IImageProfileManager> imageProfileManager) {
             _imageProfileManager = imageProfileManager;
         }
-
         public ILogger Logger { get; set; }
-
         [Shape]
         public void ResizeMediaUrl(dynamic Shape, dynamic Display, TextWriter Output, ContentItem ContentItem, string Path, int Width, int Height, string Mode, string Alignment, string PadColor, string Scale= "upscaleOnly") {
             var state = new Dictionary<string, string> {
@@ -31,13 +34,10 @@ namespace Orchard.MediaProcessing.Shapes {
                 {"PadColor", PadColor},
                 {"Scale", Scale},
             };
-
             var filter = new FilterRecord {
                 Category = "Transform",
                 Type = "Resize",
                 State = FormParametersHelper.ToString(state)
-            };
-
             var profile = "Transform_Resize"
                 + "_w_" + Convert.ToString(Width) 
                 + "_h_" + Convert.ToString(Height) 
@@ -45,11 +45,7 @@ namespace Orchard.MediaProcessing.Shapes {
                 + "_a_" + Convert.ToString(Alignment) 
                 + "_c_" + Convert.ToString(PadColor)
                 + "_s_" + Convert.ToString(Scale);
-
             MediaUrl(Shape, Display, Output, profile, Path, ContentItem, filter);
-        }
-
-        [Shape]
         public void MediaUrl(dynamic Shape, dynamic Display, TextWriter Output, string Profile, string Path, ContentItem ContentItem, FilterRecord CustomFilter) {
             try {
                 Shape.IgnoreShapeTracer = true;
@@ -57,8 +53,5 @@ namespace Orchard.MediaProcessing.Shapes {
             }
             catch (Exception ex) {
                 Logger.Error(ex, "An error occurred while rendering shape {0} for image {1}", Profile, Path);
-            }
-        }
-
     }
 }

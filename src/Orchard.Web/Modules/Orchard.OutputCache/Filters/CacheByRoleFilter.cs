@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,7 +13,6 @@ using System.Text;
 using Orchard.Data;
 using Orchard.Environment.Extensions;
 using Orchard.Roles.Models;
-using Orchard.Security;
 
 namespace Orchard.OutputCache.Filters {
     [OrchardFeature("Orchard.OutputCache.CacheByRole")]
@@ -16,7 +23,6 @@ namespace Orchard.OutputCache.Filters {
         private readonly IRepository<RoleRecord> _roleRepo;
         private readonly IRepository<RolesPermissionsRecord> _rolesPermissionsRepo;
         private readonly IRepository<PermissionRecord> _permissionRepo;
-
         public CacheByRoleFilter(
             IAuthenticationService authenticationService,
             IAuthorizer authorizer,
@@ -24,7 +30,6 @@ namespace Orchard.OutputCache.Filters {
             IRepository<RoleRecord> roleRepo,
             IRepository<RolesPermissionsRecord> rolesPermissionsRepo,
             IRepository<PermissionRecord> permissionRepo) {
-
             _authenticationService = authenticationService;
             _authorizer = authorizer;
             _userRolesRepo = userRolesRepo;
@@ -32,20 +37,17 @@ namespace Orchard.OutputCache.Filters {
             _rolesPermissionsRepo = rolesPermissionsRepo;
             _permissionRepo = permissionRepo;
         }
-
         public void KeyGenerated(StringBuilder key) {
             // Can the queries in this method be optimized away so that their results can be memorized
             // at least within the scope of a request?
             List<UserPermission> userRolesPermissions = new List<UserPermission>();
             IQueryable<UserPermission> userRolesPermissionsQuery = Enumerable.Empty<UserPermission>().AsQueryable();
             IQueryable<UserPermission> permissionsQuery = Enumerable.Empty<UserPermission>().AsQueryable();
-
             var currentUser = _authenticationService.GetAuthenticatedUser();
             if (currentUser != null) {
                 // add the Authenticated role and its permissions
                 // the Authenticated role is not assigned to the current user
                 permissionsQuery = GetPermissionsFromRole("Authenticated");
-
                 if (_authorizer.Authorize(StandardPermissions.SiteOwner)) {
                     // The SuperUser is a SiteOwner that has no assigned role. To properly manage
                     // that case we make up a "fake" UserPermission here to add to SiteOwners. We
@@ -68,7 +70,6 @@ namespace Orchard.OutputCache.Filters {
                     // to users with different roles, even when they happen to have all permissions.
                 }
                 else {
-                    userRolesPermissionsQuery = _userRolesRepo
                         // get user roles and permissions
                         .Table.Where(usr => usr.UserId == currentUser.Id)
                         // given the ids of the roles related to the user
@@ -82,58 +83,38 @@ namespace Orchard.OutputCache.Filters {
                         )
                         // join table RolePermissionRecord
                         // for each role, get id of role permissions
-                        .Join(
                             _rolesPermissionsRepo.Table,
                             obj => obj.ContentItemRecord,
                             rp => rp.Role,
                             (obj, rp) => rp
-                        )
                         // join PermissionRecord
                         // for each id permission get feature and permission name
-                        .Join(
                             _permissionRepo.Table,
                             rp => rp.Permission.Id,
                             p => p.Id,
                             (rp, p) => new UserPermission { RoleName = rp.Role.Name, PermissionName = p.FeatureName + "." + p.Name }
                         );
-                }
             }
             else {
                 // the anonymous user has no roles, get its permissions
                 permissionsQuery = GetPermissionsFromRole("Anonymous");
-            }
-
             if (userRolesPermissionsQuery.Any()) {
                 userRolesPermissions.AddRange(userRolesPermissionsQuery
                     .ToList());
-            }
             if (permissionsQuery.Any()) {
                 userRolesPermissions.AddRange(permissionsQuery
-                    .ToList());
-            }
-
             if (userRolesPermissions.Any()) {
-
                 var userRoles = String.Join(";", userRolesPermissions
                     .Select(r => r.RoleName)
                     .Distinct()
                     .OrderBy(s => s));
-
                 var userPermissions = String.Join(";", userRolesPermissions
                     .Select(p => p.PermissionName)
                     .Distinct() // permissions may be duplicate: two different roles may give the same permission
-                    .OrderBy(s => s));
-
-
                 key.Append(string.Format("UserRoles={0};UserPermissions={1};",
                     userRoles.GetHashCode(),
                     userPermissions.GetHashCode()));
-            }
-            else {
                 key.Append("UserRoles=;UserPermissions=;");
-            }
-        }
-
         private const string _siteOwnerRoleName = "SiteOwnerRole";
         private IEnumerable<string> _siteOwnerRoleNames;
         private string SiteOwnerRoleName() {
@@ -145,8 +126,6 @@ namespace Orchard.OutputCache.Filters {
                     .ToList()
                     .Distinct() // sanity check
                     ;
-            }
-
             var roleName = _siteOwnerRoleName;
             if (_siteOwnerRoleNames.Any() && _siteOwnerRoleNames.Contains(roleName)) {
                 // compute unique and repeatable roleName
@@ -155,10 +134,7 @@ namespace Orchard.OutputCache.Filters {
                     roleName = $"{_siteOwnerRoleName}-{i}";
                     i++;
                 } while (_siteOwnerRoleNames.Contains(roleName));
-            }
             return roleName;
-        }
-
         private IQueryable<UserPermission> GetPermissionsFromRole(string role) {
             return _roleRepo
                 .Table.Where(r => r.Name == role)
@@ -168,20 +144,16 @@ namespace Orchard.OutputCache.Filters {
                     rp => rp.Role.Id,
                     (obj, rp) => rp
                 )
-                .Join(
                     _permissionRepo.Table,
                     rp => rp.Permission.Id,
                     p => p.Id,
                     (rp, p) => new UserPermission { RoleName = rp.Role.Name, PermissionName = p.FeatureName + "." + p.Name }
                 );
-        }
     }
     public class UserPermission {
         public UserPermission() {
             RoleName = string.Empty;
             PermissionName = string.Empty;
-        }
         public string RoleName { get; set; }
         public string PermissionName { get; set; }
-    }
 }

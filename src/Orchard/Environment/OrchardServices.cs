@@ -1,15 +1,19 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Data;
-using Orchard.ContentManagement;
-using Orchard.DisplayManagement;
-using Orchard.Security;
 using Orchard.UI.Notify;
 
 namespace Orchard.Environment {
     public class OrchardServices : IOrchardServices {
         private readonly Lazy<IShapeFactory> _shapeFactory;
         private readonly IWorkContextAccessor _workContextAccessor;
-
         public OrchardServices(
             IContentManager contentManager,
             ITransactionManager transactionManager,
@@ -24,7 +28,6 @@ namespace Orchard.Environment {
             Authorizer = authorizer;
             Notifier = notifier;
         }
-
         public IContentManager ContentManager { get; private set; }
         public ITransactionManager TransactionManager { get; private set; }
         public IAuthorizer Authorizer { get; private set; }

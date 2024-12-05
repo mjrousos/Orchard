@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Web;
 using Autofac;
@@ -11,7 +19,6 @@ namespace Orchard.Tests.Time {
         private IContainer _container;
         private IWorkContextStateProvider _workContextStateProvider;
         private TestTimeZoneSelector _timeZoneSelector;
-
         [SetUp]
         public void Init() {
             var builder = new ContainerBuilder();
@@ -24,70 +31,35 @@ namespace Orchard.Tests.Time {
             _container = builder.Build();
             _workContextStateProvider = _container.Resolve<IWorkContextStateProvider>();
         }
-
         [Test]
         public void ShouldProvideCurrentTimeZoneOnly() {
             _timeZoneSelector.TimeZone = null;
             var timeZone = _workContextStateProvider.Get<TimeZoneInfo>("Foo");
-
             Assert.That(timeZone, Is.Null);
-        }
-
-        [Test]
         public void DefaultTimeZoneIsLocal() {
             _timeZoneSelector.Priority = -200;
             var timeZone = _workContextStateProvider.Get<TimeZoneInfo>("CurrentTimeZone");
-
             Assert.That(timeZone(new StubWorkContext()), Is.EqualTo(TimeZoneInfo.Local));
-        }
-
-        [Test]
         public void TimeZoneProviderReturnsTimeZoneFromSelector() {
             _timeZoneSelector.Priority = 999;
             _timeZoneSelector.TimeZone = TimeZoneInfo.Utc;
-            var timeZone = _workContextStateProvider.Get<TimeZoneInfo>("CurrentTimeZone");
-
             Assert.That(timeZone(new StubWorkContext()), Is.EqualTo(TimeZoneInfo.Utc));
-        }
-
     }
-
     public class TestTimeZoneSelector : ITimeZoneSelector {
         public TimeZoneInfo TimeZone { get; set; }
         public int Priority { get; set; }
-
         public TimeZoneSelectorResult GetTimeZone(HttpContextBase context) {
             return new TimeZoneSelectorResult {
                 Priority = Priority, 
                 TimeZone= TimeZone
             };
-        }
-    }
-
     public class StubWorkContext : WorkContext {
         public override T Resolve<T>() {
             throw new NotImplementedException();
-        }
-
         public override object Resolve(Type serviceType) {
-            throw new NotImplementedException();
-        }
-
         public override bool TryResolve<T>(out T service) {
-            throw new NotImplementedException();
-        }
-
         public override bool TryResolve(Type serviceType, out object service) {
-            throw new NotImplementedException();
-        }
-
         public override T GetState<T>(string name) {
             return default(T);
-        }
-
         public override void SetState<T>(string name, T value) {
-            
-        }
-    }
 }
-

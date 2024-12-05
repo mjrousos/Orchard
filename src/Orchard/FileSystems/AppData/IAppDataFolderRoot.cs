@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Web.Hosting;
 
 namespace Orchard.FileSystems.AppData {
@@ -10,19 +18,13 @@ namespace Orchard.FileSystems.AppData {
         /// Virtual path of root ("~/App_Data")
         /// </summary>
         string RootPath { get; }
-        /// <summary>
         /// Physical path of root (typically: MapPath(RootPath))
-        /// </summary>
         string RootFolder { get; }
     }
-
     public class AppDataFolderRoot : IAppDataFolderRoot {
         public string RootPath {
             get { return "~/App_Data"; }
         }
-
         public string RootFolder {
             get { return HostingEnvironment.MapPath(RootPath); }
-        }
-    }
 }

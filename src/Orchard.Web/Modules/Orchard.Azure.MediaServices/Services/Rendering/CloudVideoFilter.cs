@@ -1,4 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,10 +14,7 @@ using System.Text;
 using System.Xml;
 using HtmlAgilityPack;
 using Orchard.Azure.MediaServices.Models;
-using Orchard.ContentManagement;
-using Orchard.DisplayManagement;
 using Orchard.MediaLibrary.Models;
-using Orchard.Services;
 
 namespace Orchard.Azure.MediaServices.Services.Rendering {
     public class CloudVideoFilter : HtmlFilter {
@@ -98,7 +103,7 @@ namespace Orchard.Azure.MediaServices.Services.Rendering {
 
             foreach (var node in cloudVideoNodes) {
                 var videoId = GetInt32(node, "data-player-video-id");
-                
+
                 if (videoId > 0) {
                     dictionary[videoId] = node;
                 }

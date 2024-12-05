@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
 using Orchard.Core.Contents.Settings;
-using Orchard.Security;
 using Orchard.Security.Permissions;
 using Orchard.Widgets.Models;
 
@@ -9,7 +16,6 @@ namespace Orchard.Widgets.Security {
     public class AuthorizationEventHandler : IAuthorizationServiceEventHandler {
         public void Checking(CheckAccessContext context) { }
         public void Complete(CheckAccessContext context) { }
-
         public void Adjust(CheckAccessContext context) {
             Permission permission = context.Permission;
             // adjusting permissions only if the content is not securable
@@ -22,34 +28,21 @@ namespace Orchard.Widgets.Security {
                             permission = Permissions.ManageWidgets;
                         }
                         else if (context.Permission == TryGetOwnerVariation(Core.Contents.Permissions.EditContent, context)) {
-                            permission = Permissions.ManageWidgets;
-                        }
                         else if (context.Permission == TryGetOwnerVariation(Core.Contents.Permissions.PublishContent, context)) {
-                            permission = Permissions.ManageWidgets;
-                        }
                         else if (context.Permission == TryGetOwnerVariation(Core.Contents.Permissions.DeleteContent, context)) {
-                            permission = Permissions.ManageWidgets;
-                        }
                     }
                     if (permission != context.Permission) {
                         context.Permission = permission;
                         context.Adjusted = true;
-                    }
                 }
             }
         }
-
         private static bool HasOwnership(IUser user, IContent content) {
             if (user == null || content == null)
                 return false;
-
             var common = content.As<ICommonPart>();
             if (common == null || common.Owner == null)
-                return false;
-
             return user.Id == common.Owner.Id;
-        }
-
         private static Permission TryGetOwnerVariation(Permission permission, CheckAccessContext context) {
             if (HasOwnership(context.User, context.Content)) {
                 if (permission.Name == Core.Contents.Permissions.PublishContent.Name)
@@ -62,12 +55,8 @@ namespace Orchard.Widgets.Security {
                     return Core.Contents.Permissions.ViewOwnContent;
                 if (permission.Name == Core.Contents.Permissions.PreviewContent.Name)
                     return Core.Contents.Permissions.PreviewOwnContent;
-
                 return null;
-            }
             else {
                 return permission;
-            }
-        }
     }
 }

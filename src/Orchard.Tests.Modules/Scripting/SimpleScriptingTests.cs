@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using NUnit.Framework;
 using Orchard.Scripting;
@@ -11,15 +19,9 @@ namespace Orchard.Tests.Modules.Scripting {
             var engine = new ScriptExpressionEvaluator(new StubCacheManager());
             Assert.That(() => engine.Evaluate("true+", Enumerable.Empty<IGlobalMethodProvider>()), Throws.Exception);
         }
-        [Test]
         public void EngineUnderstandsPrimitiveValues() {
-            var engine = new ScriptExpressionEvaluator(new StubCacheManager());
             Assert.That(engine.Evaluate("true", Enumerable.Empty<IGlobalMethodProvider>()), Is.True);
-        }
-        [Test]
         public void EngineUnderstandsPrimitiveValues2() {
-            var engine = new ScriptExpressionEvaluator(new StubCacheManager());
             Assert.That(engine.Evaluate("true and true", Enumerable.Empty<IGlobalMethodProvider>()), Is.True);
-        }
     }
 }

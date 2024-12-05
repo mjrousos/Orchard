@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿namespace Orchard.Fields.Settings {
     public class LinkFieldSettings {
         public string Hint { get; set; }
@@ -15,15 +23,12 @@
             LinkTextMode = LinkTextMode.Optional;
         }
     }
-
     public enum TargetMode {
         None,
         NewWindow,
         Parent,
         Top,
         UserChoice
-    }
-
     public enum LinkTextMode {
         // some text can be entered or not, if not the url is used
         Optional,
@@ -33,5 +38,4 @@
         Static,
         // the url is used
         Url
-    }
 }

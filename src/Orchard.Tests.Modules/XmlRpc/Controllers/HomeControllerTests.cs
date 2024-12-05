@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Xml.Linq;
 using Autofac;
 using NUnit.Framework;
@@ -21,30 +29,21 @@ namespace Orchard.Tests.Modules.XmlRpc.Controllers {
             builder.RegisterType<XmlRpcWriter>().As<IXmlRpcWriter>();
             builder.RegisterInstance(thing1).As<IXmlRpcHandler>();
             builder.RegisterInstance(thing2).As<IXmlRpcHandler>();
-
             var container = builder.Build();
-
             var controller = container.Resolve<HomeController>();
-
             Assert.That(thing1.ProcessCalls, Is.EqualTo(0));
             Assert.That(thing2.ProcessCalls, Is.EqualTo(0));
-
             var result = controller.ServiceEndpoint(new XRpcMethodCall());
             Assert.That(result, Is.Not.Null);
             Assert.That(thing1.ProcessCalls, Is.EqualTo(1));
             Assert.That(thing2.ProcessCalls, Is.EqualTo(1));
-
         }
-
         public class StubHandler : IXmlRpcHandler {
             public void SetCapabilities(XElement element) {}
-
             public void Process(XmlRpcContext context) {
                 ProcessCalls++;
                 context.Response = new XRpcMethodResponse();
             }
-
             public int ProcessCalls { get; set; }
-        }
     }
 }

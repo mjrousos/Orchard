@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,33 +18,25 @@ namespace Orchard.ImportExport.Services {
     public class DatabaseManager : Component, IDatabaseManager {
         private readonly ISessionFactoryHolder _sessionFactoryHolder;
         private readonly IDataMigrationInterpreter _dataMigrationInterpreter;
-
         public DatabaseManager(
             ISessionFactoryHolder sessionFactoryHolder, 
             IDataMigrationInterpreter dataMigrationInterpreter) {
-
             _sessionFactoryHolder = sessionFactoryHolder;
             _dataMigrationInterpreter = dataMigrationInterpreter;
         }
-
         public IEnumerable<string> GetTenantDatabaseTableNames() {
             var configuration = _sessionFactoryHolder.GetConfiguration();
             var result = configuration.ClassMappings.Select(x => x.Table.Name);
             return result.ToArray();
-        }
-
         public void DropTenantDatabaseTables() {
             var tableNames = GetTenantDatabaseTableNames();
             var schemaBuilder = new SchemaBuilder(_dataMigrationInterpreter);
-
             foreach (var tableName in tableNames) {
                 try {
                     schemaBuilder.DropTable(schemaBuilder.RemoveDataTablePrefix(tableName));
                 }
                 catch (Exception ex) {
                     Logger.Warning(ex, "Failed to drop table '{0}'.", tableName);
-                }
             }
-        }
     }
 }

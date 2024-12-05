@@ -1,13 +1,19 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.Environment.Extensions.Models;
 using Orchard.Security.Permissions;
 
 namespace Orchard.Core.Contents {
     public class Permissions : IPermissionProvider {
-
         // Note - in code you should demand PublishContent, EditContent, or DeleteContent
         // Do not demand the "Own" variations - those are applied automatically when you demand the main ones
-
         public static readonly Permission CreateContent = new Permission { Description = "Create content", Name = "CreateContent" };
         public static readonly Permission PublishContent = new Permission { Description = "Publish or unpublish content for others", Name = "PublishContent" };
         public static readonly Permission PublishOwnContent = new Permission { Description = "Publish or unpublish own content", Name = "PublishOwnContent", ImpliedBy = new[] { PublishContent } };
@@ -19,12 +25,8 @@ namespace Orchard.Core.Contents {
         public static readonly Permission ViewOwnContent = new Permission { Description = "View own content", Name = "ViewOwnContent", ImpliedBy = new[] { ViewContent } };
         public static readonly Permission PreviewContent = new Permission { Description = "Preview content", Name = "PreviewContent", ImpliedBy = new[] { EditContent, PublishContent } };
         public static readonly Permission PreviewOwnContent = new Permission { Description = "Preview own content", Name = "PreviewOwnContent", ImpliedBy = new[] { PreviewContent } };
-
-
         public static readonly Permission MetaListContent = new Permission { ImpliedBy = new[] { EditOwnContent, PublishOwnContent, DeleteOwnContent } };
-
         public virtual Feature Feature { get; set; }
-
         public IEnumerable<Permission> GetPermissions() {
             return new[] {
                 EditOwnContent,
@@ -40,38 +42,20 @@ namespace Orchard.Core.Contents {
                 CreateContent
             };
         }
-
         public IEnumerable<PermissionStereotype> GetDefaultStereotypes() {
-            return new[] {
                 new PermissionStereotype {
                     Name = "Administrator",
                     Permissions = new[] {PublishContent,EditContent,DeleteContent,PreviewContent, CreateContent }
                 },
-                new PermissionStereotype {
                     Name = "Editor",
                     Permissions = new[] {PublishContent,EditContent,DeleteContent, PreviewContent, CreateContent }
-                },
-                new PermissionStereotype {
                     Name = "Moderator"
-                },
-                new PermissionStereotype {
                     Name = "Author",
                     Permissions = new[] {PublishOwnContent,EditOwnContent,DeleteOwnContent,PreviewOwnContent, CreateContent }
-                },
-                new PermissionStereotype {
                     Name = "Contributor",
                     Permissions = new[] {EditOwnContent,PreviewOwnContent, CreateContent }
-                },
-                new PermissionStereotype {
                     Name = "Authenticated",
                     Permissions = new[] {ViewContent}
-                },
-                new PermissionStereotype {
                     Name = "Anonymous",
-                    Permissions = new[] {ViewContent}
-                },
-            };
-        }
-
     }
 }

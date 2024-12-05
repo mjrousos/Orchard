@@ -1,10 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Orchard.Caching;
 using Orchard.FileSystems.AppData;
-using Orchard.Localization;
 using Orchard.Utility.Extensions;
 
 namespace Orchard.FileSystems.Dependencies {
@@ -14,57 +21,40 @@ namespace Orchard.FileSystems.Dependencies {
         private readonly ICacheManager _cacheManager;
         private readonly IAppDataFolder _appDataFolder;
         private readonly InvalidationToken _writeThroughToken;
-
         public DefaultDependenciesFolder(ICacheManager cacheManager, IAppDataFolder appDataFolder) {
             _cacheManager = cacheManager;
             _appDataFolder = appDataFolder;
             _writeThroughToken = new InvalidationToken();
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
         public bool DisableMonitoring { get; set; }
-
         private string PersistencePath {
             get { return _appDataFolder.Combine(BasePath, FileName); }
-        }
-
         public DependencyDescriptor GetDescriptor(string moduleName) {
             return LoadDescriptors().SingleOrDefault(d => StringComparer.OrdinalIgnoreCase.Equals(d.Name, moduleName));
-        }
-
         public IEnumerable<DependencyDescriptor> LoadDescriptors() {
             return _cacheManager.Get(PersistencePath, true,
                                      ctx => {
                                          _appDataFolder.CreateDirectory(BasePath);
-
                                          if (!DisableMonitoring) {
                                              ctx.Monitor(_appDataFolder.WhenPathChanges(ctx.Key));
                                          }
-
                                          _writeThroughToken.IsCurrent = true;
                                          ctx.Monitor(_writeThroughToken);
-
                                          return ReadDependencies(ctx.Key).ToReadOnlyCollection();
                                      });
-        }
-
         public void StoreDescriptors(IEnumerable<DependencyDescriptor> dependencyDescriptors) {
             var existingDescriptors = LoadDescriptors().OrderBy(d => d.Name);
             var newDescriptors = dependencyDescriptors.OrderBy(d => d.Name);
-
             if (!newDescriptors.SequenceEqual(existingDescriptors, new DependencyDescriptorComparer())) {
                 WriteDependencies(PersistencePath, dependencyDescriptors);
             }
-        }
-
         private IEnumerable<DependencyDescriptor> ReadDependencies(string persistancePath) {
             Func<string, XName> ns = (name => XName.Get(name));
             Func<XElement, string, string> elem = (e, name) => e.Element(ns(name)).Value;
-
             if (!_appDataFolder.FileExists(persistancePath))
                 return Enumerable.Empty<DependencyDescriptor>();
-
             using (var stream = _appDataFolder.OpenFile(persistancePath)) {
                 XDocument document = XDocument.Load(stream);
                 return document
@@ -79,12 +69,7 @@ namespace Orchard.FileSystems.Dependencies {
                             LoaderName = elem(r, "LoaderName"),
                             VirtualPath = elem(r, "VirtualPath")
                     })}).ToList();
-            }
-        }
-
         private void WriteDependencies(string persistancePath, IEnumerable<DependencyDescriptor> dependencies) {
-            Func<string, XName> ns = (name => XName.Get(name));
-
             var document = new XDocument();
             document.Add(new XElement(ns("Dependencies")));
             var elements = dependencies.Select(d => new XElement("Dependency",
@@ -96,56 +81,30 @@ namespace Orchard.FileSystems.Dependencies {
                                                                         new XElement(ns("Name"), r.Name),
                                                                         new XElement(ns("LoaderName"), r.LoaderName),
                                                                         new XElement(ns("VirtualPath"), r.VirtualPath))).ToArray())));
-
             document.Root.Add(elements);
-
             using (var stream = _appDataFolder.CreateFile(persistancePath)) {
                 document.Save(stream, SaveOptions.None);
-            }
-
             // Ensure cache is invalidated right away, not waiting for file change notification to happen
             _writeThroughToken.IsCurrent = false;
-        }
-
         private class InvalidationToken : IVolatileToken {
             public bool IsCurrent { get; set; }
-        }
-
         private class DependencyDescriptorComparer : EqualityComparer<DependencyDescriptor> {
             private readonly ReferenceDescriptorComparer _referenceDescriptorComparer = new ReferenceDescriptorComparer();
-
             public override bool Equals(DependencyDescriptor x, DependencyDescriptor y) {
                 return
                     StringComparer.OrdinalIgnoreCase.Equals(x.Name, y.Name) &&
                     StringComparer.OrdinalIgnoreCase.Equals(x.LoaderName, y.LoaderName) &&
                     StringComparer.OrdinalIgnoreCase.Equals(x.VirtualPath, y.VirtualPath) &&
                     x.References.SequenceEqual(y.References, _referenceDescriptorComparer);
-            }
-
             public override int GetHashCode(DependencyDescriptor obj) {
-                return
                     StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Name) ^
                     StringComparer.OrdinalIgnoreCase.GetHashCode(obj.LoaderName) ^
                     StringComparer.OrdinalIgnoreCase.GetHashCode(obj.VirtualPath) ^
                     obj.References.Aggregate(0, (a, entry) => a + _referenceDescriptorComparer.GetHashCode(entry));
-            }
-        }
-
         private class ReferenceDescriptorComparer : EqualityComparer<DependencyReferenceDescriptor> {
             public override bool Equals(DependencyReferenceDescriptor x, DependencyReferenceDescriptor y) {
-                return
-                    StringComparer.OrdinalIgnoreCase.Equals(x.Name, y.Name) &&
-                    StringComparer.OrdinalIgnoreCase.Equals(x.LoaderName, y.LoaderName) &&
                     StringComparer.OrdinalIgnoreCase.Equals(x.VirtualPath, y.VirtualPath);
-
-            }
-
             public override int GetHashCode(DependencyReferenceDescriptor obj) {
-                return
-                    StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Name) ^
-                    StringComparer.OrdinalIgnoreCase.GetHashCode(obj.LoaderName) ^
                     StringComparer.OrdinalIgnoreCase.GetHashCode(obj.VirtualPath);
-            }
-        }
     }
 }

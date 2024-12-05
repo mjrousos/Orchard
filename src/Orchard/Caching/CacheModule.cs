@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using Autofac;
@@ -9,13 +17,11 @@ namespace Orchard.Caching {
                 .As<ICacheManager>()
                 .InstancePerDependency();
         }
-
         protected override void AttachToComponentRegistration(Autofac.Core.IComponentRegistry componentRegistry, Autofac.Core.IComponentRegistration registration) {
             var needsCacheManager = registration.Activator.LimitType
                 .GetConstructors()
                 .Any(x => x.GetParameters()
                     .Any(xx => xx.ParameterType == typeof(ICacheManager)));
-
             if (needsCacheManager) {
                 registration.Preparing += (sender, e) => {
                     var parameter = new TypedParameter(
@@ -24,6 +30,5 @@ namespace Orchard.Caching {
                     e.Parameters = e.Parameters.Concat(new[] { parameter });
                 };
             }
-        }
     }
 }

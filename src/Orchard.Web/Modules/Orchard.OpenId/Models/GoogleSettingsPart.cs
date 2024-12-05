@@ -1,13 +1,19 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
+using System.ComponentModel.DataAnnotations;
 using Orchard.Environment.Extensions;
 
 namespace Orchard.OpenId.Models
 {
     [OrchardFeature("Orchard.OpenId.Google")]
     public class GoogleSettingsPart : ContentPart {
-
         public string ClientId {
             get { return this.Retrieve(x => x.ClientId, () => Constants.Google.DefaultClientId); }
             set { this.Store(x => x.ClientId, value); }
@@ -32,10 +38,8 @@ namespace Orchard.OpenId.Models
                 String.IsNullOrWhiteSpace(CallbackPath) ||
                 CallbackPath.StartsWith("/") == false ||
                 CallbackPath.Length < 2) {
-
                 return false;
             }
-
             return true;
         }
     }

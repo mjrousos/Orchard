@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Web;
 using System.Web.Routing;
@@ -13,27 +21,15 @@ namespace Orchard.OutputCache.Services {
         /// <param name="key">The key representing the route</param>
         /// <returns>A <see cref="CacheParameterRecord"/> instance for the specified key, or <c>null</c></returns>
         CacheParameterRecord GetCacheParameterByKey(string key);
-
-        /// <summary>
         /// Removes all cache entries associated with a specific tag.
-        /// </summary>
         /// <param name="tag">The tag value.</param>
         void RemoveByTag(string tag);
-
-        /// <summary>
         /// Returns the key representing a specific route in the DB.
-        /// </summary>
         string GetRouteDescriptorKey(HttpContextBase httpContext, RouteBase route);
-
-        /// <summary>
         /// Saves a set of <see cref="CacheRouteConfig"/> to the database.
-        /// </summary>
         /// <param name="routeConfigs"></param>
         void SaveRouteConfigs(IEnumerable<CacheRouteConfig> routeConfigs);
-
-        /// <summary>
         /// Returns all defined configurations for specific routes.
-        /// </summary>
         IEnumerable<CacheRouteConfig> GetRouteConfigs();
     }
 }

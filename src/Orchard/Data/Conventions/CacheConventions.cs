@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using FluentNHibernate.Conventions;
@@ -12,47 +20,19 @@ namespace Orchard.Data.Conventions {
         ICollectionConvention, ICollectionConventionAcceptance,
         IHasManyConvention, IHasManyConventionAcceptance,
         IHasManyToManyConvention, IHasManyToManyConventionAcceptance {
-
         private readonly IEnumerable<RecordBlueprint> _descriptors;
-
         public CacheConventions(IEnumerable<RecordBlueprint> descriptors) {
             _descriptors = descriptors;
         }
-
-
         public void Apply(IClassInstance instance) {
             instance.Cache.ReadWrite();
-        }
-
         public void Accept(IAcceptanceCriteria<IClassInspector> criteria) {
             criteria.Expect(x => _descriptors.Any(d => d.Type.Name == x.EntityType.Name));
-        }
-
-
         public void Apply(IOneToManyCollectionInstance instance) {
-            instance.Cache.ReadWrite();
-        }
-
         public void Accept(IAcceptanceCriteria<IOneToManyCollectionInspector> criteria) {
-            criteria.Expect(x => _descriptors.Any(d => d.Type.Name == x.EntityType.Name));
-        }
-
-
         public void Apply(IManyToManyCollectionInstance instance) {
-            instance.Cache.ReadWrite();
-        }
-
         public void Accept(IAcceptanceCriteria<IManyToManyCollectionInspector> criteria) {
-            criteria.Expect(x => _descriptors.Any(d => d.Type.Name == x.EntityType.Name));
-        }
-
-
         public void Apply(ICollectionInstance instance) {
-            instance.Cache.ReadWrite();
-        }
-
         public void Accept(IAcceptanceCriteria<ICollectionInspector> criteria) {
-            criteria.Expect(x => _descriptors.Any(d => d.Type.Name == x.EntityType.Name));
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Web.Routing;
@@ -5,7 +13,6 @@ using System.Web.Routing;
 namespace Orchard.ContentManagement {
     public class ContentItemMetadata {
         private RouteValueDictionary _adminRouteValues;
-
         public ContentItemMetadata() {
             Identity = new ContentIdentity();
         }
@@ -18,18 +25,14 @@ namespace Orchard.ContentManagement {
         public RouteValueDictionary AdminRouteValues {
             get { return _adminRouteValues ?? EditorRouteValues; }
             set { _adminRouteValues = value; }
-        }
         public readonly IDictionary<string, Func<RouteValueDictionary>> RouteValues = new Dictionary<string, Func<RouteValueDictionary>>();
-
         public readonly IList<GroupInfo> DisplayGroupInfo = new List<GroupInfo>();
         public readonly IList<GroupInfo> EditorGroupInfo = new List<GroupInfo>();
     }
-
     public enum ContentItemRoute {
         Admin,
         Create,
         Editor,
         Remove,
         Display
-    }
 }

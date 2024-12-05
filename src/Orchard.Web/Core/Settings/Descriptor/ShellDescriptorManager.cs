@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,25 +33,20 @@ namespace Orchard.Core.Settings.Descriptor {
             ILockingProvider lockingProvider,
             ICacheManager cacheManager,
             ISignals signals) {
-
             _shellDescriptorRepository = shellDescriptorRepository;
             _events = events;
             _shellSettings = shellSettings;
             _lockingProvider = lockingProvider;
             _cacheManager = cacheManager;
             _signals = signals;
-
             _lockString = string.Join(".",
                 _shellSettings["Name"] ?? "",
                 "ShellDescriptorManager");
         }
-
         public ShellDescriptor GetShellDescriptor() {
             ShellDescriptorRecord shellDescriptorRecord = GetDescriptorRecord();
             if (shellDescriptorRecord == null) return null;
             return GetShellDescriptorFromRecord(shellDescriptorRecord);
-        }
-
         private static ShellDescriptor GetShellDescriptorFromRecord(ShellDescriptorRecord shellDescriptorRecord) {
             ShellDescriptor descriptor = new ShellDescriptor { SerialNumber = shellDescriptorRecord.SerialNumber };
             var descriptorFeatures = new List<ShellFeature>();
@@ -59,12 +62,8 @@ namespace Orchard.Core.Settings.Descriptor {
                         Name = descriptorParameterRecord.Name,
                         Value = descriptorParameterRecord.Value
                     });
-            }
             descriptor.Parameters = descriptorParameters;
-
             return descriptor;
-        }
-
         private const string EvictSignalName =
             "ShellDescriptorRecord_EvictCache";
         private const string DescriptorCacheName =
@@ -79,10 +78,7 @@ namespace Orchard.Core.Settings.Descriptor {
                 ctx.Monitor(_signals.When(EvictSignalName));
                 return _shellDescriptorRepository.Get(x => x != null);
             });
-        }
-
         private string _lockString;
-
         public void UpdateShellDescriptor(
             int priorSerialNumber, IEnumerable<ShellFeature> enabledFeatures, IEnumerable<ShellParameter> parameters) {
             // This is where the shell descriptor will be updated.
@@ -96,23 +92,17 @@ namespace Orchard.Core.Settings.Descriptor {
                 var serialNumber = shellDescriptorRecord == null ? 0 : shellDescriptorRecord.SerialNumber;
                 if (priorSerialNumber != serialNumber)
                     throw new InvalidOperationException(T("Invalid serial number for shell descriptor").ToString());
-
                 Logger.Information("Updating shell descriptor for shell '{0}'...", _shellSettings.Name);
-
                 if (shellDescriptorRecord == null) {
                     shellDescriptorRecord = new ShellDescriptorRecord { SerialNumber = 1 };
                     _shellDescriptorRepository.Create(shellDescriptorRecord);
                 } else {
                     shellDescriptorRecord.SerialNumber++;
                 }
-
                 shellDescriptorRecord.Features.Clear();
                 foreach (var feature in enabledFeatures) {
                     shellDescriptorRecord.Features.Add(new ShellFeatureRecord { Name = feature.Name, ShellDescriptorRecord = shellDescriptorRecord });
-                }
                 Logger.Debug("Enabled features for shell '{0}' set: {1}.", _shellSettings.Name, String.Join(", ", enabledFeatures.Select(feature => feature.Name)));
-
-
                 shellDescriptorRecord.Parameters.Clear();
                 foreach (var parameter in parameters) {
                     shellDescriptorRecord.Parameters.Add(new ShellParameterRecord {
@@ -120,17 +110,9 @@ namespace Orchard.Core.Settings.Descriptor {
                         Name = parameter.Name,
                         Value = parameter.Value,
                         ShellDescriptorRecord = shellDescriptorRecord
-                    });
-                }
-
                 _signals.Trigger(EvictSignalName);
-
                 Logger.Debug("Parameters for shell '{0}' set: {1}.", _shellSettings.Name, String.Join(", ", parameters.Select(parameter => parameter.Name + "-" + parameter.Value)));
-
                 Logger.Information("Shell descriptor updated for shell '{0}'.", _shellSettings.Name);
-
                 _events.Changed(GetShellDescriptorFromRecord(GetDescriptorRecord()), _shellSettings.Name);
-            });
-        }
     }
 }

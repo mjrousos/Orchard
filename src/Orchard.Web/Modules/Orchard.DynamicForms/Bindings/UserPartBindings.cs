@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.DynamicForms.Services;
 using Orchard.DynamicForms.Services.Models;
 using Orchard.Environment.Extensions;
-using Orchard.Security;
 using Orchard.Users.Models;
 
 namespace Orchard.DynamicForms.Bindings {
@@ -11,7 +18,6 @@ namespace Orchard.DynamicForms.Bindings {
         public UserPartBindings(IMembershipService membershipService) {
             _membershipService = membershipService;
         }
-
         public void Describe(BindingDescribeContext context) {
             context.For<UserPart>()
                 .Binding("UserName", (contentItem, part, s) => {
@@ -23,6 +29,5 @@ namespace Orchard.DynamicForms.Bindings {
                     part.HashAlgorithm = "SHA1";
                     _membershipService.SetPassword(part, s);
                 });
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
@@ -6,7 +14,6 @@ using System.Security.Cryptography;
 namespace Orchard.UI.Resources {
     public class ResourceFileHashProvider : IResourceFileHashProvider {
         private ConcurrentDictionary<string, HashInfo> _hashInfoCache = new ConcurrentDictionary<string, HashInfo>();
-
         public string GetResourceFileHash(string filePath) {
             if (!File.Exists(filePath))
                 throw new ArgumentException(String.Format("File with path '{0}' could not be found.", filePath), "physicalPath");
@@ -17,7 +24,6 @@ namespace Orchard.UI.Resources {
                     updateValueFactory: (key, oldHashInfo) => oldHashInfo.LastWriteTime >= lastWriteTime ? oldHashInfo : new HashInfo(lastWriteTime, ComputeHash(filePath)));
             return hashInfo.Hash;
         }
-
         private string ComputeHash(string filePath) {
             using (var md5 = MD5.Create()) {
                 using (var fileStream = File.OpenRead(filePath)) {
@@ -25,15 +31,11 @@ namespace Orchard.UI.Resources {
                     return Convert.ToBase64String(hashBytes);
                 }
             }
-        }
-
         private class HashInfo {
             public HashInfo(DateTime lastWriteTime, string hash) {
                 LastWriteTime = lastWriteTime;
                 Hash = hash;
-            }
             public readonly DateTime LastWriteTime;
             public readonly string Hash;
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,15 +16,9 @@ namespace Orchard.Specs.Bindings {
         protected static T Binding<T>() {
             return (T)ScenarioContext.Current.GetBindingInstance(typeof(T));
         }
-
         protected Table TableData<T>(params T[] rows) {
             return BuildTable(rows);
-        }
-
         protected Table TableData<T>(IEnumerable<T> rows) {
-            return BuildTable(rows);
-        }
-
         private Table BuildTable<T>(IEnumerable<T> rows) {
             var properties = typeof(T).GetProperties();
             var table = new Table(properties.Select(x => x.Name).ToArray());
@@ -25,6 +27,5 @@ namespace Orchard.Specs.Bindings {
                 table.AddRow(properties.Select(p => Convert.ToString(p.GetValue(row1, null))).ToArray());
             }
             return table;
-        }
     }
 }

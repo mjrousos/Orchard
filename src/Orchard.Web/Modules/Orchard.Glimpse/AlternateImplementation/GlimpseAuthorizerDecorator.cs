@@ -1,9 +1,15 @@
-﻿using Orchard.ContentManagement;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using Orchard.ContentManagement;
 using Orchard.Environment.Extensions;
 using Orchard.Glimpse.Services;
 using Orchard.Glimpse.Tabs.Authorizer;
-using Orchard.Localization;
-using Orchard.Security;
 using Orchard.Security.Permissions;
 
 namespace Orchard.Glimpse.AlternateImplementation {
@@ -30,9 +36,9 @@ namespace Orchard.Glimpse.AlternateImplementation {
             return _glimpseService.PublishTimedAction(() => _decoratedService.Authorize(permission, message),
                 (r, t) => new AuthorizerMessage {
                     Permission = permission,
-                    Message = message.Text,
                     Result = r,
-                    Duration = t.Duration
+                    Duration = t.Duration,
+                    Message = message.Text
                 }, TimelineCategories.Authorizer, "Authorize", permission.Name).ActionResult;
         }
 
@@ -40,9 +46,9 @@ namespace Orchard.Glimpse.AlternateImplementation {
             return _glimpseService.PublishTimedAction(() => _decoratedService.Authorize(permission, content),
                 (r, t) => new AuthorizerMessage {
                     Permission = permission,
-                    Content = content,
                     Result = r,
-                    Duration = t.Duration
+                    Duration = t.Duration,
+                    Content = content
                 }, TimelineCategories.Authorizer, "Authorize", permission.Name).ActionResult;
         }
 
@@ -50,10 +56,10 @@ namespace Orchard.Glimpse.AlternateImplementation {
             return _glimpseService.PublishTimedAction(() => _decoratedService.Authorize(permission, content, message),
                 (r, t) => new AuthorizerMessage {
                     Permission = permission,
-                    Content = content,
-                    Message = message.Text,
                     Result = r,
-                    Duration = t.Duration
+                    Duration = t.Duration,
+                    Content = content,
+                    Message = message.Text
                 }, TimelineCategories.Authorizer, "Authorize", permission.Name).ActionResult;
         }
     }

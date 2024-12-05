@@ -1,4 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using Orchard.Caching.Services;
 using Orchard.Environment.Extensions;
 using Orchard.Glimpse.Services;
@@ -30,7 +38,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
             _glimpseService.PublishTimedAction(() => _decoratedService.Put(key, value),
                 t => new CacheMessage {
                     Action = "Put",
-                    Duration = t.Duration,
                     Key = key,
                     Value = value
                 }, TimelineCategories.Cache, "Put", key);
@@ -40,7 +47,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
             _glimpseService.PublishTimedAction(() => _decoratedService.Put(key, value, validFor),
                 t => new CacheMessage {
                     Action = "Put",
-                    Duration = t.Duration,
                     Key = key,
                     Value = value,
                     ValidFor = validFor
@@ -51,7 +57,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
             _glimpseService.PublishTimedAction(() => _decoratedService.Remove(key),
                 t => new CacheMessage {
                     Action = "Remove",
-                    Duration = t.Duration,
                     Key = key
                 }, TimelineCategories.Cache, "Remove", key);
         }

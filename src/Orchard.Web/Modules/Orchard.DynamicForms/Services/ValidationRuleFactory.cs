@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Tokens;
 
@@ -7,11 +15,8 @@ namespace Orchard.DynamicForms.Services {
         public ValidationRuleFactory(ITokenizer tokenizer) {
             _tokenizer = tokenizer;
         }
-
         public TRule Create<TRule>(Action<TRule> setup = null) where TRule : ValidationRule, new() {
             return Create(errorMessage: null, setup: setup);
-        }
-
         public TRule Create<TRule>(string errorMessage = null, Action<TRule> setup = null) where TRule : ValidationRule, new() {
             var rule = new TRule {
                 T = T,
@@ -19,11 +24,8 @@ namespace Orchard.DynamicForms.Services {
                 ErrorMessage = errorMessage,
                 Tokenizer = _tokenizer
             };
-
             if (setup != null)
                 setup(rule);
-
             return rule;
-        }
     }
 }

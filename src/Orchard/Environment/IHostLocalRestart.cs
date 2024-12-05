@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using Orchard.Caching;
 using Orchard.Environment.Configuration;
@@ -14,34 +22,22 @@ namespace Orchard.Environment {
         /// </summary>
         void Monitor(Action<IVolatileToken> monitor);
     }
-
     public class DefaultHostLocalRestart : IHostLocalRestart, IShellDescriptorManagerEventHandler, IShellSettingsManagerEventHandler {
         private readonly IAppDataFolder _appDataFolder;
         private const string fileName = "hrestart.txt";
-
         public DefaultHostLocalRestart(IAppDataFolder appDataFolder) {
             _appDataFolder = appDataFolder;
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public void Monitor(Action<IVolatileToken> monitor) {
             if (!_appDataFolder.FileExists(fileName))
                 TouchFile();
-
             Logger.Debug("Monitoring virtual path \"{0}\"", fileName);
             monitor(_appDataFolder.WhenPathChanges(fileName));
-        }
-
         void IShellSettingsManagerEventHandler.Saved(ShellSettings settings) {
             //TouchFile();
-        }
-
         void IShellDescriptorManagerEventHandler.Changed(ShellDescriptor descriptor, string tenant) {
-            //TouchFile();
-        }
-
         private void TouchFile() {
             try {
                 _appDataFolder.CreateFile(fileName, "Host Restart");
@@ -51,7 +47,4 @@ namespace Orchard.Environment {
                     throw;
                 } 
                 Logger.Warning(ex, "Error updating file '{0}'", fileName);
-            }
-        }
-    }
 }

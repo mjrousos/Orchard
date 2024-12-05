@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿namespace Orchard.Workflows.Models {
     /// <summary>
     /// Reprensents a transition between two <see cref="ActivityRecord"/>
@@ -5,30 +13,17 @@
     public class TransitionRecord {
 
         public virtual int Id { get; set; }
-
         /// <summary>
         /// The source <see cref="ActivityRecord"/>
         /// </summary>
         public virtual ActivityRecord SourceActivityRecord { get; set; }
-
-        /// <summary>
         /// The name of the endpoint on the source <see cref="ActivityRecord"/>
-        /// </summary>
         public virtual string SourceEndpoint { get; set; }
-
-        /// <summary>
         /// The destination <see cref="ActivityRecord"/>
-        /// </summary>
         public virtual ActivityRecord DestinationActivityRecord { get; set; }
-
-        /// <summary>
         /// The name of the endpoint on the destination <see cref="ActivityRecord"/>
-        /// </summary>
         public virtual string DestinationEndpoint { get; set; }
-
-        /// <summary>
         /// The parent <see cref="WorkflowDefinitionRecord"/>
-        /// </summary>
         public virtual WorkflowDefinitionRecord WorkflowDefinitionRecord { get; set; }
     }
 }

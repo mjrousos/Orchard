@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -7,16 +15,13 @@ using Moq;
 using NHibernate;
 using NUnit.Framework;
 using Orchard.Caching;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Data;
-using Orchard.DisplayManagement;
 using Orchard.DisplayManagement.Descriptors;
 using Orchard.DisplayManagement.Implementation;
 using Orchard.Environment;
 using Orchard.Localization.Records;
 using Orchard.Localization.Services;
-using Orchard.Security;
 using Orchard.Tests.ContentManagement;
 using Orchard.Tests.Stubs;
 using Orchard.UI.Notify;
@@ -30,7 +35,6 @@ namespace Orchard.Tests.Localization {
         private ISession _session;
         private string _databaseFileName;
         private StubWorkContext _stubWorkContext;
-
         [TestFixtureSetUp]
         public void InitFixture() {
             _databaseFileName = Path.GetTempFileName();
@@ -38,7 +42,6 @@ namespace Orchard.Tests.Localization {
                 _databaseFileName,
                 typeof(CultureRecord));
         }
-
         [SetUp]
         public void Init() {
             var builder = new ContainerBuilder();
@@ -62,18 +65,12 @@ namespace Orchard.Tests.Localization {
             builder.RegisterInstance(new TestTransactionManager(_session)).As<ITransactionManager>();
             _container = builder.Build();
             _cultureManager = _container.Resolve<ICultureManager>();
-        }
-
         [TearDown]
         public void Term() {
             _session.Close();
-        }
-
         [TestFixtureTearDown]
         public void TermFixture() {
             File.Delete(_databaseFileName);
-        }
-
         [Test]
         public void CultureManagerCanAddAndListValidCultures() {
             _cultureManager.AddCulture("tr-TR");
@@ -81,32 +78,17 @@ namespace Orchard.Tests.Localization {
             _cultureManager.AddCulture("bs-Latn-BA");
             List<string> cultures = new List<string>(_cultureManager.ListCultures());
             Assert.That(cultures.Count, Is.Not.EqualTo(0));
-        }
-
-        [Test]
         public void CultureManagerRejectsInvalidCultureNames() {
             Assert.Throws<ArgumentException>(() => _cultureManager.AddCulture("a-b-c"));
-        }
-
-        [Test]
         public void CultureManagerAcceptsValidDotNetCultureNames() {
             foreach (var cultureInfo in CultureInfo.GetCultures(CultureTypes.NeutralCultures)) {
                 if (!String.IsNullOrEmpty(cultureInfo.Name)) {
                     Assert.DoesNotThrow(() => _cultureManager.AddCulture(cultureInfo.Name));
                 }
             }
-
             foreach (var cultureInfo in CultureInfo.GetCultures(CultureTypes.SpecificCultures)) {
-                if (!String.IsNullOrEmpty(cultureInfo.Name)) {
-                    Assert.DoesNotThrow(() => _cultureManager.AddCulture(cultureInfo.Name));
-                }
-            }
-        }
-
-        [Test]
         public void CultureManagerReturnsCultureFromWorkContext() {
             _stubWorkContext.CultureName = "nl-NL";
             Assert.That(_cultureManager.GetCurrentCulture(null), Is.EqualTo("nl-NL"));
-        }
     }
 }

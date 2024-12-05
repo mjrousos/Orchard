@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +17,6 @@ namespace Orchard.Security {
         public static readonly Permission AccessAdminPanel = new Permission { Name = "AccessAdminPanel", Description = "Access admin panel" };
         public static readonly Permission AccessFrontEnd = new Permission { Name = "AccessFrontEnd", Description = "Access site front-end" };
         public static readonly Permission SiteOwner = new Permission { Name = "SiteOwner", Description = "Site Owners Permission" }; 
-
         public Feature Feature {
             get {
                 // This is a lie, but it enables the permissions and stereotypes to be created
@@ -27,47 +34,24 @@ namespace Orchard.Security {
                 };
             }
         }
-
         public IEnumerable<Permission> GetPermissions() {
             return new[] {
                 AccessAdminPanel,
                 AccessFrontEnd,
                 SiteOwner
             };
-        }
-
         public IEnumerable<PermissionStereotype> GetDefaultStereotypes() {
-            return new[] {
                 new PermissionStereotype {
                     Name = "Administrator",
                     Permissions = new[] {SiteOwner, AccessAdminPanel}
                 },
-                new PermissionStereotype {
                     Name = "Anonymous",
                     Permissions = new[] {AccessFrontEnd}
-                },
-                new PermissionStereotype {
                     Name = "Authenticated",
-                    Permissions = new[] {AccessFrontEnd}
-                },
-                new PermissionStereotype {
                     Name = "Editor",
                     Permissions = new[] {AccessAdminPanel}
-                },
-                new PermissionStereotype {
                     Name = "Moderator",
-                    Permissions = new[] {AccessAdminPanel}
-                },
-                new PermissionStereotype {
                     Name = "Author",
-                    Permissions = new[] {AccessAdminPanel}
-                },
-                new PermissionStereotype {
                     Name = "Contributor",
-                    Permissions = new[] {AccessAdminPanel}
-                },
-            };
-        }
-
     }
 }

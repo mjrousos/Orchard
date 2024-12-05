@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Linq;
 using Microsoft.CSharp.RuntimeBinder;
-using Orchard.DisplayManagement;
 
 namespace Orchard.ContentManagement.Handlers {
     public class BuildDisplayContext : BuildShapeContext {
@@ -9,18 +16,14 @@ namespace Orchard.ContentManagement.Handlers {
             : base(model, content, groupId, shapeFactory) {
             DisplayType = displayType;
         }
-
         public string DisplayType { get; private set; }
         public dynamic NewShapeWithTypeName(string shapeTypeName) {
             return _shapeHelperCalls.Invoke(New, shapeTypeName);
-        }
-
         private static readonly CallSiteCollection _shapeHelperCalls = new CallSiteCollection(shapeTypeName => Binder.InvokeMember(
             CSharpBinderFlags.None,
             shapeTypeName,
             Enumerable.Empty<Type>(),
             null,
             new[] {CSharpArgumentInfo.Create(CSharpArgumentInfoFlags.None, null)}));
-
     }
 }

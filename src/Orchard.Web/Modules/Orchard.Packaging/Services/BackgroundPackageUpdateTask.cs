@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Environment.Extensions;
 using Orchard.Tasks;
 
@@ -16,18 +24,14 @@ namespace Orchard.Packaging.Services {
         private readonly IPackageUpdateService _packageUpdateService;
         private readonly IPackagingSourceManager _packagingSourceManager;
         private readonly IBackgroundPackageUpdateStatus _backgroundPackageUpdateStatus;
-
         public BackgroundPackageUpdateTask(IPackageUpdateService packageUpdateService, 
             IPackagingSourceManager packagingSourceManager, 
             IBackgroundPackageUpdateStatus backgroundPackageUpdateStatus) {
-
             _packageUpdateService = packageUpdateService;
             _packagingSourceManager = packagingSourceManager;
             _backgroundPackageUpdateStatus = backgroundPackageUpdateStatus;
         }
-
         public void Sweep() {
             _backgroundPackageUpdateStatus.Value = _packageUpdateService.GetPackagesStatus(_packagingSourceManager.GetSources());
-        }
     }
 }

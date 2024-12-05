@@ -1,19 +1,24 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace Orchard.Core.Feeds.Services {
     public class FeedManager : IFeedManager {
         private readonly IList<Link> _links = new List<Link>();
-
         class Link {
             public string Title { get; set; }
             public RouteValueDictionary RouteValues { get; set; }
             public string Url { get; set; }
         }
-
         public void Register(string title, string format, RouteValueDictionary values) {
             var link = new RouteValueDictionary(values) { { "format", format } };
             if (!link.ContainsKey("area")) {
@@ -21,20 +26,14 @@ namespace Orchard.Core.Feeds.Services {
             }
             if (!link.ContainsKey("controller")) {
                 link["controller"] = "Feed";
-            }
             if (!link.ContainsKey("action")) {
                 link["action"] = "Index";
-            }
             _links.Add(new Link { Title = title, RouteValues = link });
-        }
-
         public void Register(string title, string format, string url) {
             _links.Add(new Link { Title = title, Url = url });
-        }
         
         public MvcHtmlString GetRegisteredLinks(HtmlHelper html) {
             var urlHelper = new UrlHelper(html.ViewContext.RequestContext, html.RouteCollection);
-
             var sb = new StringBuilder();
             foreach (var link in _links) {
                 var linkUrl = String.IsNullOrWhiteSpace(link.Url) ? urlHelper.RouteUrl(link.RouteValues) : link.Url;
@@ -49,13 +48,8 @@ namespace Orchard.Core.Feeds.Services {
                 sb.Append(@" href=""")
                     .Append(html.AttributeEncode(linkUrl))
                     .AppendLine(@""" />");
-            }
-
             return MvcHtmlString.Create(sb.ToString());
-        }
-
         //public ActionResult Execute(string format, IValueProvider values) {
-
         //}
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Orchard.Environment.Extensions.Models;
 using Orchard.Security.Permissions;
 
@@ -23,8 +23,7 @@ namespace Orchard.MediaLibrary.WebSearch {
                 new PermissionStereotype {
                     Name = "Editor",
                     Permissions = new[] { AccessMediaWebSearch }
-                },
+                }
             };
-
     }
 }

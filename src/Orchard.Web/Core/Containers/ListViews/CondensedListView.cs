@@ -1,5 +1,12 @@
-﻿using System.Linq;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Linq;
 using Orchard.Core.Containers.Services;
 
 namespace Orchard.Core.Containers.ListViews {
@@ -8,11 +15,8 @@ namespace Orchard.Core.Containers.ListViews {
         public CondensedListView(IContentManager contentManager) {
             _contentManager = contentManager;
         }
-
         public override int Priority {
             get { return 1; }
-        }
-
         public override dynamic BuildDisplay(BuildListViewDisplayContext context) {
             var pagerShape = context.New.Pager(context.Pager).TotalItemCount(context.ContentQuery.Count());
             var pageOfContentItems = context.ContentQuery.Slice(context.Pager.GetStartIndex(), context.Pager.PageSize).Select(x => _contentManager.BuildDisplay(x, "SummaryAdminCondensed")).ToList();
@@ -21,6 +25,5 @@ namespace Orchard.Core.Containers.ListViews {
                 .ContainerDisplayName(context.ContainerDisplayName)
                 .ContentItems(pageOfContentItems)
                 .Pager(pagerShape);
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using Orchard.ContentManagement.Handlers;
@@ -13,13 +21,11 @@ namespace Orchard.Core.Containers.Handlers {
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IListViewService _listViewService;
         private readonly IContainerService _containerService;
-
         public ContainerPartHandler(
             IRepository<ContainerPartRecord> repository, 
             IContentDefinitionManager contentDefinitionManager, 
             IListViewService listViewService, 
             IContainerService containerService) {
-
             _contentDefinitionManager = contentDefinitionManager;
             _listViewService = listViewService;
             _containerService = containerService;
@@ -31,24 +37,17 @@ namespace Orchard.Core.Containers.Handlers {
                                         ?? part.PartDefinition.Settings.GetModel<ContainerPartSettings>().PageSizeDefault;
                 part.Record.Paginated = part.Settings.GetModel<ContainerTypePartSettings>().PaginatedDefault
                                         ?? part.PartDefinition.Settings.GetModel<ContainerPartSettings>().PaginatedDefault;
-
             });
-
-
             OnActivated<ContainerPart>((context, part) => {
                 part.ContainerSettingsField.Loader(() => part.Settings.GetModel<ContainerTypePartSettings>());
-
                 part.ItemContentTypesField.Loader(() => {
                     var settings = part.ContainerSettings;
                     var types = settings.RestrictItemContentTypes ? settings.RestrictedItemContentTypes : part.Record.ItemContentTypes;
                     return _contentDefinitionManager.ParseContentTypeDefinitions(types);
                 });
-
                 part.ItemContentTypesField.Setter(value => {
                     part.Record.ItemContentTypes = _contentDefinitionManager.JoinContentTypeDefinitions(value);
                     return value;
-                });
-
                 part.AdminListViewField.Loader(() => {
                     var providers = _listViewService.Providers.ToList();
                     var listViewProviderName = !String.IsNullOrWhiteSpace(part.Record.AdminListViewName)
@@ -56,11 +55,7 @@ namespace Orchard.Core.Containers.Handlers {
                         : !String.IsNullOrWhiteSpace(part.ContainerSettings.AdminListViewName)
                             ? part.ContainerSettings.AdminListViewName
                             : providers.Any() ? providers.First().Name : null;
-
                     return _listViewService.GetProvider(listViewProviderName) ?? _listViewService.GetDefaultProvider();
-                });
-            });
-
             OnPublished<ContainerPart>((context, part) => _containerService.UpdateItemCount(part));
         }
     }

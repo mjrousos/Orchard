@@ -1,10 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Orchard.ContentManagement;
 using Orchard.Data;
-using Orchard.Security;
 using Orchard.Users.Models;
 
 namespace Orchard.Users.Services {
@@ -12,12 +18,10 @@ namespace Orchard.Users.Services {
         private readonly IEnumerable<PasswordHistoryEntry> emptyPasswordHistoryEntries = new List<PasswordHistoryEntry>();
         private readonly IRepository<PasswordHistoryRecord> _historyRepository;
         private readonly IPasswordService _passwordService;
-
         public PasswordHistoryService(IRepository<PasswordHistoryRecord> historyRepository, IPasswordService passwordService) {
             _historyRepository = historyRepository;
             _passwordService = passwordService;
         }
-
         public void CreateEntry(PasswordHistoryEntry context) {
             _historyRepository.Create(new PasswordHistoryRecord {
                 UserPartRecord = context.User?.As<UserPart>()?.Record,
@@ -27,8 +31,6 @@ namespace Orchard.Users.Services {
                 PasswordSalt = context.PasswordSalt,
                 LastPasswordChangeUtc = context.LastPasswordChangeUtc,
             });
-        }
-
         public IEnumerable<PasswordHistoryEntry> GetLastPasswords(IUser user, int count) {
             if (user == null)
                 return emptyPasswordHistoryEntries;
@@ -54,13 +56,9 @@ namespace Orchard.Users.Services {
                     PasswordFormat = user.As<UserPart>().PasswordFormat,
                     LastPasswordChangeUtc = user.As<UserPart>().LastPasswordChangeUtc,
                     User = user });
-        }
-
         public bool PasswordMatchLastOnes(string password, IUser user, int count) {
-            if (user == null)
                 return false;
             return GetLastPasswords(user, count)
                     .Any(x => _passwordService.IsMatch(x, password));
-        }
     }
 }

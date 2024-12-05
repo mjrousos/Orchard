@@ -1,5 +1,12 @@
-﻿using Orchard.Localization;
+using Orchard.ContentManagement;
 using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using Orchard.Localization;
 
 namespace Orchard.Tokens.Providers {
     public class UserTokens : ITokenProvider {
@@ -8,7 +15,6 @@ namespace Orchard.Tokens.Providers {
 
         public UserTokens(IOrchardServices orchardServices) {
             _orchardServices = orchardServices;
-
             T = NullLocalizer.Instance;
         }
 
@@ -32,7 +38,7 @@ namespace Orchard.Tokens.Providers {
             //.Token("Roles", user => string.Join(", ", user.As<UserRolesPart>().Roles.ToArray()));
         }
 
-        public class AnonymousUser : IUser {
+        private class AnonymousUser : IUser {
             public string UserName {
                 get { return "Anonymous"; }
             }
@@ -49,6 +55,5 @@ namespace Orchard.Tokens.Providers {
                 get { return -1; }
             }
         }
-
     }
 }

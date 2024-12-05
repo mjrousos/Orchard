@@ -1,9 +1,15 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Linq;
 using System.Web;
-using Orchard.Localization;
 
 namespace Orchard.Localization {
-
     /// <summary>
     /// Localizes some text based on the current Work Context culture
     /// </summary>
@@ -12,13 +18,11 @@ namespace Orchard.Localization {
     /// <returns>An HTML-encoded localized string</returns>
     public delegate LocalizedString Localizer(string text, params object[] args);
 }
-
 namespace Orchard.Mvc.Html {
     public static class LocalizerExtensions {
         public static LocalizedString Plural(this Localizer T, string textSingular, string textPlural, int count, params object[] args) {
             return T(count == 1 ? textSingular : textPlural, new object[] { count }.Concat(args).ToArray());
         }
-
         public static LocalizedString Plural(this Localizer T, string textNone, string textSingular, string textPlural, int count, params object[] args) {
             switch (count) {
                 case 0:
@@ -28,10 +32,6 @@ namespace Orchard.Mvc.Html {
                 default:
                     return T(textPlural, new object[] {count}.Concat(args).ToArray());
             }
-        }
-
         public static LocalizedString Encode(this Localizer T, string unsecureText) {
             return T(HttpUtility.HtmlEncode(unsecureText));
-        }
     }
-}

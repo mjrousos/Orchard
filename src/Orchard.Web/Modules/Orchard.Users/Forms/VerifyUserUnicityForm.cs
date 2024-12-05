@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
@@ -22,26 +30,18 @@ namespace Orchard.Users.Forms {
                         Title: T("Email"),
                         Description: T("The email address to be validated."),
                         Classes: new[] { "text", "large", "tokenized" }));
-
                 return form;
             });
         }
-
         void IFormEventHandler.Validating(ValidatingContext context) {
             if (context.FormName != "VerifyUserUnicity") return;
-
             var userName = context.ValueProvider.GetValue("UserName").AttemptedValue;
             var email = context.ValueProvider.GetValue("Email").AttemptedValue;
-
             if (String.IsNullOrWhiteSpace(userName)) {
                 context.ModelState.AddModelError("UserName", T("You must specify a username or a token that evaluates to a username.").Text);
             }
-
             if (String.IsNullOrWhiteSpace(email)) {
                 context.ModelState.AddModelError("Email", T("You must specify an email address or a token that evaluates to an email address.").Text);
-            }
-        }
-
         void IFormEventHandler.Building(BuildingContext context) {}
         void IFormEventHandler.Built(BuildingContext context) {}
         void IFormEventHandler.Validated(ValidatingContext context) {}

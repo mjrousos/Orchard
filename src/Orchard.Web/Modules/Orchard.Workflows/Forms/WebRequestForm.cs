@@ -1,18 +1,22 @@
-﻿using System.Web.Mvc;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
-using Orchard.Forms.Services;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Web.Mvc;
+using Orchard.Forms.Services;
 
 namespace Orchard.Workflows.Forms {
     public class WebRequestForm : IFormProvider {
         protected dynamic New { get; set; }
         public Localizer T { get; set; }
-
         public WebRequestForm(IShapeFactory shapeFactory) {
             New = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             context.Form("WebRequestActivity",
                 shape => {
@@ -42,18 +46,14 @@ namespace Orchard.Workflows.Forms {
                             Description: T("For KeyValue, enter one line per key=value pair to submit when using the POST verb. For JSON, enter a string where the curly braces are replaced by double brackets e.g. { test: 'test' } becomes (( test: 'test' ))."),
                             Classes: new[] {"tokenized"})
                         );
-
                     form._Verb.Add(new SelectListItem { Value = "GET", Text = "GET" });
                     form._Verb.Add(new SelectListItem { Value = "POST", Text = "POST" });
                     form._Verb.Add(new SelectListItem { Value = "PUT", Text = "PUT" });
                     form._Verb.Add(new SelectListItem { Value = "DELETE", Text = "DELETE" });
-
                     form._FormFormat.Add(new SelectListItem { Value = "KeyValue", Text = "Key / Value" });
                     form._FormFormat.Add(new SelectListItem { Value = "Json", Text = "Json" });
-
                     return form;
                 }
             );
-        }
     }
 }

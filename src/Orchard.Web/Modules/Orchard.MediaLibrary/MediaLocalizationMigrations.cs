@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Core.Contents.Extensions;
@@ -6,7 +14,6 @@ using Orchard.Environment.Extensions;
 using Orchard.Localization.Models;
 
 namespace Orchard.MediaLibrary {
-
     [OrchardFeature("Orchard.MediaLibrary.LocalizationExtensions")]
     public class MediaLocalizationMigrations : DataMigrationImpl {
         public int Create() {

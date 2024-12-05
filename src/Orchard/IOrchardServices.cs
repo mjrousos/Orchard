@@ -1,6 +1,12 @@
-﻿using Orchard.Data;
 using Orchard.ContentManagement;
 using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.Data;
 using Orchard.UI.Notify;
 
 namespace Orchard {
@@ -12,7 +18,6 @@ namespace Orchard {
         ITransactionManager TransactionManager { get; }
         IAuthorizer Authorizer { get; }
         INotifier Notifier { get; }
-
         /// <summary>
         /// Shape factory
         /// </summary>
@@ -21,12 +26,10 @@ namespace Orchard {
         /// 
         /// Now the shape can used in various ways, like returning it from a controller action
         /// inside a ShapeResult or adding it to the Layout shape.
-        /// 
         /// Inside the shape template (ShapeName.cshtml) the parameters can be accessed as follows:
         /// @Model.Parameter
         /// </example>
         dynamic New { get; }
-
         WorkContext WorkContext { get; }
     }
 }

@@ -11,9 +11,7 @@ namespace Orchard.Glimpse.Extensions {
             }
 
             var columnCount = section.Rows.First().Columns.Count();
-
             var row = section.AddRow();
-
             var itemCount = messages.Count();
             row.Column($"{itemCount} item{(itemCount == 1 ? "" : "s")}");
 

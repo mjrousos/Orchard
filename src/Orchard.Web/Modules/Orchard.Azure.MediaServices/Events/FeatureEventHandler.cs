@@ -1,27 +1,28 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using Orchard.Azure.MediaServices.Models;
 using Orchard;
-using Orchard.ContentManagement;
 using Orchard.Environment;
 using Orchard.Environment.Extensions.Models;
 
 namespace Orchard.Azure.MediaServices.Events {
     public class FeatureEventHandler : IFeatureEventHandler {
-
         private readonly IOrchardServices _orchardServices;
-
         public FeatureEventHandler(IOrchardServices orchardServices) {
             _orchardServices = orchardServices;
         }
-
         public void Installing(Feature feature) {
             
-        }
-
         public void Installed(Feature feature) {
             if (feature.Descriptor.Id != "Orchard.Azure.MediaServices")
                 return;
-            
             var settings = _orchardServices.WorkContext.CurrentSite.As<CloudMediaSettingsPart>();
             settings.AllowedVideoFilenameExtensions = "asf;avi;m2ts;m2v;mp4;mpeg;mpg;mts;ts;wmv;3gp;3g2;3gp2;mod;dv;vob;ismv;m4a".Split(';');
             settings.WamsEncodingPresets = new[] {
@@ -87,30 +88,11 @@ namespace Orchard.Azure.MediaServices.Events {
                 "es-ES",
                 "sv-SE"
             };
-        }
-
         public void Enabling(Feature feature) {
-
-        }
-
         public void Enabled(Feature feature) {
-
-        }
-
         public void Disabling(Feature feature) {
-
-        }
-
         public void Disabled(Feature feature) {
-
-        }
-
         public void Uninstalling(Feature feature) {
-
-        }
-
         public void Uninstalled(Feature feature) {
-
-        }
     }
 }

@@ -1,15 +1,21 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Globalization;
 using System.Web;
 using Orchard.Environment.Extensions;
 using Orchard.Localization.Services;
-using Orchard.UI.Admin;
 
 namespace Orchard.Localization.Selectors {
     [OrchardFeature("Orchard.Localization.CultureSelector")]
     public class RouteCultureSelector : ICultureSelector {
         public CultureSelectorResult GetCulture(HttpContextBase context) {
             if (context == null || AdminFilter.IsApplied(context)) return null;
-
             // Attempt to determine culture by route.
             // This normally happens when you are using non standard pages that are not content items
             // {culture}/foo or ?culture={culture}
@@ -22,7 +28,6 @@ namespace Orchard.Localization.Selectors {
                 }
                 catch { }
             }
-
             return null;
         }
     }

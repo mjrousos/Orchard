@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿namespace Orchard.Reports.Services {
     /// <summary>
     /// Exposes a simplified interface for creating reports. Reports provide user-accessible log-like functionality.
@@ -18,9 +26,7 @@
         /// <param name="message">The message to include in the entry.</param>
         void Add(string reportKey, ReportEntryType type, string message);
 
-        /// <summary>
         /// Registers a new report so entries can be added to it.
-        /// </summary>
         /// <param name="reportKey">Key, i.e. technical name of the report.</param>
         /// <param name="activityName">Name of the activity the report is about (e.g. "Upgrade").</param>
         /// <param name="title">A title better describing what the report is about (e.g. "Migrating routes of Pages, Blog Posts").</param>

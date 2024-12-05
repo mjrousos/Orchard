@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
@@ -12,24 +20,18 @@ using System.Globalization;
 namespace Orchard.Fields.Settings {
     public class DateTimeFieldEditorEvents : ContentDefinitionEditorEventsBase {
         private readonly IDateLocalizationServices _dateLocalizationServices;
-
         public DateTimeFieldEditorEvents(IDateLocalizationServices dateLocalizationServices) {
             _dateLocalizationServices = dateLocalizationServices;
         }
-
         public override IEnumerable<TemplateViewModel> PartFieldEditor(ContentPartFieldDefinition definition) {
             if (definition.FieldDefinition.Name == "DateTimeField") {
                 var model = definition.Settings.GetModel<DateTimeFieldSettings>();
                 model.Editor = InitialDateTimeEditor(model.DefaultValue);
                 yield return DefinitionTemplate(model);
             }
-        }
-
         public override IEnumerable<TemplateViewModel> PartFieldEditorUpdate(ContentPartFieldDefinitionBuilder builder, IUpdateModel updateModel) {
             if (builder.FieldType != "DateTimeField") {
                 yield break;
-            }
-
             var model = new DateTimeFieldSettings();
             if(updateModel.TryUpdateModel(model, "DateTimeFieldSettings", null, null)) {
                 builder.WithSetting("DateTimeFieldSettings.Display", model.Display.ToString());
@@ -40,9 +42,6 @@ namespace Orchard.Fields.Settings {
                 model.DefaultValue = model.Editor == null ? model.DefaultValue : _dateLocalizationServices.ConvertFromLocalizedString(model.Editor.Date, model.Editor.Time);
                 builder.WithSetting("DateTimeFieldSettings.DefaultValue", model.DefaultValue.HasValue ? model.DefaultValue.Value.ToString(CultureInfo.InvariantCulture) : String.Empty);
                 model.Editor = InitialDateTimeEditor(model.DefaultValue, model.Display);
-                yield return DefinitionTemplate(model);
-            }
-        }
         
         private DateTimeEditor InitialDateTimeEditor(DateTime? value,  DateTimeFieldDisplays displays = DateTimeFieldDisplays.DateAndTime)
         {
@@ -56,6 +55,5 @@ namespace Orchard.Fields.Settings {
                 Time = value != null ? _dateLocalizationServices.ConvertToLocalizedTimeString(value) : null
             };
             return editor;
-        }
     }
 }

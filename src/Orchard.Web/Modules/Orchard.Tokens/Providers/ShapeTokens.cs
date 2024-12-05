@@ -1,5 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 
 namespace Orchard.Tokens.Providers {
     public class ShapeTokens : Component, ITokenProvider {
@@ -18,7 +25,9 @@ namespace Orchard.Tokens.Providers {
 
         public void Evaluate(EvaluateContext context) {
             context.For("Shape", "")
-                .Token(t => t.StartsWith("Execute:", StringComparison.OrdinalIgnoreCase) ? t.Substring("Execute:".Length) : null, (shapeName, data) => TokenValue(context, shapeName, data));
+                .Token(
+                    t => t.StartsWith("Execute:", StringComparison.OrdinalIgnoreCase) ? t.Substring("Execute:".Length) : null,
+                    (shapeName, data) => TokenValue(context, shapeName, data));
         }
 
         private object TokenValue(EvaluateContext context, string shapeName, string data) {

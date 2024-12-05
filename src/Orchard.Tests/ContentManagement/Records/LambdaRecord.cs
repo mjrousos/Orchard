@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using Orchard.ContentManagement.Records;
 
@@ -6,7 +14,6 @@ namespace Orchard.Tests.ContentManagement.Records {
         public LambdaRecord() {
             DateTimeStuff = new DateTime(1980,1,1);
         }
-
         public virtual int IntegerStuff { get; set; }
         public virtual long LongStuff { get; set; }
         public virtual bool BooleanStuff { get; set; }

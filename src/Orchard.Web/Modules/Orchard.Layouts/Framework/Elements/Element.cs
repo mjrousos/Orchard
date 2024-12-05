@@ -1,5 +1,12 @@
-﻿using Orchard.Layouts.Elements;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.Layouts.Elements;
 using Orchard.Utility.Extensions;
 
 namespace Orchard.Layouts.Framework.Elements {
@@ -9,33 +16,19 @@ namespace Orchard.Layouts.Framework.Elements {
             Data = new ElementDataDictionary();
             ExportableData = new ElementDataDictionary();
         }
-
         public Container Container { get; set; }
-
         public virtual bool IsSystemElement {
             get { return false; }
-        }
-
         public virtual bool HasEditor {
             get { return true; }
-        }
-
         public virtual string Type {
             get { return GetType().FullName; }
-        }
-
         public virtual LocalizedString DisplayText {
             get { return T(GetType().Name.CamelFriendly()); }
-        }
-
         public virtual LocalizedString Description {
             get { return T("{0} element.", DisplayText); }
-        }
-
         public virtual string ToolboxIcon {
             get { return "\uf1c9"; }
-        }
-
         public abstract string Category { get; }
         public Localizer T { get; set; }
         public string HtmlId { get; set; }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.ContentManagement.FieldStorage.InfosetStorage;
 using Orchard.Data.Conventions;
 
@@ -6,14 +14,11 @@ namespace Orchard.ContentManagement.Records {
         public ContentItemVersionRecord() {
             Infoset = new Infoset();
         }
-
         public virtual int Id { get; set; }
         public virtual ContentItemRecord ContentItemRecord { get; set; }
         public virtual int Number { get; set; }
-
         public virtual bool Published { get; set; }
         public virtual bool Latest { get; set; }
-
         [StringLengthMax]
         public virtual string Data { get { return Infoset.Data; } set { Infoset.Data = value; } }
         public virtual Infoset Infoset { get; protected set; }

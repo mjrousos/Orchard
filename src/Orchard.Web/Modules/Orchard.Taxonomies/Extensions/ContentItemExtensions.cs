@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,36 +21,25 @@ namespace Orchard.ContentManagement
             var eagerlyLoadQueryResult = new EagerlyLoadQueryResult<T>(items, contentManager);
             return eagerlyLoadQueryResult.IncludeTaxonomyFields(loadTermsContainter);
         }
-
         public static EagerlyLoadQueryResult<T> IncludeTaxonomyFields<T>(this IContentQuery<T> query, bool loadTermsContainter) where T : class, IContent {
             var manager = query.ContentManager;
             query = query.Join<TermsPartRecord>().WithQueryHints(new QueryHints().ExpandRecords("TermsPartRecord.Terms"));
-
             var eagerlyLoadQueryResult = new EagerlyLoadQueryResult<T>(query.List(), manager);
-
-            return eagerlyLoadQueryResult.IncludeTaxonomyFields(loadTermsContainter);
-        }
-
         public static EagerlyLoadQueryResult<T> IncludeTaxonomyFields<T>(this EagerlyLoadQueryResult<T> eagerlyLoadQueryResult, bool loadTermsContainter) where T : class, IContent {
             var contentManager = eagerlyLoadQueryResult.ContentManager as DefaultContentManager;
             var session = contentManager.TransactionManager.GetSession();
-
             Dictionary<int, Dictionary<int, string>> termsTermRecordIdsDictionary = new Dictionary<int, Dictionary<int, string>>();
             var termsIds = new HashSet<int>();
             List<Object[]> queryResult = new List<Object[]>();
             int pageSize = 2000;
             var itemsCount = eagerlyLoadQueryResult.Result.Count();
             var pagesCount = (itemsCount + pageSize - 1) / pageSize;
-
-
             for (var page = 0; page < pagesCount; page++) {
                 var objectsToLoad = eagerlyLoadQueryResult.Result.Select(c => c.As<TermsPart>()).Where(t => t != null).ToList();
                 if (!objectsToLoad.Any()) {
                     continue;
                 }
-
                 StringBuilder sb = new StringBuilder();
-
                 sb.Append("SELECT tc.TermsPartRecord.Id,tc.TermRecord.id,tc.Field FROM Orchard.Taxonomies.Models.TermContentItem as tc ");
                 sb.Append("JOIN tc.TermRecord as tp WHERE ");
                 var count = 0;
@@ -52,30 +49,21 @@ namespace Orchard.ContentManagement
                     if (count < objectsToLoad.Count) {
                         sb.Append(" OR ");
                     }
-                }
-
                 var result = session.CreateQuery(sb.ToString());
                 queryResult = result.List<object[]>().ToList();
                 foreach (var keyValue in queryResult) {
                     var termRecordId = (int)keyValue[1];
                     if (!termsIds.Contains(termRecordId)) {
                         termsIds.Add(termRecordId);
-                    }
-
                     if (termsTermRecordIdsDictionary.ContainsKey((int)keyValue[0])) {
                         termsTermRecordIdsDictionary[(int)keyValue[0]].Add(termRecordId, (string)keyValue[2]);
-                    }
                     else {
                         Dictionary<int, string> TermsRecordFieldDictionary = new Dictionary<int, string>();
                         TermsRecordFieldDictionary.Add(termRecordId, (string)keyValue[2]);
                         termsTermRecordIdsDictionary.Add((int)keyValue[0], TermsRecordFieldDictionary);
-                    }
-                }
-
                 var termsDictionary = eagerlyLoadQueryResult.ContentManager.GetTooMany<TermPart>(termsIds, VersionOptions.Published
                       , new QueryHints().ExpandRecords("ContentTypeRecord", "CommonPartRecord", "TermsPartRecord"))
                      .ToDictionary(c => c.ContentItem.Id);
-
                 foreach (var resultPart in objectsToLoad) {
                     var fields = resultPart.ContentItem.Parts.SelectMany(p => p.Fields.OfType<TaxonomyField>());
                     var preloadedTerms = new List<TermContentItemPart>();
@@ -96,16 +84,10 @@ namespace Orchard.ContentManagement
                             field.Terms = preloadedFieldParts;
                         }
                         resultPart.TermParts = preloadedTerms;
-                    }
-                }
                 if (loadTermsContainter && termsDictionary.Any()) {
                     var pendingResults = new EagerlyLoadQueryResult<IContent>(termsDictionary.Values, eagerlyLoadQueryResult.ContentManager);
                     pendingResults.IncludeContainerContentItems(1);
-                }
             }
-
             return eagerlyLoadQueryResult;
-        }
     }
 }
-

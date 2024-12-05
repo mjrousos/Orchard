@@ -1,4 +1,4 @@
-﻿using Orchard.ContentManagement;
+using Orchard.ContentManagement;
 using Orchard.Core.Title.Models;
 using Orchard.Users.Models;
 using Orchard.Widgets.Models;
@@ -18,7 +18,6 @@ namespace Orchard.Glimpse.Extensions {
             if (content.Has<LayerPart>()) {
                 return content.As<LayerPart>().Name;
             }
-
             return "Unknown";
         }
     }

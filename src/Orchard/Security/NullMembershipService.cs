@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
-using Orchard.Localization;
 
 namespace Orchard.Security {
     /// <summary>
@@ -12,25 +19,10 @@ namespace Orchard.Security {
         public IUser CreateUser(CreateUserParams createUserParams) {
             throw new NotImplementedException();
         }
-
         public IMembershipSettings GetSettings() {
-            throw new NotImplementedException();
-        }
-
         public IUser GetUser(string username) {
-            throw new NotImplementedException();
-        }
-
         public void SetPassword(IUser user, string password) {
-            throw new NotImplementedException();
-        }
-
         public IUser ValidateUser(string userNameOrEmail, string password, out List<LocalizedString> validationErrors) {
-            throw new NotImplementedException();
-        }
-
         public bool PasswordIsExpired(IUser user, int weeks) {
-            throw new NotImplementedException();
-        }
     }
 }

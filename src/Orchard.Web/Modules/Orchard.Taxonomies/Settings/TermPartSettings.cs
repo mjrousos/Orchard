@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿namespace Orchard.Taxonomies.Settings {
     public class TermPartSettings {
         /// <summary>
@@ -5,14 +13,9 @@
         /// </summary>
         public string ChildDisplayType { get; set; }
 
-        /// <summary>
         /// If true, overrides default pagination settings with the PageSize value.
-        /// </summary>
         public bool OverrideDefaultPagination { get; set; }
-
-        /// <summary>
         /// The page size, if OverrideDefaultPagination is set to true.
-        /// </summary>
         public int PageSize { get; set; }
     }
 }

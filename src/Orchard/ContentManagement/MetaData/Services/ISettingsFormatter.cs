@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Xml.Linq;
 using Orchard.ContentManagement.MetaData.Models;
 
@@ -12,10 +20,7 @@ namespace Orchard.ContentManagement.MetaData.Services {
         /// <param name="element">The XML element to be mapped.</param>
         /// <returns>The settings dictionary.</returns>
         SettingsDictionary Map(XElement element);
-
-        /// <summary>
         /// Maps a settings dictionary to an XML element.
-        /// </summary>
         /// <param name="settingsDictionary">The settings dictionary.</param>
         /// <returns>The XML element.</returns>
         XElement Map(SettingsDictionary settingsDictionary);

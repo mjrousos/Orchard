@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.IO;
 using Autofac;
@@ -22,11 +30,9 @@ using Orchard.Tests.Stubs;
 namespace Orchard.Tests.Modules.CodeGeneration.Commands {
     [TestFixture]
     public class CodeGenerationCommandsTests {
-
         private IContainer _container;
         private IExtensionManager _extensionManager;
         private ISchemaCommandGenerator _schemaCommandGenerator;
-
         [SetUp]
         public void Init() {
             string databaseFileName = Path.GetTempFileName();
@@ -35,14 +41,11 @@ namespace Orchard.Tests.Modules.CodeGeneration.Commands {
                     (dataFolder, connectionString) => new SqlCeDataServicesProvider(dataFolder, connectionString),
                     new Dictionary<string, object> {{"ProviderName", "SqlCe"}})
             });
-
             var builder = new ContainerBuilder();
-
             builder.RegisterInstance(new ShellBlueprint());
             builder.RegisterInstance(new ShellSettings { Name = ShellSettings.DefaultName, DataTablePrefix = "Test", DataProvider = "SqlCe" });
             builder.RegisterInstance(dataServicesProviderFactory).As<IDataServicesProviderFactory>();
             builder.RegisterInstance(AppDataFolderTests.CreateAppDataFolder(Path.GetDirectoryName(databaseFileName))).As<IAppDataFolder>();
-
             builder.RegisterType<SqlCeDataServicesProvider>().As<IDataServicesProvider>();
             builder.RegisterType<SessionConfigurationCache>().As<ISessionConfigurationCache>();
             builder.RegisterType<SessionFactoryHolder>().As<ISessionFactoryHolder>();
@@ -54,22 +57,17 @@ namespace Orchard.Tests.Modules.CodeGeneration.Commands {
             builder.RegisterType<StubParallelCacheContext>().As<IParallelCacheContext>();
             builder.RegisterType<StubAsyncTokenProvider>().As<IAsyncTokenProvider>();
             builder.RegisterType<StubHostEnvironment>().As<IHostEnvironment>();
-
             _container = builder.Build();
             _extensionManager = _container.Resolve<IExtensionManager>();
             _schemaCommandGenerator = _container.Resolve<ISchemaCommandGenerator>();
         }
-
         [Test]
         public void CreateDataMigrationTestNonExistentFeature() {
             CodeGenerationCommands codeGenerationCommands = new CodeGenerationCommands(_extensionManager,
                 _schemaCommandGenerator);
-
             TextWriter textWriterOutput = new StringWriter();
             codeGenerationCommands.Context = new CommandContext { Output = textWriterOutput };
             codeGenerationCommands.CreateDataMigration("feature");
-
             Assert.That(textWriterOutput.ToString(), Is.StringContaining("Creating data migration failed"));
-        }
     }
 }

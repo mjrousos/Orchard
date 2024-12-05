@@ -1,14 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System.Collections.Generic;
+using System.Globalization;
 using System;
 using System.Linq;
 using Newtonsoft.Json;
 
 namespace Orchard.Azure.MediaServices.Models {
-
     public class CloudMediaSettingsPart : ContentPart {
-
         public string WamsAccountName {
             get { return this.Retrieve(x => x.WamsAccountName); }
             set { this.Store(x => x.WamsAccountName, value); }
@@ -103,7 +108,6 @@ namespace Orchard.Azure.MediaServices.Models {
                 return false;
             if (DefaultWamsEncodingPresetIndex < 0 || DefaultWamsEncodingPresetIndex > WamsEncodingPresets.Count() - 1)
                 return false;
-
             return true;
         }
     }

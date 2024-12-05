@@ -1,10 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿namespace Orchard.Azure.Services.Environment.Configuration {
 
     /// <summary>
     /// Represents a service for reading configuration settings from the underlying platform configuration.
     /// </summary>
     public interface IPlatformConfigurationAccessor : IDependency {
-
         /// <summary>
         /// Reads a configuration setting from the underlying platform configuration.
         /// </summary>

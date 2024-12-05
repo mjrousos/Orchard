@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,9 +14,7 @@ using System.Threading.Tasks;
 
 namespace Orchard.Data.Providers {
     public class DefaultNoLockTableProvider : INoLockTableProvider {
-
         public DefaultNoLockTableProvider() {
-
             // We may use AutoFac to override the default tables:
             /*
              <component instance-scope="per-lifetime-scope"
@@ -21,17 +27,13 @@ namespace Orchard.Data.Providers {
              */
             TableNames = "Orchard_Framework_ContentItemVersionRecord, Title_TitlePartRecord, Orchard_Framework_ContentItemRecord";
         }
-
         public string TableNames { get; set; }
-
         private IEnumerable<string> _tableNames;
-
         public IEnumerable<string> GetTableNames() {
             if (_tableNames == null) {
                 _tableNames = new List<string>(TableNames
                     .Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries));
             }
             return _tableNames;
-        }
     }
 }

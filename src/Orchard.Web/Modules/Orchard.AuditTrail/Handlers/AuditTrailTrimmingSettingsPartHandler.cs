@@ -1,11 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.AuditTrail.Models;
 using Orchard.AuditTrail.Providers.AuditTrail;
 using Orchard.AuditTrail.Services;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Environment.Extensions;
-using Orchard.Localization;
 
 namespace Orchard.AuditTrail.Handlers {
     [OrchardFeature("Orchard.AuditTrail.Trimming")]
@@ -14,7 +20,6 @@ namespace Orchard.AuditTrail.Handlers {
         private readonly IAuditTrailManager _auditTrailManager;
         private readonly IWorkContextAccessor _wca;
         private int _oldMinimumRunInterval;
-
         public AuditTrailTrimmingSettingsPartHandler(IAuditTrailManager auditTrailManager, IWorkContextAccessor wca) {
             _auditTrailManager = auditTrailManager;
             _wca = wca;
@@ -24,25 +29,17 @@ namespace Orchard.AuditTrail.Handlers {
             OnUpdated<AuditTrailTrimmingSettingsPart>(EndUpdateEvent);
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         private void GetMetadata(GetContentItemMetadataContext context, AuditTrailTrimmingSettingsPart part) {
             context.Metadata.EditorGroupInfo.Add(new GroupInfo(T("Audit Trail")));
-        }
-
         private void BeginUpdateEvent(UpdateContentContext context, AuditTrailTrimmingSettingsPart part) {
             _oldRetentionPeriod = part.RetentionPeriod;
             _oldMinimumRunInterval = part.MinimumRunInterval;
-        }
-
         private void EndUpdateEvent(UpdateContentContext context, AuditTrailTrimmingSettingsPart part) {
             var newRetentionPeriod = part.RetentionPeriod;
             var newMinimumRunInterval = part.MinimumRunInterval;
-
             if (newRetentionPeriod == _oldRetentionPeriod && newMinimumRunInterval == _oldMinimumRunInterval)
                 return;
-
             _auditTrailManager.CreateRecord<AuditTrailTrimmingSettingsEventProvider>(
                 eventName: AuditTrailTrimmingSettingsEventProvider.TrimmingSettingsChanged,
                 user: _wca.GetContext().CurrentUser,
@@ -52,6 +49,5 @@ namespace Orchard.AuditTrail.Handlers {
                     {"OldMinimumRunInterval", _oldMinimumRunInterval},
                     {"NewMinimumRunInterval", newMinimumRunInterval}
                 });
-        }
     }
 }

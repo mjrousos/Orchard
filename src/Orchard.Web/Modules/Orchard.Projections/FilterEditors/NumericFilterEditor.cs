@@ -1,7 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
-using Orchard.ContentManagement;
-using Orchard.Localization;
 using Orchard.Projections.FilterEditors.Forms;
 
 namespace Orchard.Projections.FilterEditors {
@@ -9,9 +15,7 @@ namespace Orchard.Projections.FilterEditors {
         public NumericFilterEditor() {
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         public bool CanHandle(Type type) {
             return new[] {
                 typeof(Byte), 
@@ -26,18 +30,11 @@ namespace Orchard.Projections.FilterEditors {
                 typeof(double), 
                 typeof(decimal), 
             }.Contains(type);
-        }
-
         public string FormName {
             get { return NumericFilterForm.FormName; }
-        }
-
         public Action<IHqlExpressionFactory> Filter(string property, dynamic formState) {
             return NumericFilterForm.GetFilterPredicate(formState, property);
-        }
-
         public LocalizedString Display(string property, dynamic formState) {
             return NumericFilterForm.DisplayFilter(property, formState, T);
-        }
     }
 }

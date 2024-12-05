@@ -1,27 +1,27 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Globalization;
-using System.Web.Mvc;
-using Orchard.DisplayManagement;
 using Orchard.Forms.Services;
-using Orchard.Localization;
 
 namespace Orchard.Projections.PropertyEditors.Forms {
     public class DateTimePropertyForm : IFormProvider {
-
         public const string FormName = "DateTimeProperty";
-
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public DateTimePropertyForm(IShapeFactory shapeFactory) {
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             Func<IShapeFactory, object> form =
                 shape => {
-
                     var f = Shape.Form(
                         _Format: Shape.SelectList(
                             Id: "format", Name: "Format",
@@ -30,7 +30,6 @@ namespace Orchard.Projections.PropertyEditors.Forms {
                             Multiple: false
                         )
                     );
-
                     f._Format.Add(new SelectListItem { Value = "d", Text = T("Short date pattern: 6/15/2009").Text });
                     f._Format.Add(new SelectListItem { Value = "D", Text = T("Long date pattern: Monday, June 15, 2009").Text });
                     f._Format.Add(new SelectListItem { Value = "f", Text = T("Full date/time pattern (short time): Monday, June 15, 2009 1:45 PM").Text });
@@ -51,19 +50,13 @@ namespace Orchard.Projections.PropertyEditors.Forms {
                     f._Format.Add(new SelectListItem { Value = "year", Text = T("Year: 2009").Text });
                     f._Format.Add(new SelectListItem { Value = "dayOfYear", Text = T("Day of year: 166").Text });
                     f._Format.Add(new SelectListItem { Value = "ago", Text = T("Relative time: 1 minute ago").Text });
-
                     return f;
                 };
-
             context.Form(FormName, form);
-
-        }
         
         public static dynamic FormatDateTime(dynamic display, DateTime dateTime, dynamic state, string culture) {
-
             string format = state.Format;
             var cultureInfo = CultureInfo.CreateSpecificCulture(culture);
-
             switch(format) {
                 case "ago":
                     return display.DateTimeRelative(DateTimeUtc: dateTime);
@@ -78,6 +71,5 @@ namespace Orchard.Projections.PropertyEditors.Forms {
                 default:
                     return dateTime.ToString(format, cultureInfo);
             }
-        }
     }
 }

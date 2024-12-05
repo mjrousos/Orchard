@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,47 +23,28 @@ namespace Orchard.Redis.OutputCache {
         private readonly string _connectionString;
         private readonly ConnectionMultiplexer _connectionMultiplexer;
         private readonly ShellSettings _shellSettings;
-
         public RedisTagCache(IRedisConnectionProvider redisConnectionProvider, ShellSettings shellSettings) {
             _redisConnectionProvider = redisConnectionProvider;
             _connectionString = _redisConnectionProvider.GetConnectionString(RedisOutputCacheStorageProvider.ConnectionStringKey);
             _connectionMultiplexer = _redisConnectionProvider.GetConnection(_connectionString);
             _shellSettings = shellSettings;
         }
-
         private IDatabase Database {
             get { return _connectionMultiplexer.GetDatabase(); }
-        }
-
         public void Tag(string tag, params string[] keys) {
             if (_connectionMultiplexer == null) {
                 return;
             }
-
             Database.SetAdd(GetLocalizedKey(tag), Array.ConvertAll(keys, x => (RedisValue)x));
-        }
-
         public IEnumerable<string> GetTaggedItems(string tag) {
-            if (_connectionMultiplexer == null) {
                 return new string[0];
-            }
-
             var values = Database.SetMembers(GetLocalizedKey(tag));
             if (values == null || values.Length == 0)
                 return Enumerable.Empty<string>();
             return Array.ConvertAll(values, x => (string)x);
-        }
-
         public void RemoveTag(string tag) {
-            if (_connectionMultiplexer == null) {
-                return;
-            }
-
             Database.KeyDelete(GetLocalizedKey(tag));
-        }
-
         private string GetLocalizedKey(string key) {
             return _shellSettings.Name + ":Tag:" + key;
-        }
     }
 }

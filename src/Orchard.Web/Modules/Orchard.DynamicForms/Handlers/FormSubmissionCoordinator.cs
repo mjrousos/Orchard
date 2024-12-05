@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
-using Orchard.ContentManagement;
 using Orchard.DynamicForms.Activities;
 using Orchard.DynamicForms.Services;
 using Orchard.DynamicForms.Services.Models;
@@ -14,17 +21,14 @@ namespace Orchard.DynamicForms.Handlers {
         private readonly INotifier _notifier;
         private readonly IWorkflowManager _workflowManager;
         private readonly ITokenizer _tokenizer;
-
         public FormSubmissionCoordinator(INotifier notifier, IWorkflowManager workflowManager, ITokenizer tokenizer) {
             _notifier = notifier;
             _workflowManager = workflowManager;
             _tokenizer = tokenizer;
         }
-
         public override void Validated(FormValidatedEventContext context) {
             if (!context.ModelState.IsValid)
                 return;
-
             var form = context.Form;
             var formName = form.Name;
             var values = context.Values;
@@ -39,26 +43,19 @@ namespace Orchard.DynamicForms.Handlers {
                 {"Updater", context.Updater},
                 {"FormSubmission", formTokenContext},
                 {"Content", context.Content }
-            };
-
             // Store the submission.
             if (form.StoreSubmission == true) {
                 formService.CreateSubmission(formName, values);
             }
-
             // Create content item.
             var contentItem = default(ContentItem);
             if (form.CreateContent == true && !String.IsNullOrWhiteSpace(form.FormBindingContentType)) {
                 contentItem = formService.CreateContentItem(form, context.ValueProvider);
                 formTokenContext.CreatedContent = contentItem;
-            }
-
             // Notifiy.
             if (!String.IsNullOrWhiteSpace(form.Notification))
                 _notifier.Success(T(_tokenizer.Replace(T(form.Notification).Text, tokenData)));
-
             // Trigger workflow event.
             _workflowManager.TriggerEvent(DynamicFormSubmittedActivity.EventName, contentItem, () => tokenData);
-        }
     }
 }

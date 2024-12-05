@@ -1,12 +1,18 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Routing;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
 using Orchard.Core.Common.Models;
 using Orchard.Core.Common.Settings;
-using Orchard.Services;
 
 namespace Orchard.Core.Feeds.StandardBuilders {
     public class ItemInspector {
@@ -16,9 +22,7 @@ namespace Orchard.Core.Feeds.StandardBuilders {
         private readonly ICommonPart _common;
         private readonly ITitleAspect _titleAspect;
         private readonly BodyPart _body;
-
         public ItemInspector(IContent item, ContentItemMetadata metadata) : this(item, metadata, null) {}
-
         public ItemInspector(IContent item, ContentItemMetadata metadata, IHtmlFilterProcessor htmlFilterProcessor) {
             _item = item;
             _metadata = metadata;
@@ -27,7 +31,6 @@ namespace Orchard.Core.Feeds.StandardBuilders {
             _titleAspect = item.Get<ITitleAspect>();
             _body = item.Get<BodyPart>();
         }
-
         public string Title {
             get {
                 if (_metadata != null && !string.IsNullOrEmpty(_metadata.DisplayText))
@@ -36,39 +39,22 @@ namespace Orchard.Core.Feeds.StandardBuilders {
                     return _titleAspect.Title;
                 return _item.ContentItem.ContentType + " #" + _item.ContentItem.Id;
             }
-        }
-
         public RouteValueDictionary Link {
-            get {
                 if (_metadata != null) {
                     return _metadata.DisplayRouteValues;
                 }
                 return null;
-            }
-        }
-
         public string Description {
-            get {
                 if (_htmlFilterProcessor != null && _body != null && !string.IsNullOrEmpty(_body.Text)) {
                     return _htmlFilterProcessor.ProcessFilters(_body.Text, GetFlavor(_body), _body);
-                }
                 return Title;
-            }
-        }
-
         public DateTime? PublishedUtc {
-            get {
                 if (_common != null && _common.CreatedUtc != null)
                     return _common.CreatedUtc;
-                return null;
-            }
-        }
-
         private static string GetFlavor(BodyPart part) {
             var typePartSettings = part.Settings.GetModel<BodyTypePartSettings>();
             return (typePartSettings != null && !string.IsNullOrWhiteSpace(typePartSettings.Flavor))
                        ? typePartSettings.Flavor
                        : part.PartDefinition.Settings.GetModel<BodyPartSettings>().FlavorDefault;
-        }
     }
 }

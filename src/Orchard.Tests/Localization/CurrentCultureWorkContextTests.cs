@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.IO;
 using Autofac;
 using NHibernate;
@@ -20,7 +28,6 @@ namespace Orchard.Tests.Localization {
         private ISession _session;
         private string _databaseFileName;
         private const string _testCulture = "fr-CA";
-
         [TestFixtureSetUp]
         public void InitFixture() {
             _databaseFileName = Path.GetTempFileName();
@@ -28,11 +35,9 @@ namespace Orchard.Tests.Localization {
                 _databaseFileName,
                 typeof(CultureRecord));
         }
-
         [SetUp]
         public void Init() {
             _session = _sessionFactory.OpenSession();
-
             var builder = new ContainerBuilder();
             _workContext = new StubWorkContext();
             builder.RegisterInstance(new StubCultureSelector(_testCulture)).As<ICultureSelector>();
@@ -45,27 +50,19 @@ namespace Orchard.Tests.Localization {
             builder.RegisterType<Signals>().As<ISignals>().SingleInstance();
             builder.RegisterType<StubWorkContextAccessor>().As<IWorkContextAccessor>();
             builder.RegisterType<StubCacheManager>().As<ICacheManager>();
-            _session = _sessionFactory.OpenSession();
             builder.RegisterInstance(new TestTransactionManager(_session)).As<ITransactionManager>();
             _container = builder.Build();
             _currentCultureStateProvider = _container.Resolve<IWorkContextStateProvider>();
             _container.Resolve<ICultureManager>().AddCulture(_testCulture);
-        }
-
         [TearDown]
         public void Term() {
             _session.Close();
-        }
-
         [TestFixtureTearDown]
         public void TermFixture() {
             File.Delete(_databaseFileName);
-        }
-
         [Test]
         public void CultureManagerReturnsCultureFromSelectors() {
             var actualCulture = _currentCultureStateProvider.Get<string>("CurrentCulture")(_workContext);
             Assert.That(actualCulture, Is.EqualTo(_testCulture));
-        }
     }
 }

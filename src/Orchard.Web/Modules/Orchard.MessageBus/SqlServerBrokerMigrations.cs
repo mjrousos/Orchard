@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Data.Migration;
@@ -7,7 +15,6 @@ using Orchard.MessageBus.Models;
 namespace Orchard.MessageBus {
     [OrchardFeature("Orchard.MessageBus.SqlServerServiceBroker")]
     public class SqlServerBrokerMigrations : DataMigrationImpl {
-
         public int Create() {
             
             SchemaBuilder.CreateTable("MessageRecord",
@@ -18,7 +25,6 @@ namespace Orchard.MessageBus {
                     .Column<string>("Message", c => c.Unlimited())
                     .Column<DateTime>("CreatedUtc")
             );
-
             return 1;
         }
     }

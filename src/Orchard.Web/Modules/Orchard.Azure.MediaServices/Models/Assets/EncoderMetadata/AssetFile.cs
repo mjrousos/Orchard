@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +18,6 @@ using Newtonsoft.Json;
 
 namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
     public class AssetFile {
-
         private readonly XmlNamespaceManager _nsm;
         private readonly XElement _xml;
         private readonly Metadata _parentMetadata;
@@ -99,13 +106,13 @@ namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
         }
 
         /// <summary>
-        /// The total bit rate in bits per second, including all video and audio tracks. Counts only the elementary stream payload, and does not include the packaging overhead.
+        /// The total bit rate in bits per second, including all video and audio tracks.
         /// </summary>
         public int Bitrate {
             get {
-                var totalVideoBitrate = _videoTracks.Select(videoTrack => videoTrack.Bitrate).Sum();
-                var totalAudioBitrate = _audioTracks.Select(audioTrack => audioTrack.Bitrate).Sum();
-                return totalVideoBitrate + totalVideoBitrate;
+                var totalVideoBitrate = VideoTracks.Select(videoTrack => videoTrack.Bitrate).Sum();
+                var totalAudioBitrate = AudioTracks.Select(audioTrack => audioTrack.Bitrate).Sum();
+                return totalVideoBitrate + totalAudioBitrate;
             }
         }
 

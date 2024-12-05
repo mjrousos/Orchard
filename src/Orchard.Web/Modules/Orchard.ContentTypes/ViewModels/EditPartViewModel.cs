@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,14 +20,11 @@ namespace Orchard.ContentTypes.ViewModels {
             Fields = new List<EditPartFieldViewModel>();
             Settings = new SettingsDictionary();
         }
-
         public EditPartViewModel(ContentPartDefinition contentPartDefinition) {
             Name = contentPartDefinition.Name;
             Fields = contentPartDefinition.Fields.Select((f, i) => new EditPartFieldViewModel(i, f) { Part = this }).ToList();
             Settings = contentPartDefinition.Settings;
             _Definition = contentPartDefinition;
-        }
-
         public string Prefix { get { return "PartDefinition"; } }
         public string Name { get; set; }
         
@@ -28,13 +33,9 @@ namespace Orchard.ContentTypes.ViewModels {
         public string DisplayName {
             get { return !string.IsNullOrWhiteSpace(_displayName) ? _displayName : Name.TrimEnd("Part").CamelFriendly(); }
             set { _displayName = value; }
-        }
-
         public string Description {
             get { return Settings.ContainsKey("ContentPartSettings.Description") ? Settings["ContentPartSettings.Description"] : null; }
             set { Settings["ContentPartSettings.Description"] = value;}
-        }
-
         public IEnumerable<TemplateViewModel> Templates { get; set; }
         public IEnumerable<EditPartFieldViewModel> Fields { get; set; }
         public SettingsDictionary Settings { get; set; }

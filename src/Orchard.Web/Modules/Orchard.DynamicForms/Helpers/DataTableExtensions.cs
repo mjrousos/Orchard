@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Data;
 using System.IO;
@@ -11,29 +19,20 @@ namespace Orchard.DynamicForms.Helpers {
                 return writer.GetStringBuilder().ToString();
             }
         }
-
         public static Stream ToCsv(this DataTable table, Stream output, string delimiter = ",", bool includeHeader = true) {
             var writer = new StreamWriter(output);
             ToCsv(table, writer, delimiter, includeHeader);
             return output;
-        }
-
         public static TextWriter ToCsv(this DataTable table, TextWriter writer, string delimiter = ",", bool includeHeader = true) {
             if (includeHeader) {
                 var columnNames = table.Columns.Cast<DataColumn>().Select(column => column.ColumnName);
                 writer.WriteLine(String.Join(",", columnNames));
-            }
-
             var projection =
                 from DataRow row in table.Rows
                 select row.ItemArray.Select(field => String.Concat("\"", field.ToString().Replace("\"", "\"\""), "\""));
-
             foreach (var fields in projection) {
                 writer.WriteLine(String.Join(",", fields));
-            }
-
             writer.Flush();
             return writer;
-        }
     }
 }

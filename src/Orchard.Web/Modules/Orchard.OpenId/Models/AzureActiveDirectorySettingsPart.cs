@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Orchard.ContentManagement;
 using Orchard.Environment.Extensions;
 using SysEnvironment = System.Environment;
 
@@ -82,10 +89,8 @@ namespace Orchard.OpenId.Models {
                 String.IsNullOrWhiteSpace(LogoutRedirectUri) ||
                 String.IsNullOrWhiteSpace(ServiceResourceID) ||
                 String.IsNullOrWhiteSpace(AppKey)) {
-
                 return false;
             }
-
             return true;
         }
 
@@ -95,16 +100,12 @@ namespace Orchard.OpenId.Models {
                     .Retrieve(x => x.ServiceResourceID)
                     .Split(SysEnvironment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
                     .ToDictionary(
-                        resourceId => {
-                            return resourceId.Contains(ServiceResourceIdsSeprator) ?
-                                        resourceId.Split(ServiceResourceIdsSeprator)[0] :
-                                        ServiceResourceIdDefaultKey;
-                        },
-                        resourceId => {
-                            return resourceId.Contains(ServiceResourceIdsSeprator) ?
-                                        resourceId.Split(ServiceResourceIdsSeprator)[1] :
-                                        resourceId;
-                        }
+                        resourceId => resourceId.Contains(ServiceResourceIdsSeprator) ?
+                            resourceId.Split(ServiceResourceIdsSeprator)[0] :
+                            ServiceResourceIdDefaultKey,
+                        resourceId => resourceId.Contains(ServiceResourceIdsSeprator) ?
+                            resourceId.Split(ServiceResourceIdsSeprator)[1] :
+                            resourceId
                     );
             }
         }

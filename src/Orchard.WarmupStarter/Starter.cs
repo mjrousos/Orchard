@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Threading;
 using System.Web;
@@ -13,29 +21,21 @@ namespace Orchard.WarmupStarter {
         /// Set only when initialization has completed without errors.
         /// </summary>
         private volatile T _initializationResult;
-        /// <summary>
         /// The (potential) error raised by the initialization thread. This is a "one-time"
         /// error signal, so that we can restart the initialization once another request
         /// comes in.
-        /// </summary>
         private volatile Exception _error;
-        /// <summary>
         /// The (potential) error from the previous initiazalition. We need to
         /// keep this error active until the next initialization is finished,
         /// so that we can keep reporting the error for all incoming requests.
-        /// </summary>
         private volatile Exception _previousError;
-
         public Starter(Func<HttpApplication, T> initialization, Action<HttpApplication, T> beginRequest, Action<HttpApplication, T> endRequest) {
             _initialization = initialization;
             _beginRequest = beginRequest;
             _endRequest = endRequest;
             }
-
         public void OnApplicationStart(HttpApplication application) {
             LaunchStartupThread(application);
-            }
-
         public void OnBeginRequest(HttpApplication application) {
             // Initialization resulted in an error
             if (_error != null) {
@@ -44,7 +44,6 @@ namespace Orchard.WarmupStarter {
                 //       application environment may change between requests,
                 //       e.g. App_Data is made read-write for the AppPool.
                 bool restartInitialization = false;
-
                 lock (_synLock) {
                     if (_error != null) {
                         _previousError = _error;
@@ -52,54 +51,35 @@ namespace Orchard.WarmupStarter {
                         restartInitialization = true;
                     }
         }
-
                 if (restartInitialization) {
                     LaunchStartupThread(application);
                 }
-            }
-
             // Previous initialization resulted in an error (and another initialization is running)
             if (_previousError != null) {
                 throw new ApplicationException("Error during application initialization", _previousError);
-            }
-
             // Only notify if the initialization has successfully completed
             if (_initializationResult != null) {
                 _beginRequest(application, _initializationResult);
-            }
-        }
-
         public void OnEndRequest(HttpApplication application) {
-            // Only notify if the initialization has successfully completed
-            if (_initializationResult != null) {
                 _endRequest(application, _initializationResult);
             }            
-        }
-
-        /// <summary>
         /// Run the initialization delegate asynchronously in a queued work item
-        /// </summary>
         public void LaunchStartupThread(HttpApplication application) {
             // Make sure incoming requests are queued
             WarmupHttpModule.SignalWarmupStart();
-
             ThreadPool.QueueUserWorkItem(
                 state => {
                     try {
                         var result = _initialization(application);
                         _initializationResult = result;
-                    }
                     catch (Exception ex) {
                         lock (_synLock) {
                         _error = ex;
                             _previousError = null;
                         }
-                    }
                     finally {
                         // Execute pending requests as the initialization is over
                         WarmupHttpModule.SignalWarmupDone();
-                    }
                 });
-        }
     }
 }

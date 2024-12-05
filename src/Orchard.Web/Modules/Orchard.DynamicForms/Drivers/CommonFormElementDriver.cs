@@ -1,5 +1,12 @@
-using System.Collections.Generic;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System.Collections.Generic;
 using Orchard.DynamicForms.Elements;
 using Orchard.Forms.Services;
 using Orchard.Layouts.Framework.Display;
@@ -8,21 +15,14 @@ using Orchard.Layouts.Services;
 
 namespace Orchard.DynamicForms.Drivers {
     public class CommonFormElementDriver : FormsElementDriver<FormElement> {
-
         public CommonFormElementDriver(IFormsBasedElementServices formsServices, IShapeFactory shapeFactory) : base(formsServices) {
             New = shapeFactory;
         }
-
         public override int Priority {
             get { return 500; }
-        }
-
         protected override IEnumerable<string> FormNames {
             get { yield return "CommonFormElement"; }
-        }
-
         public dynamic New { get; set; }
-
         protected override void DescribeForm(DescribeContext context) {
             context.Form("CommonFormElement", factory => {
                 var shape = (dynamic)factory;
@@ -37,18 +37,12 @@ namespace Orchard.DynamicForms.Drivers {
                     _FormBindingContentType: shape.Hidden(
                         Id: "FormBindingContentType",
                         Name: "FormBindingContentType"));
-
                 return form;
             });
-        }
-
         protected override void OnDisplaying(FormElement element, ElementDisplayingContext context) {
             context.ElementShape.Metadata.Wrappers.Add("FormElement_Wrapper");
             context.ElementShape.Child.Add(New.PlaceChildContent(Source: context.ElementShape));
-        }
-
         protected override EditorResult OnBuildEditor(FormElement element, ElementEditorContext context) {
             return Editor(context, BuildForm(context, "CommonFormElement", "Properties:10"));
-        }
     }
 }

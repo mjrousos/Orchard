@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +17,12 @@ using Orchard.Azure.MediaServices.Models.Assets;
 using Orchard.Azure.MediaServices.Models.Jobs;
 using Orchard.Azure.MediaServices.Services.Assets;
 using Orchard.Azure.MediaServices.Services.Wams;
-using Orchard.ContentManagement;
 using Orchard.Logging;
 using Orchard.Tasks;
 using Orchard.Tasks.Locking.Services;
 
 namespace Orchard.Azure.MediaServices.Services.Jobs {
     public class JobProcessor : Component, IBackgroundTask {
-
         private readonly IWamsClient _wamsClient;
         private readonly IAssetManager _assetManager;
         private readonly IJobManager _jobManager;
@@ -29,7 +35,6 @@ namespace Orchard.Azure.MediaServices.Services.Jobs {
             IJobManager jobManager,
             IOrchardServices orchardServices,
             IDistributedLockService distributedLockService) {
-
             _wamsClient = wamsClient;
             _assetManager = assetManager;
             _jobManager = jobManager;
@@ -39,7 +44,6 @@ namespace Orchard.Azure.MediaServices.Services.Jobs {
 
         public void Sweep() {
             Logger.Debug("Beginning sweep.");
-
             try {
                 if (!_orchardServices.WorkContext.CurrentSite.As<CloudMediaSettingsPart>().IsValid()) {
                     Logger.Debug("Settings are invalid; going back to sleep.");
@@ -51,23 +55,18 @@ namespace Orchard.Azure.MediaServices.Services.Jobs {
                 if (_distributedLockService.TryAcquireLock(GetType().FullName, TimeSpan.FromHours(1), out @lock)) {
                     using (@lock) {
                         var jobs = _jobManager.GetActiveJobs().ToDictionary(job => job.WamsJobId);
-
                         if (!jobs.Any()) {
                             Logger.Debug("No open jobs were found; going back to sleep.");
                             return;
                         }
 
                         Logger.Information("Beginning processing of {0} open jobs.", jobs.Count());
-
                         var wamsJobs = _wamsClient.GetJobsById(jobs.Keys);
-
                         foreach (var wamsJob in wamsJobs) {
                             Logger.Information("Processing job '{0}'...", wamsJob.Name);
-
                             var job = jobs[wamsJob.Id];
                             var tasks = job.Tasks.ToDictionary(task => task.WamsTaskId);
                             var wamsTasks = wamsJob.Tasks.ToArray();
-
                             foreach (var wamsTask in wamsTasks) {
                                 var task = tasks[wamsTask.Id];
                                 task.Status = MapWamsJobState(wamsTask.State);
@@ -76,19 +75,16 @@ namespace Orchard.Azure.MediaServices.Services.Jobs {
 
                             var previousStatus = job.Status;
                             var wamsJobErrors = HarvestWamsJobErrors(wamsJob).ToArray();
-
                             job.CreatedUtc = wamsJob.Created;
                             job.StartedUtc = wamsJob.StartTime;
                             job.FinishedUtc = wamsJob.EndTime;
                             job.Status = MapWamsJobState(wamsJob.State);
                             job.ErrorMessage = GetAggregateErrorMessage(wamsJobErrors);
-
                             LogWamsJobErrors(wamsJobErrors);
 
                             if (job.Status != previousStatus) {
                                 if (job.Status == JobStatus.Finished) {
                                     Logger.Information("Job '{0}' was finished in WAMS; creating locators.", wamsJob.Name);
-
                                     var lastTask = job.Tasks.Last();
                                     var lastWamsTask = wamsTasks.Single(task => task.Id == lastTask.WamsTaskId);
                                     var outputAsset = lastWamsTask.OutputAssets.First();
@@ -98,11 +94,8 @@ namespace Orchard.Azure.MediaServices.Services.Jobs {
                                     var cloudVideoPart = job.CloudVideoPart;
                                     var wamsLocators = _wamsClient.CreateLocatorsAsync(outputAsset, WamsLocatorCategory.Private).Result;
 
-                                    // HACK: Temporary workaround to disable dynamic packaging for VC1-based assets. In future versions
-                                    // this will be implemented more robustly by testing all the dynamic URLs to see which ones work
-                                    // and only store and use the working ones.
+                                    // HACK: Temporary workaround to disable dynamic packaging for VC1-based assets.
                                     var forceNonDynamicAsset = lastWamsTask.Configuration.StartsWith("VC1");
-
                                     if (wamsLocators.OnDemandLocator != null && !forceNonDynamicAsset) {
                                         _assetManager.CreateAssetFor<DynamicVideoAsset>(cloudVideoPart, asset => {
                                             asset.IncludeInPlayer = true;
@@ -144,13 +137,13 @@ namespace Orchard.Azure.MediaServices.Services.Jobs {
                                     }
                                 }
                             }
-
                             Logger.Information("Processing of job '{0}' was successfully completed.", wamsJob.Name);
                         }
                     }
                 }
-                else
+                else {
                     Logger.Debug("Distributed lock could not be acquired; going back to sleep.");
+                }
             }
             catch (Exception ex) {
                 Logger.Error(ex, "Error during sweep.");

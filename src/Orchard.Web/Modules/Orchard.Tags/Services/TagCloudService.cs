@@ -1,9 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Orchard.Autoroute.Models;
 using Orchard.Caching;
-using Orchard.ContentManagement;
 using Orchard.Core.Common.Models;
 using Orchard.Data;
 using Orchard.Environment.Extensions;
@@ -17,19 +24,16 @@ namespace Orchard.Tags.Services {
         private readonly ICacheManager _cacheManager;
         private readonly ISignals _signals;
         internal static readonly string TagCloudTagsChanged = "Orchard.Tags.TagCloud.TagsChanged";
-
         public TagCloudService(
             IRepository<ContentTagRecord> contentTagRepository,
             IContentManager contentManager,
             ICacheManager cacheManager,
             ISignals signals) {
-
             _contentTagRepository = contentTagRepository;
             _contentManager = contentManager;
             _cacheManager = cacheManager;
             _signals = signals;
         }
-
         public IEnumerable<TagCount> GetPopularTags(int buckets, string slug) {
             var cacheKey = "Orchard.Tags.TagCloud." + (slug ?? "") + '.' + buckets;
             return _cacheManager.Get(cacheKey, true,
@@ -50,18 +54,14 @@ namespace Orchard.Tags.Services {
                         if (slug == "/") {
                             slug = "";
                         }
-
                         var containerId = _contentManager
                                           .Query<AutoroutePart, AutoroutePartRecord>(VersionOptions.Published)
                                           .Where(a => a.DisplayAlias == slug)
                                           .List() // don't try to optimize with slicing  as there should be only one result
                                           .Select(x => x.ContentItem.Id)
                                           .FirstOrDefault();
-
                         if (containerId == 0) {
                             return new List<TagCount>();
-                        }
-
                         tagCounts = _contentManager
                                           .Query<TagsPart, TagsPartRecord>(VersionOptions.Published)
                                           .Join<CommonPartRecord>()
@@ -74,12 +74,7 @@ namespace Orchard.Tags.Services {
                                               Count = g.Count()
                                           })
                                           .ToList();
-
                         if (!tagCounts.Any()) {
-                            return new List<TagCount>();
-                        }
-                    }
-
                     // initialize centroids with a linear distribution
                     var centroids = new int[buckets];
                     var maxCount = tagCounts.Any() ? tagCounts.Max(tc => tc.Count) : 0;
@@ -87,11 +82,8 @@ namespace Orchard.Tags.Services {
                     var maxDistance = maxCount - minCount;
                     for (int i = 0; i < centroids.Length; i++) {
                         centroids[i] = maxDistance/buckets * (i+1);
-                    }
-
                     var balanced = false;
                     var loops = 0;
-
                     // loop until equilibrium or instability
                     while (!balanced && loops++ < 50) {
                         balanced = true;
@@ -107,19 +99,12 @@ namespace Orchard.Tags.Services {
                                     balanced = false;
                                 }
                             }
-                        }
-
                         // recalculate centroids
                         for (int i = 0; i < buckets; i++) {
                             var target = tagCounts.Where(x => x.Bucket == i + 1).ToArray();
                             if (target.Any()) {
                                 centroids[i] = (int)target.Average(x => x.Count);
-                            }
-                        }
-                    }
-
                     return tagCounts;
                 });
-        }
     }
 }

@@ -1,10 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Orchard.ContentManagement.Utilities;
 using Orchard.Taxonomies.Fields;
 using Orchard.Taxonomies.Models;
 using Orchard.Taxonomies.Services;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Handlers;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Core.Title.Models;
@@ -19,7 +26,6 @@ namespace Orchard.Taxonomies.Handlers {
         private readonly IContentManager _contentManager;
         
         private readonly HashSet<int> _processedTermParts = new HashSet<int>(); 
-
         public TermsPartHandler(
             IContentDefinitionManager contentDefinitionManager,
             IRepository<TermsPartRecord> repository,
@@ -30,20 +36,16 @@ namespace Orchard.Taxonomies.Handlers {
             IShellDescriptorManager shellDescriptorManager) {
             _contentDefinitionManager = contentDefinitionManager;
             _contentManager = contentManager;
-
             Filters.Add(StorageFilter.For(repository));
             OnPublished<TermsPart>((context, part) => RecalculateCount(processingEngine, shellSettings, shellDescriptorManager, part));
             OnUnpublished<TermsPart>((context, part) => RecalculateCount(processingEngine, shellSettings, shellDescriptorManager, part));
             OnRemoved<TermsPart>((context, part) => RecalculateCount(processingEngine, shellSettings, shellDescriptorManager, part));
-
             // Tells how to load the field terms on demand, when a content item it loaded or when it has been created
             OnInitialized<TermsPart>((context, part) => InitializerTermsLoader(part));
             OnLoading<TermsPart>((context, part) => InitializerTermsLoader(part));
             OnUpdating<TermsPart>((context, part) => InitializerTermsLoader(part));
-
             OnIndexing<TermsPart>(
                 (context, part) => {
-
                     foreach (var term in part.Terms) {
                         var termContentItem = context.ContentManager.Get(term.TermRecord.Id);
                         context.DocumentIndex.Add(term.Field, termContentItem.As<TitlePart>().Title).Analyze();
@@ -55,18 +57,15 @@ namespace Orchard.Taxonomies.Handlers {
                     }
                 });
         }
-
         private void InitializerTermsLoader(TermsPart part) {
             var queryHint = new QueryHints()
                 .ExpandRecords("ContentTypeRecord", "CommonPartRecord", "TermsPartRecord");
-
             // Get TermRecordIds for each field before the delegate inside the for iterator.
             // This avoids the TermsPart.Record lifetime scope to be disposed when executed, since ContentPart.Record is a LazyField.
             var groupedRecordIds = part.Record.Terms
                 .GroupBy(tci => tci.Field)
                 .ToDictionary(g => g.Key,
                     g => g.Select(tci => tci.TermRecord.Id).ToArray());
-
             foreach (var field in part.ContentItem.Parts.SelectMany(p => p.Fields).OfType<TaxonomyField>()) {
                 var tempField = field.Name;
                 field.TermsField.Loader(() => {
@@ -74,12 +73,9 @@ namespace Orchard.Taxonomies.Handlers {
                     if (groupedRecordIds.TryGetValue(tempField, out var fieldTermRecordIds)) {
                         // Using context content item's ContentManager instead of injected one to avoid lifetime scope exceptions in case of LazyFields.
                         terms = part.ContentItem.ContentManager.GetMany<TermPart>(fieldTermRecordIds, VersionOptions.Published, queryHint);
-                    }
                     
                     return terms.ToList();
-                });
             }
-
             part._termParts = new LazyField<IEnumerable<TermContentItemPart>>();
             part._termParts.Loader(() => {
                 var ids = part.Terms.Select(t => t.TermRecord.Id).Distinct();
@@ -96,8 +92,6 @@ namespace Orchard.Taxonomies.Handlers {
                             }
                         );
             });
-        }
-
                 // Fires off a processing engine task to run the count processing after the request so it's non-blocking.
         private void RecalculateCount(IProcessingEngine processingEngine, ShellSettings shellSettings, IShellDescriptorManager shellDescriptorManager, TermsPart part) {
             var termPartRecordIds = part.Terms.Select(t => t.TermRecord.Id).ToArray();
@@ -107,25 +101,15 @@ namespace Orchard.Taxonomies.Handlers {
                 }
                 foreach (var termPartRecordId in termPartRecordIds) {
                     _processedTermParts.Add(termPartRecordId);                    
-                }
-            }
-        }
-
         protected override void Activating(ActivatingContentContext context) {
             base.Activating(context);
-
             // weld the TermsPart dynamically, if a field has been assigned to one of its parts
             var contentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(context.ContentType);
             if (contentTypeDefinition == null) {
                 return;
-            }
-
             if (contentTypeDefinition.Parts.Any(
                 part => part.PartDefinition.Fields.Any(
                     field => field.FieldDefinition.Name == typeof(TaxonomyField).Name))) {
-
                 context.Builder.Weld<TermsPart>();
-            }
-        }
     }
 }

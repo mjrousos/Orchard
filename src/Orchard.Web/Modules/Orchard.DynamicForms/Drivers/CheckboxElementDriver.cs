@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.DynamicForms.Elements;
 using Orchard.Layouts.Framework.Display;
 using Orchard.Layouts.Framework.Drivers;
@@ -9,20 +17,15 @@ using DescribeContext = Orchard.Forms.Services.DescribeContext;
 namespace Orchard.DynamicForms.Drivers {
     public class CheckboxElementDriver : FormsElementDriver<CheckBox> {
         private readonly ITokenizer _tokenizer;
-
         public CheckboxElementDriver(IFormsBasedElementServices formsServices, ITokenizer tokenizer)
             : base(formsServices) {
             _tokenizer = tokenizer;
         }
-
         protected override EditorResult OnBuildEditor(CheckBox element, ElementEditorContext context) {
             var autoLabelEditor = BuildForm(context, "AutoLabel", "Properties:1");
             var checkBoxEditor = BuildForm(context, "CheckBox", "Properties:15");
             var checkBoxValidation = BuildForm(context, "CheckBoxValidation", "Validation:10");
-
             return Editor(context, autoLabelEditor, checkBoxEditor, checkBoxValidation);
-        }
-
         protected override void DescribeForm(DescribeContext context) {
             context.Form("CheckBox", factory => {
                 var shape = (dynamic)factory;
@@ -34,13 +37,9 @@ namespace Orchard.DynamicForms.Drivers {
                         Title: "Value",
                         Classes: new[] { "text", "large" },
                         Description: T("The value of this checkbox.")));
-
                 return form;
             });
-
             context.Form("CheckBoxValidation", factory => {
-                var shape = (dynamic)factory;
-                var form = shape.Fieldset(
                     Id: "CheckBoxValidation",
                     _IsRequired: shape.Checkbox(
                         Id: "IsMandatory",
@@ -58,17 +57,10 @@ namespace Orchard.DynamicForms.Drivers {
                         Id: "ShowValidationMessage",
                         Name: "ShowValidationMessage",
                         Title: "Show Validation Message",
-                        Value: "true",
                         Description: T("Autogenerate a validation message when a validation error occurs for the current field. Alternatively, to control the placement of the validation message you can use the ValidationMessage element instead.")));
-
-                return form;
-            });
-        }
-
         protected override void OnDisplaying(CheckBox element, ElementDisplayingContext context) {
             context.ElementShape.ProcessedName = _tokenizer.Replace(element.Name, context.GetTokenData());
             context.ElementShape.ProcessedLabel = _tokenizer.Replace(element.Label, context.GetTokenData(), new ReplaceOptions { Encoding = ReplaceOptions.NoEncode });
             context.ElementShape.ProcessedValue = _tokenizer.Replace(element.Value, context.GetTokenData());
-        }
     }
 }

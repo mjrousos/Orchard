@@ -1,12 +1,16 @@
-using System.Web.Mvc;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
 using Orchard.Mvc.Filters;
 
 namespace Orchard.Core.Feeds.Services {
     public class FeedFilter : FilterProvider, IResultFilter {
         private readonly IFeedManager _feedManager;
         private readonly IWorkContextAccessor _workContextAccessor;
-
         public FeedFilter(
             IFeedManager feedManager, 
             IWorkContextAccessor workContextAccessor, 
@@ -15,20 +19,15 @@ namespace Orchard.Core.Feeds.Services {
             _workContextAccessor = workContextAccessor;
             Shape = shapeFactory;
         }
-
         dynamic Shape { get; set; }
-
         public void OnResultExecuting(ResultExecutingContext filterContext) {
             // should only run on a full view rendering result
             if (!(filterContext.Result is ViewResult))
                 return;
-
             var layout = _workContextAccessor.GetContext(filterContext).Layout;
             var feed = Shape.Feed()
                 .FeedManager(_feedManager);
             layout.Zones.Head.Add(feed, ":after");
-        }
-
         public void OnResultExecuted(ResultExecutedContext filterContext) {}
     }
 }

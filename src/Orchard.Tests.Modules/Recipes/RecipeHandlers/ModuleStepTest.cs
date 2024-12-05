@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +45,6 @@ namespace Orchard.Tests.Modules.Recipes.RecipeHandlers {
         private ExtensionManagerTests.StubFolders _folders;
         private StubPackagingSourceManager _packagesInRepository;
         private StubPackageManager _packageManager;
-
         protected override IEnumerable<Type> DatabaseTypes {
             get {
                 return new[] {
@@ -47,10 +54,8 @@ namespace Orchard.Tests.Modules.Recipes.RecipeHandlers {
                 };
             }
         }
-
         public override void Register(ContainerBuilder builder) {
             builder.RegisterInstance(new ShellSettings { Name = "Default" });
-
             _folders = new ExtensionManagerTests.StubFolders();
             _packagesInRepository = new StubPackagingSourceManager();
             _packageManager = new StubPackageManager();
@@ -71,8 +76,6 @@ namespace Orchard.Tests.Modules.Recipes.RecipeHandlers {
             builder.RegisterType<StubEventBus>().As<IEventBus>().SingleInstance();
             builder.RegisterType<ModuleStep>();
             builder.RegisterSource(new EventsRegistrationSource());
-        }
-
         [Test]
         public void ExecuteRecipeStepTest() {
             _folders.Manifests.Add("SuperWiki", @"
@@ -90,164 +93,74 @@ Features:
                 Version = "1.0.3",
                 IsLatestVersion = true,
             });
-
             var shellDescriptorManager = _container.Resolve<IShellDescriptorManager>();
             // No features enabled
             shellDescriptorManager.UpdateShellDescriptor(
                 0,
                 Enumerable.Empty<ShellFeature>(),
                 Enumerable.Empty<ShellParameter>());
-
             var moduleStep = _container.Resolve<ModuleStep>();
             var recipeExecutionContext = new RecipeExecutionContext {RecipeStep = new RecipeStep(id: "1", recipeName: "Test", name: "Module", step: new XElement("SuperWiki")) };
             recipeExecutionContext.RecipeStep.Step.Add(new XAttribute("packageId", "Orchard.Module.SuperWiki"));
             recipeExecutionContext.RecipeStep.Step.Add(new XAttribute("repository", "test"));
-
             var featureManager = _container.Resolve<IFeatureManager>();
             var enabledFeatures = featureManager.GetEnabledFeatures();
             Assert.That(enabledFeatures.Count(), Is.EqualTo(0));
             moduleStep.Execute(recipeExecutionContext);
-
-
             var availableFeatures = featureManager.GetAvailableFeatures().FirstOrDefault(x => x.Id == "SuperWiki");
             Assert.That(availableFeatures.Id, Is.EqualTo("SuperWiki"));
-        }
-
-        [Test]
         public void ExecuteRecipeStepNeedsNameTest() {
-            _folders.Manifests.Add("SuperWiki", @"
-Name: SuperWiki
-Version: 1.0.3
-OrchardVersion: 1
-Features:
-    SuperWiki: 
-        Description: My super wiki module for Orchard.
-");
-
-            var moduleStep = _container.Resolve<ModuleStep>();
             var recipeContext = new RecipeContext { RecipeStep = new RecipeStep(id: "1", recipeName: "Test", name: "Module", step: new XElement("SuperWiki")) };
             var recipeExecutionContext = new RecipeExecutionContext { RecipeStep = recipeContext.RecipeStep };
             recipeContext.RecipeStep.Step.Add(new XAttribute("repository", "test"));
-
             Assert.Throws(typeof (InvalidOperationException), () => moduleStep.Execute(recipeExecutionContext));
-        }
-
-        [Test]
         public void ExecuteRecipeStepWithRepositoryAndVersionNotLatestTest() {
-            _packagesInRepository.AddPublishedPackage(new PublishedPackage {
-                Id = "Orchard.Module.SuperWiki",
-                PackageType = DefaultExtensionTypes.Module,
-                Title = "SuperWiki",
-                Version = "1.0.3",
-                IsLatestVersion = true,
-            });
-            _packagesInRepository.AddPublishedPackage(new PublishedPackage {
-                Id = "Orchard.Module.SuperWiki",
-                PackageType = DefaultExtensionTypes.Module,
-                Title = "SuperWiki",
                 Version = "1.0.2",
                 IsLatestVersion = false,
-            });
-
-            var moduleStep = _container.Resolve<ModuleStep>();
             var recipeExecutionContext = new RecipeExecutionContext { RecipeStep = new RecipeStep(id: "1", recipeName: "Test", name: "Module", step: new XElement("SuperWiki")) };
-
-            recipeExecutionContext.RecipeStep.Step.Add(new XAttribute("packageId", "Orchard.Module.SuperWiki"));
-            recipeExecutionContext.RecipeStep.Step.Add(new XAttribute("repository", "test"));
             recipeExecutionContext.RecipeStep.Step.Add(new XAttribute("version", "1.0.2"));
-
-            moduleStep.Execute(recipeExecutionContext);
-
             var installedPackage = _packageManager.GetInstalledPackages().FirstOrDefault(info => info.ExtensionName == "Orchard.Module.SuperWiki");
             Assert.That(installedPackage, Is.Not.Null);
             Assert.That(installedPackage.ExtensionVersion, Is.EqualTo("1.0.2"));
-        }
-
         internal class StubPackagingSourceManager : IPackagingSourceManager {
             private readonly List<PublishedPackage> _publishedPackages = new List<PublishedPackage>();
-
             public IEnumerable<PackagingSource> GetSources() {
                 return Enumerable.Empty<PackagingSource>();
-            }
-
             public int AddSource(string feedTitle, string feedUrl) {
                 throw new NotImplementedException();
-            }
-
             public void RemoveSource(int id) {
-                throw new NotImplementedException();
-            }
-
             public IEnumerable<PackagingEntry> GetExtensionList(bool includeScreenshots, PackagingSource packagingSource = null, Func<IQueryable<PublishedPackage>, IQueryable<PublishedPackage>> query = null) {
                 return query(_publishedPackages.AsQueryable()).Select(package => CreatePackagingEntry(package));
-            }
-
             public int GetExtensionCount(PackagingSource packagingSource = null, Func<IQueryable<PublishedPackage>, IQueryable<PublishedPackage>> query = null) {
-                throw new NotImplementedException();
-            }
-
             public void AddPublishedPackage(PublishedPackage package) {
                 _publishedPackages.Add(package);
-            }
-
             private static PackagingEntry CreatePackagingEntry(PublishedPackage package) {
                 return new PackagingEntry {
                     PackageId = package.Id,
                     Title = package.Title,
                     Version = package.Version,
-                };
-            }
-        }
-
         internal class StubPackageManager : IPackageManager {
             private readonly IList<PackageInfo> _installedPackages = new List<PackageInfo>();
-
             public IEnumerable<PackageInfo> GetInstalledPackages() {
                 return _installedPackages;
-            }
-
             public PackageData Harvest(string extensionName) {
-                throw new NotImplementedException();
-            }
-
             public PackageInfo Install(IPackage package, string location, string applicationPath) {
                 return null;
-            }
-
             public PackageInfo Install(string packageId, string version, string location, string applicationPath) {
                 var package = new PackageInfo {
                     ExtensionName = packageId,
                     ExtensionVersion = version,
-                };
                 _installedPackages.Add(package);
                 return package;
-            }
-
             public void Uninstall(string packageId, string applicationPath) {
-            }
-
             public ExtensionDescriptor GetExtensionDescriptor(IPackage package, string extensionType) {
-                throw new NotImplementedException();
-            }
-        }
-
         internal class StubDataMigrationManager : IDataMigrationManager {
             public bool IsFeatureAlreadyInstalled(string feature) {
                 return true;
-            }
-
             public IEnumerable<string> GetFeaturesThatNeedUpdate() {
                 return Enumerable.Empty<string>();
-            }
-
             public void Update(string feature) {
-            }
-
             public void Update(IEnumerable<string> features) {
-            }
-
             public void Uninstall(string feature) {
-            }
-        }
     }
 }

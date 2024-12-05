@@ -1,24 +1,26 @@
-using System.Web.Mvc;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
 using Orchard.Mvc.Filters;
 
 namespace Orchard.UI.Resources {
     public class ResourceFilter : FilterProvider, IResultFilter {
         private readonly IWorkContextAccessor _workContextAccessor;
         private readonly dynamic _shapeFactory;
-
         public ResourceFilter(
             IWorkContextAccessor workContextAccessor, 
             IShapeFactory shapeFactory) {
             _workContextAccessor = workContextAccessor;
             _shapeFactory = shapeFactory;
         }
-
         public void OnResultExecuting(ResultExecutingContext filterContext) {
             // should only run on a full view rendering result
             if (!(filterContext.Result is ViewResult))
                 return;
-
             var ctx = _workContextAccessor.GetContext();
             var head = ctx.Layout.Head;
             var tail = ctx.Layout.Tail;
@@ -27,9 +29,6 @@ namespace Orchard.UI.Resources {
             head.Add(_shapeFactory.StylesheetLinks());
             head.Add(_shapeFactory.HeadScripts());
             tail.Add(_shapeFactory.FootScripts());
-        }
-
         public void OnResultExecuted(ResultExecutedContext filterContext) {
-        }
     }
 }

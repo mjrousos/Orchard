@@ -1,4 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Threading.Tasks;
 using System.Web.WebPages;
 using Microsoft.Azure.ActiveDirectory.GraphClient;
@@ -12,8 +20,7 @@ namespace Orchard.OpenId.Services.AzureActiveDirectory {
         public string AzureTenant { get; set; }
 
         public async Task<string> AcquireTokenAsync() {
-            if (Token == null || Token.IsEmpty())
-            {
+            if (Token == null || Token.IsEmpty()) {
                 throw new Exception("Authorization Required.");
             }
             return await Task.FromResult(Token);
@@ -21,10 +28,8 @@ namespace Orchard.OpenId.Services.AzureActiveDirectory {
 
         public ActiveDirectoryClient GetActiveDirectoryClient() {
             var baseServiceUri = new Uri("https://graph.windows.net/");
-
             var activeDirectoryClient = new ActiveDirectoryClient(new Uri(baseServiceUri, AzureTenant),
                 async () => await AcquireTokenAsync());
-
             return activeDirectoryClient;
         }
     }

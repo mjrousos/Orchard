@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentNHibernate.Conventions;
 using FluentNHibernate.Conventions.Instances;
@@ -8,10 +16,7 @@ namespace Orchard.Data.Conventions {
             // 10000 is an arbitrary number large enough to be in the nvarchar(max) range 
         }
     }
-
     public class StringLengthConvention : AttributePropertyConvention<StringLengthAttribute> {
         protected override void Apply(StringLengthAttribute attribute, IPropertyInstance instance) {
             instance.Length(attribute.MaximumLength);
-        }
-    }
 }

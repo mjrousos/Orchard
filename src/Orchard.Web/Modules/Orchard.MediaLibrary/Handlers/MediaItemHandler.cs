@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
 using Orchard.ContentTypes.Events;
@@ -13,50 +21,23 @@ namespace Orchard.MediaLibrary.Handlers {
     /// </summary>
     public class MediaItemHandler : IContentDefinitionEventHandler {
         private readonly IContentDefinitionManager _contentDefinitionManager;
-
         public MediaItemHandler(IContentDefinitionManager contentDefinitionManager) {
             _contentDefinitionManager = contentDefinitionManager;
         }
-
         public void ContentFieldAttached(ContentFieldAttachedContext context) {
-        }
-
         public void ContentFieldDetached(ContentFieldDetachedContext context) {
-        }
-
         public void ContentPartAttached(ContentPartAttachedContext context) {
             AlterMediaItem(_contentDefinitionManager.GetTypeDefinition(context.ContentTypeName));
-        }
-
         public void ContentPartCreated(ContentPartCreatedContext context) {
-        }
-
         public void ContentPartDetached(ContentPartDetachedContext context) {
-        }
-
         public void ContentPartImported(ContentPartImportedContext context) {
-        }
-
         public void ContentPartImporting(ContentPartImportingContext context) {
-        }
-
         public void ContentPartRemoved(ContentPartRemovedContext context) {
-        }
-
         public void ContentTypeCreated(ContentTypeCreatedContext context) {
             AlterMediaItem(context.ContentTypeDefinition);
-        }
-
         public void ContentTypeImported(ContentTypeImportedContext context) {
-            AlterMediaItem(context.ContentTypeDefinition);
-        }
-
         public void ContentTypeImporting(ContentTypeImportingContext context) {
-        }
-
         public void ContentTypeRemoved(ContentTypeRemovedContext context) {
-        }
-
         private void AlterMediaItem(ContentTypeDefinition contentTypeDefinition) {
             var partNames = new string[]{
                     typeof(ImagePart).Name,
@@ -73,6 +54,5 @@ namespace Orchard.MediaLibrary.Handlers {
                         .WithPart(typeof(MediaPart).Name)
                         .WithSetting("Stereotype", "Media"));
             }
-        }
     }
 }

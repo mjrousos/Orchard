@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using System.Reflection;
@@ -6,16 +14,13 @@ using Orchard.Caching;
 namespace Orchard.Environment {
     public interface IAssemblyNameResolver {
         int Order { get; }
-
         /// <summary>
         /// Resolve a short assembly name to a full name
         /// </summary>
         string Resolve(string shortName);
     }
-
     public class AppDomainAssemblyNameResolver : IAssemblyNameResolver {
         public int Order { get { return 10; } }
-
         public string Resolve(string shortName) {
             return AppDomain.CurrentDomain
                 .GetAssemblies()
@@ -23,18 +28,11 @@ namespace Orchard.Environment {
                 .Select(a => a.FullName)
                 .SingleOrDefault();
         }
-    }
-
     public class OrchardFrameworkAssemblyNameResolver : IAssemblyNameResolver {
         private readonly ICacheManager _cacheManager;
-
         public OrchardFrameworkAssemblyNameResolver(ICacheManager cacheManager) {
             _cacheManager = cacheManager;
-        }
-
         public int Order { get { return 20; } }
-
-        public string Resolve(string shortName) {
             // A few common .net framework assemblies are referenced by the Orchard.Framework assembly.
             // Look into those to see if we can find the assembly we are looking for.
             var orchardFrameworkReferences = _cacheManager.Get(typeof(IAssemblyLoader), true, ctx =>
@@ -42,26 +40,14 @@ namespace Orchard.Environment {
                             .GetReferencedAssemblies()
                             .GroupBy(n => AssemblyLoaderExtensions.ExtractAssemblyShortName(n.FullName), StringComparer.OrdinalIgnoreCase)
                             .ToDictionary(n => n.Key /*short assembly name*/, g => g.OrderBy(n => n.Version).Last() /* highest assembly version */, StringComparer.OrdinalIgnoreCase));
-
             AssemblyName assemblyName;
             if (orchardFrameworkReferences.TryGetValue(shortName, out assemblyName)) {
                 return assemblyName.FullName;
             }
-
             return null;
-        }
-    }
-
     public class GacAssemblyNameResolver : IAssemblyNameResolver {
-        private readonly ICacheManager _cacheManager;
-
         public GacAssemblyNameResolver(ICacheManager cacheManager) {
-            _cacheManager = cacheManager;
-        }
-
         public int Order { get { return 30; } }
-
-        public string Resolve(string shortName) {
             // Look in the GAC for commonly known .net frx assemblies
             // Note: We trim processor architecture to make things easier.
             // see http://msdn.microsoft.com/en-us/library/k8xx4k69.aspx:
@@ -74,29 +60,17 @@ namespace Orchard.Environment {
                 .Where(s => !string.IsNullOrWhiteSpace(s))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(s => AssemblyLoaderExtensions.ExtractAssemblyShortName(s), StringComparer.OrdinalIgnoreCase));
-
             string fullName;
             if (lookup.TryGetValue(shortName, out fullName)) {
                 return fullName;
-            }
-
-            return null;
-        }
-
         private static string TrimProcessorArchitecture(string value) {
             value = RemoveOptionalSuffix(value, ", processorArchitecture=MSIL");
             value = RemoveOptionalSuffix(value, ", processorArchitecture=AMD64");
             value = RemoveOptionalSuffix(value, ", processorArchitecture=x86");
             return value;
-        }
-
         private static string RemoveOptionalSuffix(string value, string suffix) {
             if (value.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)) {
                 return value.Substring(0, value.Length - suffix.Length);
-            }
-            return value;
-        }
-
         private static string GetGacListForDotNet40() {
             // Note: this is the result of running "gacutil -l  | findstr /i /c:"version=4.0.0" | sort" in a command prompt
             return @"
@@ -257,6 +231,4 @@ namespace Orchard.Environment {
   WindowsFormsIntegration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL
   XamlBuildTask, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL
 ";
-        }
-    }
 }

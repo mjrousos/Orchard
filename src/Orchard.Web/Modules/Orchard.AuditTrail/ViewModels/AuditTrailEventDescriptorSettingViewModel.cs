@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using Orchard.AuditTrail.Helpers;
 using Orchard.AuditTrail.Providers.AuditTrail;
@@ -7,7 +15,6 @@ namespace Orchard.AuditTrail.ViewModels {
     public class AuditTrailEventDescriptorSettingViewModel {
         public AuditTrailEventDescriptor Descriptor { get; set; }
         public AuditTrailEventSettingEventData Setting { get; set; }
-
         public string EventDisplayName {
             get { return 
                 !String.IsNullOrWhiteSpace(Setting.EventDisplayName)
@@ -17,7 +24,6 @@ namespace Orchard.AuditTrail.ViewModels {
                     : EventNameExtensions.GetShortEventName(Setting.EventName);
             }
         }
-
         public string EventCategory {
             get {
                 return
@@ -26,7 +32,5 @@ namespace Orchard.AuditTrail.ViewModels {
                     : Descriptor != null
                         ? Descriptor.CategoryDescriptor.Name.Text
                         : Setting.EventCategory;
-            }
-        }
     }
 }

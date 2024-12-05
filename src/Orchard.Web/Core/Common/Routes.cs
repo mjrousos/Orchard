@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Web;
-using System.Web.Mvc;
 using System.Web.Routing;
 using Orchard.Mvc.Routes;
 
@@ -16,14 +23,9 @@ namespace Orchard.Core.Common {
                             {"controller", "Error"},
                             {"action", "NotFound"}
                         },
-                        new RouteValueDictionary {
-                        },
-                        new RouteValueDictionary {
                             {"area", "Common"}
-                        },
                         new MvcRouteHandler())
             };
-
             routes.Add(routeDescriptor);
         }
     }

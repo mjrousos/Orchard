@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 
 namespace Orchard.Glimpse.Extensions {
@@ -18,7 +18,6 @@ namespace Orchard.Glimpse.Extensions {
                 GetTimeSpanSegment(span.Duration().Minutes, "minute"),
                 GetTimeSpanSegment(span.Duration().Seconds, "second")
             };
-
             return string.Join(", ", segments.Where(s => s != null));
         }
 

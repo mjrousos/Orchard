@@ -1,8 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Web.Mvc;
-using System.Web.Routing;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
+using System.Linq;
+using System.Web.Routing;
 
 namespace Orchard.Tokens.Providers {
     public class UrlHelperTokens : ITokenProvider {
@@ -26,13 +32,18 @@ namespace Orchard.Tokens.Providers {
             if (_workContextAccessor.GetContext().HttpContext == null) {
                 return;
             }
-
             context.For("Url", () => _urlHelper)
-                .Token(token => token.StartsWith("Action:", StringComparison.OrdinalIgnoreCase) ? token.Substring("Action:".Length) : null, GetRoute);
+                .Token(
+                    token => token.StartsWith("Action:", StringComparison.OrdinalIgnoreCase) ? token.Substring("Action:".Length) : null,
+                    GetRoute);
         }
 
         private object GetRoute(string token, UrlHelper url) {
             var items = token.Split(new[]{','}, StringSplitOptions.RemoveEmptyEntries);
+            if (items.Length < 2) {
+                return string.Empty;
+            }
+
             var actionName = items[0];
             var controllerName = items[1];
             var routeValues = new RouteValueDictionary {
@@ -41,7 +52,9 @@ namespace Orchard.Tokens.Providers {
             };
 
             foreach (var parts in items.Skip(2).Select(item => item.Split(new[] {'='}, StringSplitOptions.RemoveEmptyEntries))) {
-                routeValues[parts[0]] = parts[1];
+                if (parts.Length == 2) {
+                    routeValues[parts[0]] = parts[1];
+                }
             }
 
             return url.RouteUrl(routeValues);

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.Environment.Extensions.Models;
 using Orchard.Security.Permissions;
@@ -8,16 +16,13 @@ namespace Orchard.AuditTrail {
         public static readonly Permission ManageAuditTrailSettings = new Permission { Description = "Manage audit trail settings", Name = "ManageAuditTrailSettings" };
         public static readonly Permission ImportAuditTrail = new Permission { Description = "Import audit trail", Name = "ImportAuditTrail" };
         public static readonly Permission ManageClientIpAddressSettings = new Permission { Description = "Manage client IP address settings", Name = "ManageClientIpAddressSettings" };
-
         public virtual Feature Feature { get; set; }
-
         public IEnumerable<Permission> GetPermissions() {
             yield return ViewAuditTrail;
             yield return ManageAuditTrailSettings;
             yield return ImportAuditTrail;
             yield return ManageClientIpAddressSettings;
         }
-
         public IEnumerable<PermissionStereotype> GetDefaultStereotypes() {
             yield return new PermissionStereotype {
                 Name = "Administrator",
@@ -28,6 +33,5 @@ namespace Orchard.AuditTrail {
                     /* Not even an administrator will get the ImportAuditTrail permission by default. */
                 }
             };
-        }
     }
 }

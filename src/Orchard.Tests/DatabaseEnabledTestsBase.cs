@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,38 +18,30 @@ using Orchard.ContentManagement.FieldStorage.InfosetStorage;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Data;
 using Orchard.Environment.Configuration;
-using Orchard.Services;
 using Orchard.Tests.ContentManagement;
 using Orchard.Tests.Data;
 using Orchard.Tests.Stubs;
 
 namespace Orchard.Tests {
     public abstract class DatabaseEnabledTestsBase {
-
         protected IContainer _container;
-
         protected ISession _session;
         protected string _databaseFilePath;
         protected ISessionFactory _sessionFactory;
         protected StubClock _clock;
         protected ShellSettings _shellSettings;
-
         [TestFixtureSetUp]
         public void InitFixture() {
         }
-
         [TestFixtureTearDown]
         public void TearDownFixture() {
             File.Delete(_databaseFilePath);
-        }
-
         [SetUp]
         public virtual void Init() {
             _databaseFilePath = Path.GetTempFileName();
             _sessionFactory = DataUtility.CreateSessionFactory(_databaseFilePath, DatabaseTypes.ToArray());
             _session = _sessionFactory.OpenSession();
             _clock = new StubClock();
-
             var builder = new ContainerBuilder();
             //builder.RegisterModule(new ImplicitCollectionSupportModule());
             builder.RegisterType<InfosetHandler>().As<IContentHandler>();
@@ -51,30 +51,21 @@ namespace Orchard.Tests {
             builder.RegisterInstance(_shellSettings = new ShellSettings { Name = ShellSettings.DefaultName, DataProvider = "SqlCe" });
             builder.RegisterType<TestTransactionManager>().As<ITransactionManager>().InstancePerLifetimeScope();
             builder.Register(context => _sessionFactory.OpenSession()).As<ISession>().InstancePerLifetimeScope();
-
             Register(builder);
             _container = builder.Build();
-        }
-
         [TearDown]
         public void Cleanup() {
             if(_container != null)
                 _container.Dispose();
-        }
-
         public abstract void Register(ContainerBuilder builder);
-
         protected virtual IEnumerable<Type> DatabaseTypes {
             get {
                 return Enumerable.Empty<Type>();
             }
-        }
-
         protected void ClearSession() {
             Trace.WriteLine("Flush and clear session");
             _session.Flush();
             _session.Clear();
             Trace.WriteLine("Flushed and cleared session");
-        }
     }
 }

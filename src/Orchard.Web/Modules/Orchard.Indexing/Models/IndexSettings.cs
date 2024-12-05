@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using System.Xml.Linq;
@@ -8,31 +16,25 @@ namespace Orchard.Indexing.Models
         Rebuild,
         Update
     }
-
     public class IndexSettings {
         public IndexingMode Mode { get; set; }
         public int LastIndexedId { get; set; }
         public int LastContentId { get; set; }
         public DateTime LastIndexedUtc { get; set; }
-
         public static readonly string TagSettings = "Settings";
         public static readonly string TagMode = "Mode";
         public static readonly string TagLastIndexedId = "LastIndexedId";
         public static readonly string TagLastContentId = "LastContentId";
         public static readonly string TagLastIndexedUtc = "LastIndexedUtc";
-
         public IndexSettings() {
             Mode = IndexingMode.Rebuild;
             LastIndexedId = 0;
             LastContentId = 0;
             LastIndexedUtc = DateTime.MinValue;
         }
-
         public static IndexSettings Parse(string content) {
-
             try {
                 var doc = XDocument.Parse(content);
-
                 return new IndexSettings {
                     Mode = (IndexingMode) Enum.Parse(typeof (IndexingMode), doc.Descendants(TagMode).First().Value),
                     LastIndexedId = Int32.Parse(doc.Descendants(TagLastIndexedId).First().Value),
@@ -42,9 +44,6 @@ namespace Orchard.Indexing.Models
             }
             catch {
                 return new IndexSettings();
-            }
-        }
-
         public string ToXml() {
             return new XDocument(
                     new XElement(TagSettings,
@@ -53,6 +52,4 @@ namespace Orchard.Indexing.Models
                         new XElement(TagLastContentId, LastContentId),
                         new XElement(TagLastIndexedUtc, LastIndexedUtc.ToString("u"))
             )).ToString();
-        }
-    }
 }

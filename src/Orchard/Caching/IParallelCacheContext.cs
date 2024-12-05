@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 
@@ -11,26 +19,15 @@ namespace Orchard.Caching {
         /// The return task can be used in any execution thread (e.g. System.Threading.Tasks).
         /// </summary>
         ITask<T> CreateContextAwareTask<T>(Func<T> function);
-
         IEnumerable<TResult> RunInParallel<T, TResult>(IEnumerable<T> source, Func<T, TResult> selector);
     }
-
     public interface ITask<T> : IDisposable {
-        /// <summary>
         /// Execute task and collect eventual volatile tokens
-        /// </summary>
         T Execute();
-
-        /// <summary>
         /// Return tokens collected during task execution. May be empty if nothing collected,
         /// or if the task was executed in the same context as the current 
         /// ICacheContextAccessor.Current.
-        /// </summary>
         IEnumerable<IVolatileToken> Tokens { get; }
-
-        /// <summary>
         /// Forward collected tokens to current cache context
-        /// </summary>
         void Finish();
-    }
 }

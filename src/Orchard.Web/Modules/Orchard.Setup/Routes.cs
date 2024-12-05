@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using System.Web.Routing;
 using Orchard.Mvc.Routes;
 
@@ -14,16 +21,9 @@ namespace Orchard.Setup {
                             {"controller", "Setup"},
                             {"action", "Index"}
                         },
-                        new RouteValueDictionary {
-                            {"area", "Orchard.Setup"},
-                            {"controller", "Setup"},
-                        },
-                        new RouteValueDictionary {
                             {"area", "Orchard.Setup"}
-                        },
                         new MvcRouteHandler())
             };
-
             routes.Add(routeDescriptor);
         }
     }

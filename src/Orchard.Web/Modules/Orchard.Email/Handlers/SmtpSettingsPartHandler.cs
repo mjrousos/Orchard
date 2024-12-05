@@ -1,26 +1,27 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Configuration;
 using System.Text;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Email.Models;
-using Orchard.Localization;
 using Orchard.Logging;
-using Orchard.Security;
 
 namespace Orchard.Email.Handlers {
     public class SmtpSettingsPartHandler : ContentHandler {
         private readonly IEncryptionService _encryptionService;
-
         public SmtpSettingsPartHandler(IEncryptionService encryptionService) {
             T = NullLocalizer.Instance;
             Logger = NullLogger.Instance;
-
             _encryptionService = encryptionService;
             Filters.Add(new ActivatingFilter<SmtpSettingsPart>("Site"));
-
             OnLoaded<SmtpSettingsPart>(LazyLoadHandlers);
-
             OnInitializing<SmtpSettingsPart>((context, part) => {
                 part.Port = 25;
                 part.RequireCredentials = false;
@@ -28,9 +29,7 @@ namespace Orchard.Email.Handlers {
                 part.EncryptionMethod = SmtpEncryptionMethod.None;
             });
         }
-
         public new ILogger Logger { get; set; }
-
         void LazyLoadHandlers(LoadContentContext context, SmtpSettingsPart part) {
             part.PasswordField.Getter(() => {
                 try {
@@ -40,24 +39,15 @@ namespace Orchard.Email.Handlers {
                 catch {
                     Logger.Error("The email password could not be decrypted. It might be corrupted, try to reset it.");
                     return null;
-                }
-            });
-
             part.PasswordField.Setter(value => {
                 var encryptedPassword = String.IsNullOrWhiteSpace(value) ? String.Empty : Convert.ToBase64String(_encryptionService.Encode(Encoding.UTF8.GetBytes(value)));
                 part.Store(x => x.Password, encryptedPassword);
-            });
-
             part.AddressPlaceholderField.Loader(() => (string)((dynamic)ConfigurationManager.GetSection("system.net/mailSettings/smtp")).From);
-        }
-
         public Localizer T { get; set; }
-
         protected override void GetItemMetadata(GetContentItemMetadataContext context) {
             if (context.ContentItem.ContentType != "Site")
                 return;
             base.GetItemMetadata(context);
             context.Metadata.EditorGroupInfo.Add(new GroupInfo(T("Email")));
-        }
     }
 }

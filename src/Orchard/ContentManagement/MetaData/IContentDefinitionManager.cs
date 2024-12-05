@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using Orchard.ContentManagement.MetaData.Builders;
@@ -9,16 +17,13 @@ namespace Orchard.ContentManagement.MetaData {
         IEnumerable<ContentTypeDefinition> ListTypeDefinitions();
         IEnumerable<ContentPartDefinition> ListPartDefinitions();
         IEnumerable<ContentFieldDefinition> ListFieldDefinitions();
-
         ContentTypeDefinition GetTypeDefinition(string name);
         ContentPartDefinition GetPartDefinition(string name);
         void DeleteTypeDefinition(string name);
         void DeletePartDefinition(string name);
-
         void StoreTypeDefinition(ContentTypeDefinition contentTypeDefinition);
         void StorePartDefinition(ContentPartDefinition contentPartDefinition);
     }
-
     public static class ContentDefinitionManagerExtensions{
         public static void AlterTypeDefinition(this IContentDefinitionManager manager, string name, Action<ContentTypeDefinitionBuilder> alteration) {
             var typeDefinition = manager.GetTypeDefinition(name) ?? new ContentTypeDefinition(name, name.CamelFriendly());
@@ -29,9 +34,5 @@ namespace Orchard.ContentManagement.MetaData {
         public static void AlterPartDefinition(this IContentDefinitionManager manager, string name, Action<ContentPartDefinitionBuilder> alteration) {
             var partDefinition = manager.GetPartDefinition(name) ?? new ContentPartDefinition(name);
             var builder = new ContentPartDefinitionBuilder(partDefinition);
-            alteration(builder);
             manager.StorePartDefinition(builder.Build());
-        }
-    }
 }
-

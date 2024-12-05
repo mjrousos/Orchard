@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -5,40 +13,25 @@ using System.Linq;
 
 namespace Orchard.Localization.Models {
     public struct DateTimeParts {
-
         public static DateTimeParts FromDateTime(DateTime dateTime, TimeSpan offset) {
             return new DateTimeParts(dateTime.Year, dateTime.Month, dateTime.Day, dateTime.Hour, dateTime.Minute, dateTime.Second, dateTime.Millisecond, dateTime.Kind, offset);
         }
-
         public static DateTimeParts FromDateTimeOffset(DateTimeOffset dateTimeOffset) {
             return new DateTimeParts(dateTimeOffset.Year, dateTimeOffset.Month, dateTimeOffset.Day, dateTimeOffset.Hour, dateTimeOffset.Minute, dateTimeOffset.Second, dateTimeOffset.Millisecond, dateTimeOffset.DateTime.Kind, dateTimeOffset.Offset);
-        }
-
         public DateTimeParts(int year, int month, int day, int hour, int minute, int second, int millisecond, DateTimeKind kind, TimeSpan offset) {
             _date = new DateParts(year, month, day);
             _time = new TimeParts(hour, minute, second, millisecond, kind, offset);
-        }
-
         public DateTimeParts(DateParts dateParts, TimeParts timeParts) {
             _date = dateParts;
             _time = timeParts;
-        }
-
         private readonly DateParts _date;
         private readonly TimeParts _time;
-
         public DateParts Date {
             get {
                 return _date;
             }
-        }
-
         public TimeParts Time {
-            get {
                 return _time;
-            }
-        }
-
         public DateTime ToDateTime(Calendar calendar) {
             return new DateTime(
                 Date.Year > 0 ? Date.Year : DateTime.MinValue.Year,
@@ -51,10 +44,7 @@ namespace Orchard.Localization.Models {
                 calendar,
                 Time.Kind
             );
-        }
-
         public override string ToString() {
             return String.Format("{0} {1}", _date, _time);
-        }
     }
 }

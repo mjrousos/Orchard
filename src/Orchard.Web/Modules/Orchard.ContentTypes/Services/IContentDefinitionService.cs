@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Models;
 using Orchard.ContentTypes.ViewModels;
@@ -15,13 +22,11 @@ namespace Orchard.ContentTypes.Services {
         void RemovePartFromType(string partName, string typeName);
         string GenerateContentTypeNameFromDisplayName(string displayName);
         string GenerateFieldNameFromDisplayName(string partName, string displayName);
-
         IEnumerable<EditPartViewModel> GetParts(bool metadataPartsOnly);
         EditPartViewModel GetPart(string name);
         EditPartViewModel AddPart(CreatePartViewModel partViewModel);
         void AlterPart(EditPartViewModel partViewModel, IUpdateModel updater);
         void RemovePart(string name);
-
         IEnumerable<ContentFieldInfo> GetFields();
         void AddFieldToPart(string fieldName, string fieldTypeName, string partName);
         void AddFieldToPart(string fieldName, string displayName, string fieldTypeName, string partName);

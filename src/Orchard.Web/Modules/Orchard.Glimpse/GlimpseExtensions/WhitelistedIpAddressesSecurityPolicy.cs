@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Configuration;
 using System.Linq;
@@ -10,14 +18,11 @@ namespace Orchard.Glimpse.GlimpseExtensions {
             var request = HttpContext.Current.Request;
             var whitelistedIpAddressesValue = ConfigurationManager.AppSettings["Orchard.Glimpse:WhitelistedIpAddresses"] ?? string.Empty;
             var whitelistedIpAddresses = whitelistedIpAddressesValue.Split(new[] {";"}, StringSplitOptions.RemoveEmptyEntries);
-
             if (request.IsLocal || !whitelistedIpAddresses.Any()) {
                 return RuntimePolicy.On;
             }
-
             return whitelistedIpAddresses.Contains(request.UserHostAddress) ? RuntimePolicy.On : RuntimePolicy.Off;
         }
-
         public RuntimeEvent ExecuteOn => RuntimeEvent.EndRequest | RuntimeEvent.ExecuteResource;
     }
 }

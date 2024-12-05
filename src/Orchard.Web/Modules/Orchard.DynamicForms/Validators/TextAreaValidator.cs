@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.DynamicForms.Elements;
 using Orchard.DynamicForms.Services;
@@ -5,17 +13,14 @@ using Orchard.DynamicForms.ValidationRules;
 
 namespace Orchard.DynamicForms.Validators {
     public class TextAreaValidator : ElementValidator<TextArea> {
-        private readonly IValidationRuleFactory _validationRuleFactory;
+
         public TextAreaValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
-
         protected override IEnumerable<IValidationRule> GetValidationRules(TextArea element) {
             var settings = element.ValidationSettings;
-
             if (settings.IsRequired == true)
                 yield return _validationRuleFactory.Create<Required>(settings.CustomValidationMessage);
-
             if (settings.MinimumLength != null || settings.MaximumLength != null) {
                 yield return _validationRuleFactory.Create<StringLength>(r => {
                     r.Minimum = settings.MinimumLength;
@@ -23,6 +28,8 @@ namespace Orchard.DynamicForms.Validators {
                     r.ErrorMessage = settings.CustomValidationMessage;
                 });
             }
-        }
     }
 }
+
+        private readonly IValidationRuleFactory _validationRuleFactory;
+

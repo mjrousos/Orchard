@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using Orchard.DynamicForms.Services;
 using Orchard.DynamicForms.Services.Models;
@@ -12,15 +20,12 @@ namespace Orchard.DynamicForms.Bindings {
                         field.Value = "";
                         return;
                     }
-
                     var separators = new[] {',', ';'};
                     var hasMultipleValues = s.IndexOfAny(separators) >= 0;
-
                     if (hasMultipleValues)
                         field.SelectedValues = s.Split(separators, StringSplitOptions.RemoveEmptyEntries);
                     else {
                         field.Value = s;
-                    }
                 });
         }
     }

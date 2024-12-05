@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.DynamicForms.Elements;
 using Orchard.Layouts.Framework.Display;
@@ -13,11 +21,8 @@ namespace Orchard.DynamicForms.Drivers {
         public HiddenFieldElementDriver(IFormsBasedElementServices formsServices, ITokenizer tokenizer) : base(formsServices) {
             _tokenizer = tokenizer;
         }
-
         protected override IEnumerable<string> FormNames {
             get { yield return "HiddenField"; }
-        }
-
         protected override void DescribeForm(DescribeContext context) {
             context.Form("HiddenField", factory => {
                 var shape = (dynamic)factory;
@@ -29,18 +34,13 @@ namespace Orchard.DynamicForms.Drivers {
                         Title: "Value",
                         Classes: new[] { "text", "medium", "tokenized" },
                         Description: T("The value of this hidden field.")));
-
                 return form;
             });
-        }
-
         protected override void OnDisplaying(HiddenField element, ElementDisplayingContext context) {
             var tokenData = context.GetTokenData();
             context.ElementShape.ProcessedName = _tokenizer.Replace(element.Name, tokenData);
-
             // Allow the initial value to be tokenized.
             // If a value was posted, use that value instead (without tokenizing it).
             context.ElementShape.ProcessedValue = element.PostedValue != null ? element.PostedValue : _tokenizer.Replace(element.RuntimeValue ?? "", tokenData, new ReplaceOptions { Encoding = ReplaceOptions.NoEncode });
-        }
     }
 }

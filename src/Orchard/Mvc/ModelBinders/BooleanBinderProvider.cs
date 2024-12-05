@@ -1,11 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
-using System.Web.Mvc;
 using System.Linq;
 
 namespace Orchard.Mvc.ModelBinders {
     public class BooleanBinderProvider : IModelBinderProvider, IModelBinder {
-
         public IEnumerable<ModelBinderDescriptor> GetModelBinders() {
             return new[] {
                              new ModelBinderDescriptor {
@@ -14,7 +20,6 @@ namespace Orchard.Mvc.ModelBinders {
                                                        }
                          };
         }
-
         public object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext) {
             // returning null from here allows the downstream method to set its own default
             var value = false;
@@ -44,8 +49,6 @@ namespace Orchard.Mvc.ModelBinders {
             } catch {
                 bindingContext.ModelState.AddModelError(bindingContext.ModelName, new FormatException());
                 return null;
-            }
             return value;
-        }
     }
 }

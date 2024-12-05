@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using Orchard.Environment.Extensions.Models;
@@ -8,24 +16,19 @@ namespace Orchard.Widgets.Services {
         
         IEnumerable<string> GetZones();
         IEnumerable<string> GetZones(ExtensionDescriptor theme);
-
         IEnumerable<LayerPart> GetLayers();
-
         IEnumerable<Tuple<string, string>> GetWidgetTypes();
         IEnumerable<string> GetWidgetTypeNames();
         IEnumerable<WidgetPart> GetWidgets();
         IEnumerable<WidgetPart> GetOrphanedWidgets();
         IEnumerable<WidgetPart> GetWidgets(int layerId);
         IEnumerable<WidgetPart> GetWidgets(int[] layerIds);
-
         WidgetPart GetWidget(int widgetId);
         WidgetPart CreateWidget(int layerId, string widgetType, string title, string position, string zone);
         void DeleteWidget(int widgetId);
-
         LayerPart GetLayer(int layerId);
         LayerPart CreateLayer(string name, string description, string layerRule);
         void DeleteLayer(int layerId);
-
         bool MoveWidgetUp(int widgetId);
         bool MoveWidgetUp(WidgetPart widgetPart);
         bool MoveWidgetDown(int widgetId);

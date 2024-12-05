@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Linq;
 using Orchard.ContentManagement.Records;
 using Orchard.Data;
@@ -7,11 +15,8 @@ namespace Orchard.ContentManagement.Handlers {
         public StorageVersionFilter(IRepository<TRecord> repository)
             : base(repository) {
         }
-
         protected override TRecord GetRecordCore(ContentItemVersionRecord versionRecord) {
             return _repository.Get(versionRecord.Id);
-        }
-
         protected override TRecord CreateRecordCore(ContentItemVersionRecord versionRecord, TRecord record = null) {
             if (record == null) {
                 record = new TRecord();
@@ -20,31 +25,20 @@ namespace Orchard.ContentManagement.Handlers {
             record.ContentItemVersionRecord = versionRecord;
             _repository.Create(record);
             return record;
-        }
-
         protected override void Versioning(VersionContentContext context, ContentPart<TRecord> existing, ContentPart<TRecord> building) {
             // move known ORM values over
             _repository.Copy(existing.Record, building.Record);
-
             // only the up-reference to the particular version differs at this point
             building.Record.ContentItemVersionRecord = context.BuildingItemVersionRecord;
-
             // push the new instance into the transaction and session
             _repository.Create(building.Record);
-        }
-
         protected override void Destroying(DestroyContentContext context, ContentPart<TRecord> instance) {
             // Get all content item version records.
             var allVersions = context.ContentItem.Record.Versions.ToArray();
-
             // For each version record, delete its part record (ID of versioned part records is the same as the ID of a version record).
             foreach (var versionRecord in allVersions) {
                 var partRecord = _repository.Get(versionRecord.Id);
-
                 if (partRecord != null)
                     _repository.Delete(partRecord);
-            }
-        }
     }
-
 }

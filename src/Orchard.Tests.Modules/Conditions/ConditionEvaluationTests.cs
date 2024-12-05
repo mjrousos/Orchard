@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Autofac;
 using NUnit.Framework;
@@ -11,7 +19,6 @@ namespace Orchard.Tests.Modules.Conditions {
     public class ConditionEvaluationTests {
         private IContainer _container;
         private IConditionManager _conditionManager;
-
         [SetUp]
         public void Init() {
             var builder = new ContainerBuilder();
@@ -19,39 +26,24 @@ namespace Orchard.Tests.Modules.Conditions {
             builder.RegisterType<AlwaysTrueCondition>().As<IConditionProvider>();
             builder.RegisterType<ConditionManager>().As<IConditionManager>();
             builder.RegisterType<StubCacheManager>().As<ICacheManager>();
-
             _container = builder.Build();
             _conditionManager = _container.Resolve<IConditionManager>();
         }
-
         [Test]
         public void ProviderGetsCalledForExpression() {
             var result = _conditionManager.Matches("hello");
             Assert.IsTrue(result);
-        }
-
-        [Test]
         public void RubyExpressionIsEvaluated() {
             var result = _conditionManager.Matches("not hello");
             Assert.IsFalse(result);
-        }
-
-        [Test]
         public void ArgumentsArePassedCorrectly() {
             var result = _conditionManager.Matches("add(2, 3) == 5");
-            Assert.IsTrue(result);
-        }
     }
-
     public class AlwaysTrueCondition : IConditionProvider {
         public void Evaluate(ConditionEvaluationContext evaluationContext) {
             if (evaluationContext.FunctionName == "add") {
                 evaluationContext.Result = Convert.ToInt32(evaluationContext.Arguments[0]) + Convert.ToInt32(evaluationContext.Arguments[1]);
                 return;
             }
-
             evaluationContext.Result = true;
-        }
-    }
 }
-

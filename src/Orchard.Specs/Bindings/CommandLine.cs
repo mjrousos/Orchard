@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.IO;
 using System.Linq;
 using Orchard.Commands;
@@ -26,7 +34,6 @@ namespace Orchard.Specs.Bindings {
                 details.StatusDescription = details.StatusCode.ToString();
                 details.ResponseText = output.ToString();
             });
-
             Binding<WebAppHosting>().Details = details;
         }
     }

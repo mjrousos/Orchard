@@ -1,12 +1,15 @@
-﻿using System.Linq;
-using System.Web.Mvc;
-using Orchard;
 using Orchard.ContentManagement;
-using Orchard.Core.Navigation.Models;
-using Orchard.Core.Navigation.Services;
-using Orchard.Localization;
 using Orchard.Security;
 using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Linq;
+using Orchard;
+using Orchard.Core.Navigation.Models;
+using Orchard.Core.Navigation.Services;
 using Orchard.UI.Notify;
 using Orchard.Widgets.Services;
 
@@ -16,7 +19,6 @@ namespace Upgrade.Controllers {
         private readonly IMenuService _menuService;
         private readonly IOrchardServices _orchardServices;
         private readonly IWidgetsService _widgetsService;
-
         public MenuController(
             IMenuService menuService,
             IOrchardServices orchardServices,
@@ -25,35 +27,23 @@ namespace Upgrade.Controllers {
             _orchardServices = orchardServices;
             _widgetsService = widgetsService;
         }
-
         public Localizer T { get; set; }
-
         public ActionResult Index() {
             var menus = _menuService.GetMenus();
-
             if(menus.Any()) {
                 _orchardServices.Notifier.Warning(T("This step is unnecessary as some menus already exist."));
             }
-
             return View();
-        }
-
         [HttpPost, ActionName("Index")]
         public ActionResult IndexPOST() {
             if (!_orchardServices.Authorizer.Authorize(StandardPermissions.SiteOwner, T("Not allowed to migrate the navigation.")))
                 return new HttpUnauthorizedResult();
-
-            var menus = _menuService.GetMenus();
-
             if (menus.Any()) {
                 _orchardServices.Notifier.Error(T("This step is unnecessary as some menus already exist."));
                 return View();
-            }
-
             // create a Main Menu
             var mainMenu = _menuService.Create("Main Menu");
             _orchardServices.Notifier.Success(T("Main menu created"));
-
             // assign the Main Menu to all current menu items
             foreach (var menuItem in _menuService.Get()) {
                 // if they don't have a position or a text, then they are not displayed
@@ -61,22 +51,15 @@ namespace Upgrade.Controllers {
                     continue;
                 }
                 menuItem.Menu = mainMenu.ContentItem;
-            }
             _orchardServices.Notifier.Success(T("Menu items moved to Main menu"));
-
             // a widget should is created to display the navigation
             var layer = _widgetsService.GetLayers().FirstOrDefault(x => x.Name == "Default");
             if(layer == null) {
                 _orchardServices.Notifier.Warning(T("Widget could not be created. Please create it manually."));
-            }
-
             var widget = _widgetsService.CreateWidget(layer.Id, "MenuWidget", "Main Menu", "1.0", "Navigation");
             widget.RenderTitle = false;
-
             var menuWidget = widget.As<MenuWidgetPart>();
-
             menuWidget.MenuContentItemId = mainMenu.ContentItem.Id;
-
             menuWidget.StartLevel = 1;
             menuWidget.Levels = 1;
             menuWidget.Breadcrumb = false;
@@ -84,8 +67,6 @@ namespace Upgrade.Controllers {
             menuWidget.AddCurrentPage = false;
             
             _orchardServices.ContentManager.Publish(menuWidget.ContentItem);
-            
             return View("Index");
-        }
     }
 }

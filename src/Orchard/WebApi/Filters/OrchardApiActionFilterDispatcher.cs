@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +20,12 @@ namespace Orchard.WebApi.Filters {
         public bool AllowMultiple { get; private set; }
         public async Task<HttpResponseMessage> ExecuteActionFilterAsync(HttpActionContext actionContext, CancellationToken cancellationToken, Func<Task<HttpResponseMessage>> continuation) {
             var workContext = actionContext.ControllerContext.GetWorkContext();
-
             foreach (var actionFilter in workContext.Resolve<IEnumerable<IApiFilterProvider>>().OfType<IActionFilter>()) {
                 var tempContinuation = continuation;
                 continuation = () => {
                     return actionFilter.ExecuteActionFilterAsync(actionContext, cancellationToken, tempContinuation);
                 };
             }
-
             return await continuation();
         }
     }

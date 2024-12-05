@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using NHibernate;
 using NHibernate.Linq;
@@ -8,7 +16,6 @@ namespace Orchard.Tests {
     [TestFixture]
     public class LinqToNHibernateTests {
         #region Setup/Teardown
-
         [SetUp]
         public void Init() {
             var sessionFactory = DataUtility.CreateSessionFactory(typeof (FooRecord));
@@ -19,24 +26,17 @@ namespace Orchard.Tests {
             }
             _session = sessionFactory.OpenSession();
         }
-
         [TearDown]
         public void Term() {
             _session.Close();
-        }
-
         #endregion
-
         private ISession _session;
-
         [Test]
         public void WhereClauseShouldLimitResults() {
             var foos = from f in _session.Query<FooRecord>() where f.Name == "two" || f.Name == "one" select f;
-
             Assert.That(foos.Count(), Is.EqualTo(2));
             Assert.That(foos, Has.Some.Property("Name").EqualTo("one"));
             Assert.That(foos, Has.Some.Property("Name").EqualTo("two"));
             Assert.That(foos, Has.None.Property("Name").EqualTo("three"));
-        }
     }
 }

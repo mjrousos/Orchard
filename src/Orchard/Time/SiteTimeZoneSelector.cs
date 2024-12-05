@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Web;
 using Orchard.Logging;
@@ -9,24 +17,18 @@ namespace Orchard.Time {
     /// </summary>
     public class SiteTimeZoneSelector : ITimeZoneSelector {
         private readonly IWorkContextAccessor _workContextAccessor;
-
         public SiteTimeZoneSelector(IWorkContextAccessor workContextAccessor) {
             _workContextAccessor = workContextAccessor;
-
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public TimeZoneSelectorResult GetTimeZone(HttpContextBase context) {
             
             try {
                 var siteTimeZoneId = _workContextAccessor.GetContext().CurrentSite.SiteTimeZone;
-
                 if (String.IsNullOrEmpty(siteTimeZoneId)) {
                     return null;
                 }
-
                 return new TimeZoneSelectorResult {
                     Priority = -5,
                     TimeZone = TimeZoneInfo.FindSystemTimeZoneById(siteTimeZoneId)
@@ -37,10 +39,7 @@ namespace Orchard.Time {
                     throw;
                 } 
                 Logger.Error(ex, "TimeZone could not be loaded");
-
                 // if the database could not be updated in time, ignore this provider
                 return null;
-            }
-        }
     }
 }

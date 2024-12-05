@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using Orchard.Azure.MediaServices.Models.Assets;
 using Orchard.ContentManagement.FieldStorage.InfosetStorage;
@@ -5,11 +13,9 @@ using Orchard.Data.Conventions;
 
 namespace Orchard.Azure.MediaServices.Models.Records {
     public class AssetRecord {
-
         public AssetRecord() {
             Infoset = new Infoset();
         }
-
         public virtual int Id { get; set; }
         public virtual int VideoContentItemId { get; set; }
         public virtual string Type { get; set; }
@@ -34,13 +40,10 @@ namespace Orchard.Azure.MediaServices.Models.Records {
         public virtual AssetPublishStatus PublishStatus { get; set; }
         public virtual DateTime? PublishedUtc { get; set; }
         public virtual DateTime? RemovedUtc { get; set; }
-
         [StringLengthMax]
         public virtual string Data {
             get { return Infoset.Data; }
             set { Infoset.Data = value; }
-        }
-
         public virtual Infoset Infoset { get; protected set; }
     }
 }

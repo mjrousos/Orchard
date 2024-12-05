@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Azure.MediaServices.Models.Jobs;
 using Orchard.Data.Conventions;
 
@@ -10,10 +18,8 @@ namespace Orchard.Azure.MediaServices.Models.Records {
         public virtual int TaskIndex { get; set; }
         public virtual JobStatus Status { get; set; }
         public virtual int PercentComplete { get; set; }
-
         [StringLengthMax]
         public virtual string SettingsXml { get; set; }
-
         public virtual string HarvestAssetType { get; set; }
         public virtual string HarvestAssetName { get; set; }
     }

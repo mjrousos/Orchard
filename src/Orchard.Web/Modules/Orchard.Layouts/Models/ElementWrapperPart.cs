@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.Layouts.Settings;
 
@@ -6,10 +14,8 @@ namespace Orchard.Layouts.Models {
         public string ElementTypeName {
             get { return TypePartDefinition.Settings.GetModel<ElementWrapperPartSettings>().ElementTypeName; }
         }
-
         public string ElementData {
             get { return this.Retrieve(x => x.ElementData, versioned: true, defaultValue: this.Retrieve(x => x.ElementData)); }
             set { this.Store(x => x.ElementData, value, versioned: true); }
-        }
     }
 }

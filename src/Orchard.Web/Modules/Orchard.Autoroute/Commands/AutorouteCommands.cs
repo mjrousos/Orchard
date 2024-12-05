@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Commands;
 using Orchard.Autoroute.Services;
 
@@ -8,11 +16,9 @@ namespace Orchard.Autoroute.Commands {
         public AutorouteCommands(IAutorouteService autorouteService) {
             _autorouteService = autorouteService;
         }
-
         [CommandHelp("autoroute create <content-type> <name> <pattern> <description> <isDefault>\r\n\t" + "Adds a new autoroute pattern to a specific content type")]
         [CommandName("autoroute create")]
         public void CreatePattern(string contentType, string name, string pattern, string description, bool isDefault) {
             _autorouteService.CreatePattern(contentType, name, pattern, description, isDefault);
-        }
     }
 }

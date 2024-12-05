@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using FluentNHibernate.Automapping;
 using FluentNHibernate.Cfg;
 using NHibernate.Cfg;
@@ -15,30 +23,18 @@ namespace Orchard.Data {
         /// <param name="cfg">Empty fluent NH configuration object.</param>
         /// <param name="defaultModel">Default persistence model that is about to be used.</param>
         void Created(FluentConfiguration cfg, AutoPersistenceModel defaultModel);
-
-        /// <summary>
         /// Called when fluent configuration has been prepared but not yet built. 
-        /// </summary>
         /// <param name="cfg">Prepared fluent NH configuration object.</param>
         void Prepared(FluentConfiguration cfg);
-
-        /// <summary>
         /// Called when raw NHibernate configuration is being built, after applying all customizations.
         /// Allows applying final alterations to the raw NH configuration.
-        /// </summary>
         /// <param name="cfg">Raw NH configuration object being processed.</param>
         void Building(Configuration cfg);
-
-        /// <summary>
         /// Called when NHibernate configuration has been built or read from cache storage (mappings.bin file by default).
-        /// </summary>
         /// <param name="cfg">Final, raw NH configuration object.</param>
         void Finished(Configuration cfg);
-
-        /// <summary>
         /// Called when configuration hash is being computed. If hash changes, configuration will be rebuilt and stored in mappings.bin.
         /// This method allows to alter the default hash to take into account custom configuration changes.
-        /// </summary>
         /// <remarks>
         /// It's a developer responsibility to make sure hash is correctly updated when config needs to be rebuilt.
         /// Otherwise the cached configuration (mappings.bin file) will be used as long as default Orchard configuration 

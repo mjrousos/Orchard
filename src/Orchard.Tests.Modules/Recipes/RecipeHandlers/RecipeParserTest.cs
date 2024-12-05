@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using Autofac;
 using NUnit.Framework;
@@ -7,15 +15,12 @@ namespace Orchard.Tests.Modules.Recipes.RecipeHandlers {
     [TestFixture]
     public class RecipeParserTest {
         protected IContainer _container;
-
         [SetUp]
         public void Init() {
             var builder = new ContainerBuilder();
             builder.RegisterType<RecipeParser>().As<IRecipeParser>();
-
             _container = builder.Build();
         }
-
         [Test]
         public void ParsingRecipeYieldsUniqueIdsForSteps() {
             var recipeText = @"<Orchard><Foo /><Bar /><Baz /></Orchard>";
@@ -24,6 +29,5 @@ namespace Orchard.Tests.Modules.Recipes.RecipeHandlers {
             
             // Assert that each step has a unique ID.
             Assert.IsTrue(recipe.RecipeSteps.GroupBy(x => x.Id).All(y => y.Count() == 1));
-        }
     }
 }

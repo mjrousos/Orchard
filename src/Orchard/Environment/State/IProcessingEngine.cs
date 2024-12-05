@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.Environment.Configuration;
 using Orchard.Environment.Descriptor.Models;
@@ -10,8 +18,6 @@ namespace Orchard.Environment.State
         /// Init a new tasks list in the http context or in a new logical context.
         /// </summary>
         void Initialize();
-
-        /// <summary>
         /// Queue an event to fire inside of an explicitly decribed shell context
         /// </summary>        
         string AddTask(
@@ -19,18 +25,12 @@ namespace Orchard.Environment.State
             ShellDescriptor shellDescriptor, 
             string messageName, 
             Dictionary<string, object> parameters);
-
-        /// <summary>
         /// Called by a component responsible for causing tasks to execute. Can be called from 
         /// anyplace which needs to know if work needs to be performed.
-        /// </summary>
         bool AreTasksPending();
-
-        /// <summary>
         /// Called by a component responsible for causing tasks to execute. Must only be called
         /// at a point where a full context-specific transaction scope may run. (*Not* inside the processing
         /// of a request)
-        /// </summary>
         void ExecuteNextTask();
     }
 }

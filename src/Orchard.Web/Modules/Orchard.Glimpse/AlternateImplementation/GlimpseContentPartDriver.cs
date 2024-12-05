@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
-using Orchard.ContentManagement.MetaData;
 using Orchard.Environment.Extensions;
 using Orchard.Glimpse.Models;
 using Orchard.Glimpse.Services;
@@ -19,7 +18,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
 
         public DriverResult BuildDisplay(BuildDisplayContext context) {
             var driverResult = _decoratedService.BuildDisplay(context);
-
             return driverResult == null ? null : new GlimpseDriverResult(driverResult, _glimpseService);
         }
 

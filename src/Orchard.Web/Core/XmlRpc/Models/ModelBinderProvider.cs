@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using System.Xml;
 using System.Xml.Linq;
 using Orchard.Core.XmlRpc.Services;
@@ -9,11 +16,9 @@ using IModelBinderProvider = Orchard.Mvc.ModelBinders.IModelBinderProvider;
 namespace Orchard.Core.XmlRpc.Models {
     public class ModelBinderProvider : IModelBinderProvider, IModelBinder {
         private readonly IXmlRpcReader _mapper;
-
         public ModelBinderProvider(IXmlRpcReader mapper) {
             _mapper = mapper;
         }
-
         public IEnumerable<ModelBinderDescriptor> GetModelBinders() {
             return new[] {
                              new ModelBinderDescriptor {
@@ -21,8 +26,6 @@ namespace Orchard.Core.XmlRpc.Models {
                                                            Type = typeof(XRpcMethodCall)
                                                        }
                          };
-        }
-
         public object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext) {
             // Ah! xmlrpc is a value provider!!!
             // TODO: refactor this? 
@@ -30,6 +33,5 @@ namespace Orchard.Core.XmlRpc.Models {
                 var element = XElement.Load(xmlReader);
                 return _mapper.MapToMethodCall(element);
             }
-        }
     }
 }

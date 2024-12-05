@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
@@ -8,19 +16,15 @@ using System.Globalization;
 
 namespace Orchard.Fields.Settings {
     public class EnumerationFieldListModeEvents : ContentDefinitionEditorEventsBase {
-
         public override IEnumerable<TemplateViewModel> PartFieldEditor(ContentPartFieldDefinition definition) {
             if (definition.FieldDefinition.Name == "EnumerationField") {
                 var model = definition.Settings.GetModel<EnumerationFieldSettings>();
                 yield return DefinitionTemplate(model);
             }
         }
-
         public override IEnumerable<TemplateViewModel> PartFieldEditorUpdate(ContentPartFieldDefinitionBuilder builder, IUpdateModel updateModel) {
             if (builder.FieldType != "EnumerationField") {
                 yield break;
-            }
-
             var model = new EnumerationFieldSettings();
             if (updateModel.TryUpdateModel(model, "EnumerationFieldSettings", null, null)) {
                 builder.WithSetting("EnumerationFieldSettings.Hint", model.Hint);
@@ -28,9 +32,6 @@ namespace Orchard.Fields.Settings {
                 builder.WithSetting("EnumerationFieldSettings.Options", model.Options);
                 builder.WithSetting("EnumerationFieldSettings.ListMode", model.ListMode.ToString());
                 builder.WithSetting("EnumerationFieldSettings.DefaultValue", model.DefaultValue);
-            }
-
             yield return DefinitionTemplate(model);
-        }
     }
 }

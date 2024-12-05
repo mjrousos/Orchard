@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
@@ -11,41 +19,31 @@ using Orchard.ContentManagement.FieldStorage.InfosetStorage;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Data;
 using Orchard.Environment.Configuration;
-using Orchard.Services;
 using Orchard.Tests.ContentManagement;
 using Orchard.Tests.Data;
 using Orchard.Tests.Stubs;
 
 namespace Orchard.Tests.Modules {
     public abstract class DatabaseEnabledTestsBase {
-
         protected IContainer _container;
         protected ITransaction _transaction;
-
         protected ISession _session;
         protected string _databaseFilePath;
         protected ISessionFactory _sessionFactory;
         protected StubClock _clock;
-
-
         [TestFixtureSetUp]
         public void InitFixture() {
         }
-
         [TestFixtureTearDown]
         public void TearDownFixture() {
             File.Delete(_databaseFilePath);
-        }
-
         [SetUp]
         public virtual void Init() {
             _databaseFilePath = Path.GetTempFileName();
             _sessionFactory = DataUtility.CreateSessionFactory(_databaseFilePath, DatabaseTypes.ToArray());
             _session = _sessionFactory.OpenSession();
             _transaction = _session.BeginTransaction(IsolationLevel.ReadCommitted);
-
             _clock = new StubClock();
-
             var builder = new ContainerBuilder();
             //builder.RegisterModule(new ImplicitCollectionSupportModule());
             builder.RegisterType<InfosetHandler>().As<IContentHandler>();
@@ -56,29 +54,20 @@ namespace Orchard.Tests.Modules {
             builder.RegisterInstance(new TestTransactionManager(_session)).As<ITransactionManager>();
             Register(builder);
             _container = builder.Build();
-
-        }
-
         [TearDown]
         public virtual void Cleanup() {
             if(_container != null)
                 _container.Dispose();
-        }
-
         public abstract void Register(ContainerBuilder builder);
-
         protected virtual IEnumerable<Type> DatabaseTypes {
             get {
                 return Enumerable.Empty<Type>();
             }
-        }
         
         protected void ClearSession() {
             Trace.WriteLine("Flush and clear session");
             _transaction.Commit();
             _session.Clear();
-            _transaction = _session.BeginTransaction(IsolationLevel.ReadCommitted);
             Trace.WriteLine("Flushed and cleared session");
-        }
     }
 }

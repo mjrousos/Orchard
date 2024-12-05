@@ -1,10 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 using System.Linq;
 using Orchard.Autoroute.Models;
 using Orchard.Autoroute.Services;
 using Orchard.Blogs.Models;
 using Orchard.Caching;
-using Orchard.ContentManagement;
 using Orchard.Core.Title.Models;
 using Orchard.Environment.Configuration;
 using Orchard.Environment.Descriptor;
@@ -18,7 +25,6 @@ namespace Orchard.Blogs.Services {
         private readonly IShellDescriptorManager _shellDescriptorManager;
         private readonly HashSet<int> _processedBlogParts = new HashSet<int>();
         private readonly IPathResolutionService _pathResolutionService;
-
         public BlogService(
             IContentManager contentManager,
             IProcessingEngine processingEngine,
@@ -31,52 +37,33 @@ namespace Orchard.Blogs.Services {
             _shellDescriptorManager = shellDescriptorManager;
             _pathResolutionService = pathResolutionService;
         }
-
         public BlogPart Get(string path) {
             var blog = _pathResolutionService.GetPath(path);
-
             if (blog == null) {
                 return null;
             }
-
             if (!blog.Has<BlogPart>()) {
-                return null;
-            }
-
             return blog.As<BlogPart>();
-        }
-
         public ContentItem Get(int id, VersionOptions versionOptions) {
             var blogPart = _contentManager.Get<BlogPart>(id, versionOptions);
             return blogPart == null ? null : blogPart.ContentItem;
-        }
-
         private IEnumerable<BlogPart> _publishedBlogs;
         public IEnumerable<BlogPart> Get() {
             // this is currently called at least twice per request on the
             // back-office, both times by the code building the admin menu.
             if (_publishedBlogs == null) {
                 _publishedBlogs = Get(VersionOptions.Published);
-            }
             return _publishedBlogs;
-        }
-
         public IEnumerable<BlogPart> Get(VersionOptions versionOptions) {
             return _contentManager.Query<BlogPart>(versionOptions, "Blog")
                 .Join<TitlePartRecord>()
                 .OrderBy(br => br.Title)
                 .List();
-        }
-
         public void Delete(ContentItem blog) {
             _contentManager.Remove(blog);
-        }
-
         public void ProcessBlogPostsCount(int blogPartId) {
             if (!_processedBlogParts.Contains(blogPartId)) {
                 _processedBlogParts.Add(blogPartId);
                 _processingEngine.AddTask(_shellSettings, _shellDescriptorManager.GetShellDescriptor(), "IBlogPostsCountProcessor.Process", new Dictionary<string, object> { { "blogPartId", blogPartId } });
-            }
-        }
     }
 }

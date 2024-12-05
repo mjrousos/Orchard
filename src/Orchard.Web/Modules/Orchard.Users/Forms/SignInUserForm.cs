@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
@@ -28,26 +36,18 @@ namespace Orchard.Users.Forms {
                         Title: T("Create Persistent Cookie"),
                         Description: T("A value evaluating to 'true' to create a persistent cookie."),
                         Classes: new[]{"text", "large", "tokenized"}));
-
                 return form;
             });
         }
-
         void IFormEventHandler.Validating(ValidatingContext context) {
             if (context.FormName != "SignInUser") return;
-
             var userName = context.ValueProvider.GetValue("UserNameOrEmail").AttemptedValue;
             var password = context.ValueProvider.GetValue("Password").AttemptedValue;
-
             if (String.IsNullOrWhiteSpace(userName)) {
                 context.ModelState.AddModelError("UserNameOrEmail", T("You must specify a user name, email address or a token that evaluates to a username or email address.").Text);
             }
-
             if (String.IsNullOrWhiteSpace(password)) {
                 context.ModelState.AddModelError("Password", T("You must specify a password or a token that evaluates to a password.").Text);
-            }
-        }
-
         void IFormEventHandler.Building(BuildingContext context) {}
         void IFormEventHandler.Built(BuildingContext context) {}
         void IFormEventHandler.Validated(ValidatingContext context) {}

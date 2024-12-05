@@ -1,7 +1,14 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Orchard.Localization;
 
 namespace Orchard.Tokens.Implementation {
     public class TokenManager : ITokenManager {
@@ -68,7 +75,6 @@ namespace Orchard.Tokens.Implementation {
                         return new EvaluateForImpl<TData>(this, (TData)value);
                     }
                 }
-
                 return new EvaluateForSilent<TData>();
             }
 
@@ -86,120 +92,117 @@ namespace Orchard.Tokens.Implementation {
                     else if (defaultData != null) {
                         data = defaultData();
                     }
-
                     return new EvaluateForImpl<TData>(this, data);
                 }
-
                 return new EvaluateForSilent<TData>();
             }
+        }
 
-            private class EvaluateForImpl<TData> : EvaluateFor<TData> {
-                private readonly EvaluateContextImpl _context;
-                private readonly TData _data;
+        private class EvaluateForImpl<TData> : EvaluateFor<TData> {
+            private readonly EvaluateContextImpl _context;
+            private readonly TData _data;
 
-                public EvaluateForImpl(EvaluateContextImpl context, TData data) {
-                    _context = context;
-                    _data = data;
-                }
+            public EvaluateForImpl(EvaluateContextImpl context, TData data) {
+                _context = context;
+                _data = data;
+            }
 
-                public override TData Data {
-                    get { return _data; }
-                }
+            public override TData Data {
+                get { return _data; }
+            }
 
-                public override EvaluateFor<TData> Token(string token, Func<TData, object> tokenValue) {
-                    string originalToken;
-                    if (_context.Tokens.TryGetValue(token, out originalToken)) {
-                        try {
-                            _context.Values[originalToken] = tokenValue(_data);
-                        }
-                        catch (NullReferenceException) {
-                            _context.Values[originalToken] = null;
-                        }
+            public override EvaluateFor<TData> Token(string token, Func<TData, object> tokenValue) {
+                string originalToken;
+                if (_context.Tokens.TryGetValue(token, out originalToken)) {
+                    try {
+                        _context.Values[originalToken] = tokenValue(_data);
                     }
+                    catch (NullReferenceException) {
+                        _context.Values[originalToken] = null;
+                    }
+                }
+                return this;
+            }
+
+            public override EvaluateFor<TData> Token(Func<string, TData, object> tokenValue) {
+                return Token(null, tokenValue);
+            }
+
+            public override EvaluateFor<TData> Token(Func<string, string> filter, Func<string, TData, object> tokenValue) {
+                foreach (var token in _context.Tokens) {
+                    var tokenName = token.Key;
+                    if (filter != null) {
+                        tokenName = filter(token.Key);
+                        if (tokenName == null)
+                            continue;
+                    }
+                    var value = tokenValue(tokenName, _data);
+                    if (value != null) {
+                        _context.Values[token.Value] = value;
+                    }
+                }
+                return this;
+            }
+
+            public override EvaluateFor<TData> Chain(string token, string chainTarget, Func<TData, object> chainValue) {
+                var subTokens = _context.Tokens
+                    .Where(kv => kv.Key.StartsWith(token + "."))
+                    .ToDictionary(kv => kv.Key.Substring(token.Length + 1), kv => kv.Value);
+
+                if (!subTokens.Any()) {
                     return this;
                 }
 
-                public override EvaluateFor<TData> Token(Func<string, TData, object> tokenValue) {
-                    return Token(null, tokenValue);
+                var subValues = _context._manager.Evaluate(chainTarget, subTokens, new Dictionary<string, object> { { chainTarget, chainValue(_data) } });
+                foreach (var subValue in subValues) {
+                    _context.Values[subValue.Key] = subValue.Value;
                 }
+                return this;
+            }
 
-                public override EvaluateFor<TData> Token(Func<string, string> filter, Func<string, TData, object> tokenValue) {
-                    foreach (var token in _context.Tokens) {
-                        var tokenName = token.Key;
-                        if (filter != null) {
-                            tokenName = filter(token.Key);
-                            if (tokenName == null)
-                                continue;
-                        }
-                        var value = tokenValue(tokenName, _data);
-                        if (value != null) {
-                            _context.Values[token.Value] = value;
-                        }
-                    }
-                    return this;
-                }
+            public override EvaluateFor<TData> Chain(Func<string, Tuple<string, string>> filter, string chainTarget, Func<string, TData, object> chainValue) {
+                var subTokens = _context.Tokens
+                    .Where(kv => kv.Key.Contains('.'))
+                    .Select(kv => {
+                        var filterResult = filter(kv.Key);
+                        return filterResult != null ? new Tuple<string, string, string>(filterResult.Item1, filterResult.Item2, kv.Value) : null;
+                    })
+                    .Where(st => st != null)
+                    .ToList();
 
-
-                public override EvaluateFor<TData> Chain(string token, string chainTarget, Func<TData, object> chainValue) {
-                    var subTokens = _context.Tokens
-                        .Where(kv => kv.Key.StartsWith(token + "."))
-                        .ToDictionary(kv => kv.Key.Substring(token.Length + 1), kv => kv.Value);
-                    if (!subTokens.Any()) {
-                        return this;
-                    }
-                    var subValues = _context._manager.Evaluate(chainTarget, subTokens, new Dictionary<string, object> { { chainTarget, chainValue(_data) } });
+                foreach(var chainGroup in subTokens.GroupBy(st => st.Item1)) {
+                    var subValues = _context._manager.Evaluate(chainTarget, chainGroup.ToDictionary(cg => cg.Item2, cg => cg.Item3), new Dictionary<string, object> { { chainTarget, chainValue(chainGroup.Key, _data) } });
                     foreach (var subValue in subValues) {
                         _context.Values[subValue.Key] = subValue.Value;
                     }
-                    return this;
                 }
+                return this;
+            }
+        }
 
-                public override EvaluateFor<TData> Chain(Func<string, Tuple<string, string>> filter, string chainTarget, Func<string, TData, object> chainValue) {
-                    var subTokens = _context.Tokens
-                        .Where(kv => kv.Key.Contains('.'))
-                        .Select(kv => {
-                            var filterResult = filter(kv.Key);
-                            return filterResult != null ? new Tuple<string, string, string>(filterResult.Item1, filterResult.Item2, kv.Value) : null;
-                        })
-                        .Where(st => st != null)
-                        .ToList();
-                    if (!subTokens.Any()) {
-                        return this;
-                    }
-                    foreach(var chainGroup in subTokens.GroupBy(st => st.Item1)) {
-                        var subValues = _context._manager.Evaluate(chainTarget, chainGroup.ToDictionary(cg => cg.Item2, cg => cg.Item3), new Dictionary<string, object> { { chainTarget, chainValue(chainGroup.Key, _data) } });
-                        foreach (var subValue in subValues) {
-                            _context.Values[subValue.Key] = subValue.Value;
-                        }
-                    }
-                    return this;
-                }
+        private class EvaluateForSilent<TData> : EvaluateFor<TData> {
+            public override TData Data {
+                get { return default(TData); }
             }
 
-            private class EvaluateForSilent<TData> : EvaluateFor<TData> {
-                public override TData Data {
-                    get { return default(TData); }
-                }
+            public override EvaluateFor<TData> Token(string token, Func<TData, object> tokenValue) {
+                return this;
+            }
 
-                public override EvaluateFor<TData> Token(string token, Func<TData, object> tokenValue) {
-                    return this;
-                }
+            public override EvaluateFor<TData> Token(Func<string, TData, object> tokenValue) {
+                return this;
+            }
 
-                public override EvaluateFor<TData> Token(Func<string, TData, object> tokenValue) {
-                    return this;
-                }
+            public override EvaluateFor<TData> Token(Func<string, string> filter, Func<string, TData, object> tokenValue) {
+                return this;
+            }
 
-                public override EvaluateFor<TData> Token(Func<string, string> filter, Func<string, TData, object> tokenValue) {
-                    return this;
-                }
+            public override EvaluateFor<TData> Chain(string token, string chainTarget, Func<TData, object> chainValue) {
+                return this;
+            }
 
-                public override EvaluateFor<TData> Chain(string token, string chainTarget, Func<TData, object> chainValue) {
-                    return this;
-                }
-
-                public override EvaluateFor<TData> Chain(Func<string, Tuple<string, string>> filter, string chainTarget, Func<string, TData, object> chainValue) {
-                    return this;
-                }
+            public override EvaluateFor<TData> Chain(Func<string, Tuple<string, string>> filter, string chainTarget, Func<string, TData, object> chainValue) {
+                return this;
             }
         }
 
@@ -210,11 +213,11 @@ namespace Orchard.Tokens.Implementation {
                 return _describes
                     .Where(kp => targets == null || targets.Length == 0 || targets.Contains(kp.Key))
                     .Select(kp => new TokenTypeDescriptor {
-                    Target = kp.Key,
-                    Name = kp.Value.Name,
-                    Description = kp.Value.Description,
-                    Tokens = kp.Value.Tokens
-                });
+                        Target = kp.Key,
+                        Name = kp.Value.Name,
+                        Description = kp.Value.Description,
+                        Tokens = kp.Value.Tokens
+                    });
             }
 
             public override DescribeFor For(string target) {
@@ -234,8 +237,8 @@ namespace Orchard.Tokens.Implementation {
         private class DescribeForImpl : DescribeFor {
             private readonly LocalizedString _name;
             private readonly LocalizedString _description;
-            private readonly string _target;
             private readonly List<TokenDescriptor> _tokens = new List<TokenDescriptor>();
+            private readonly string _target;
 
             public DescribeForImpl(string target, LocalizedString name, LocalizedString description) {
                 _target = target;
@@ -244,14 +247,11 @@ namespace Orchard.Tokens.Implementation {
             }
 
             public override LocalizedString Name {
-                get {
-                    return _name;
-                }
+                get { return _name; }
             }
+
             public override LocalizedString Description {
-                get {
-                    return _description;
-                }
+                get { return _description; }
             }
 
             public override IEnumerable<TokenDescriptor> Tokens {
@@ -266,7 +266,6 @@ namespace Orchard.Tokens.Implementation {
                 _tokens.Add(new TokenDescriptor { Token = token, Name = name, Description = description, Target = _target, ChainTarget = chainTarget });
                 return this;
             }
-
         }
     }
 }

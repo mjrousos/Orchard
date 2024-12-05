@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.DynamicForms.Elements;
 using Orchard.Layouts.Framework.Display;
 using Orchard.Layouts.Framework.Drivers;
@@ -9,20 +17,15 @@ using DescribeContext = Orchard.Forms.Services.DescribeContext;
 namespace Orchard.DynamicForms.Drivers {
     public class TextFieldElementDriver : FormsElementDriver<TextField>{
         private readonly ITokenizer _tokenizer;
-
         public TextFieldElementDriver(IFormsBasedElementServices formsServices, ITokenizer tokenizer) : base(formsServices) {
             _tokenizer = tokenizer;
         }
-
         protected override EditorResult OnBuildEditor(TextField element, ElementEditorContext context) {
             var autoLabelEditor = BuildForm(context, "AutoLabel", "Properties:1");
             var placeholderEditor = BuildForm(context, "Placeholder", "Properties:10");
             var textFieldEditor = BuildForm(context, "TextField", "Properties:15");
             var textFieldValidation = BuildForm(context, "TextFieldValidation", "Validation:10");
-
             return Editor(context, autoLabelEditor, placeholderEditor, textFieldEditor, textFieldValidation);
-        }
-
         protected override void DescribeForm(DescribeContext context) {
             context.Form("TextField", factory => {
                 var shape = (dynamic)factory;
@@ -34,13 +37,9 @@ namespace Orchard.DynamicForms.Drivers {
                         Title: "Value",
                         Classes: new[] { "text", "medium" },
                         Description: T("The value of this text field.")));
-
                 return form;
             });
-
             context.Form("TextFieldValidation", factory => {
-                var shape = (dynamic)factory;
-                var form = shape.Fieldset(
                     Id: "TextFieldValidation",
                     _IsRequired: shape.Checkbox(
                         Id: "IsRequired",
@@ -52,13 +51,11 @@ namespace Orchard.DynamicForms.Drivers {
                         Id: "MinimumLength",
                         Name: "MinimumLength",
                         Title: "Minimum Length",
-                        Classes: new[] { "text", "medium" },
                         Description: T("The minimum length required.")),
                     _MaximumLength: shape.Textbox(
                         Id: "MaximumLength",
                         Name: "MaximumLength",
                         Title: "Maximum Length",
-                        Classes: new[] { "text", "medium" },
                         Description: T("The maximum length allowed.")),
                     _ValidationExpression: shape.Textbox(
                         Id: "ValidationExpression",
@@ -76,22 +73,14 @@ namespace Orchard.DynamicForms.Drivers {
                         Id: "ShowValidationMessage",
                         Name: "ShowValidationMessage",
                         Title: "Show Validation Message",
-                        Value: "true",
                         Description: T("Autogenerate a validation message when a validation error occurs for the current field. Alternatively, to control the placement of the validation message you can use the ValidationMessage element instead.")));
-
-                return form;
-            });
-        }
-
         protected override void OnDisplaying(TextField element, ElementDisplayingContext context) {
             var tokenData = context.GetTokenData();
             context.ElementShape.ProcessedName = _tokenizer.Replace(element.Name, tokenData);
             context.ElementShape.ProcessedLabel = _tokenizer.Replace(element.Label, tokenData, new ReplaceOptions {Encoding = ReplaceOptions.NoEncode});
             context.ElementShape.ProcessedPlaceholder = _tokenizer.Replace(element.Placeholder, tokenData, new ReplaceOptions { Encoding = ReplaceOptions.NoEncode });
-
             // Allow the initial value to be tokenized.
             // If a value was posted, use that value instead (without tokenizing it).
             context.ElementShape.ProcessedValue = element.PostedValue != null ? element.PostedValue : _tokenizer.Replace(element.RuntimeValue, tokenData, new ReplaceOptions { Encoding = ReplaceOptions.NoEncode });
-        }
     }
 }

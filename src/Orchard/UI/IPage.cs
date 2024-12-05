@@ -1,18 +1,22 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Web.Mvc;
 using Orchard.DisplayManagement.Shapes;
 
 namespace Orchard.UI {
     public interface IPage {
         IZoneCollection Zones { get; }
     }
-
     public interface IZoneCollection {
         IZone this[string key] { get; }
-    }
-
     class ZoneCollection : IZoneCollection {
         readonly IDictionary<string, IZone> _zones = new Dictionary<string, IZone>();
         public IZone this[string key] {
@@ -23,20 +27,13 @@ namespace Orchard.UI {
                 return _zones[key];
             }
         }
-    }
-
     public interface IZone : IEnumerable {
         string ZoneName { get; set; }
         Shape Add(object item, string position);
         IZone Add(Action<HtmlHelper> action, string position);
-    }
-
     public class Zone : Shape, IZone {
         public virtual string ZoneName { get; set; }
-
         public IZone Add(Action<HtmlHelper> action, string position) {
             // pszmyd: Replaced the NotImplementedException with simply doing nothing
             return this;
-        }
-    }
 }

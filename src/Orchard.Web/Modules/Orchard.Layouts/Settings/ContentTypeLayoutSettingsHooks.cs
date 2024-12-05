@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
 using Orchard.ContentManagement.MetaData.Models;
@@ -12,12 +19,9 @@ namespace Orchard.Layouts.Settings {
             var model = definition.Settings.GetModel<ContentTypeLayoutSettings>();
             yield return DefinitionTemplate(model);
         }
-
         public override IEnumerable<TemplateViewModel> TypeEditorUpdate(ContentTypeDefinitionBuilder builder, IUpdateModel updateModel) {
             var model = new ContentTypeLayoutSettings();
             updateModel.TryUpdateModel(model, "ContentTypeLayoutSettings", null, null);
             builder.Placeable(model.Placeable);
-            yield return DefinitionTemplate(model);
-        }
     }
 }

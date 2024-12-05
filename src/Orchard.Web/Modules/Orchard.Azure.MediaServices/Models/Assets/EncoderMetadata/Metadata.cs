@@ -1,4 +1,12 @@
-﻿using System.Collections.Generic;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -9,7 +17,6 @@ using Newtonsoft.Json;
 
 namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
     public class Metadata {
-
         public static Metadata Parse(string encoderMetadataXml, string privateLocatorUrl, string publicLocatorUrl, IMimeTypeProvider mimeTypeProvider) {
             var xml = XDocument.Parse(encoderMetadataXml);
             return new Metadata(xml, privateLocatorUrl, publicLocatorUrl, mimeTypeProvider);

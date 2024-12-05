@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -20,7 +28,6 @@ namespace Orchard.Core.Contents {
         private static readonly Permission ViewOwnContent = new Permission { Description = "View own {0}", Name = "ViewOwn_{0}", ImpliedBy = new[] { ViewContent, Permissions.ViewOwnContent } };
         private static readonly Permission PreviewContent = new Permission { Description = "Preview {0} by others", Name = "Preview_{0}", ImpliedBy = new[] { EditContent, Permissions.PreviewContent } };
         private static readonly Permission PreviewOwnContent = new Permission { Description = "Preview own {0}", Name = "PreviewOwn_{0}", ImpliedBy = new[] { PreviewContent, Permissions.PreviewOwnContent } };
-
         public static readonly Dictionary<string, Permission> PermissionTemplates = new Dictionary<string, Permission> {
             {Permissions.PublishContent.Name, PublishContent},
             {Permissions.PublishOwnContent.Name, PublishOwnContent},
@@ -34,45 +41,30 @@ namespace Orchard.Core.Contents {
             {Permissions.PreviewOwnContent.Name, PreviewOwnContent},
             {Permissions.CreateContent.Name, CreateContent}
         };
-
         private readonly IContentDefinitionManager _contentDefinitionManager;
-
         public virtual Feature Feature { get; set; }
-
         public DynamicPermissions(IContentDefinitionManager contentDefinitionManager) {
             _contentDefinitionManager = contentDefinitionManager;
         }
-
         public IEnumerable<Permission> GetPermissions() {
             // manage rights only for Securable types
             var securableTypes = _contentDefinitionManager.ListTypeDefinitions()
                 .Where(ctd => ctd.Settings.GetModel<ContentTypeSettings>().Securable);
-
             foreach (var typeDefinition in securableTypes) {
                 foreach (var permissionTemplate in PermissionTemplates.Values) {
                     yield return CreateDynamicPermission(permissionTemplate, typeDefinition);
                 }
             }
-        }
-
         public IEnumerable<PermissionStereotype> GetDefaultStereotypes() {
             return Enumerable.Empty<PermissionStereotype>();
-        }
-
         /// <summary>
         /// Returns a dynamic permission for a content type, based on a global content permission template
         /// </summary>
         public static Permission ConvertToDynamicPermission(Permission permission) {
             if (PermissionTemplates.ContainsKey(permission.Name)) {
                 return PermissionTemplates[permission.Name];
-            }
-
             return null;
-        }
-
-        /// <summary>
         /// Generates a permission dynamically for a content type
-        /// </summary>
         public static Permission CreateDynamicPermission(Permission template, ContentTypeDefinition typeDefinition) {
             return new Permission {
                 Name = String.Format(template.Name, typeDefinition.Name),
@@ -80,6 +72,5 @@ namespace Orchard.Core.Contents {
                 Category = typeDefinition.DisplayName,
                 ImpliedBy = (template.ImpliedBy ?? new Permission[0]).Select(t => CreateDynamicPermission(t, typeDefinition))
             };
-        }
     }
 }

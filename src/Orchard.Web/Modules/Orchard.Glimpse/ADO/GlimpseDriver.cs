@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -53,19 +53,12 @@ namespace Orchard.Glimpse.ADO {
         }
 
         public bool SupportsMultipleOpenReaders => _decoratedService.SupportsMultipleOpenReaders;
-
         public bool SupportsMultipleQueries => _decoratedService.SupportsMultipleQueries;
-
         public bool RequiresTimeSpanForTime => _decoratedService.RequiresTimeSpanForTime;
-
         public bool SupportsSystemTransactions => _decoratedService.SupportsSystemTransactions;
-
         public bool SupportsNullEnlistment => _decoratedService.SupportsNullEnlistment;
-
         public bool SupportsEnlistmentWhenAutoEnlistmentIsDisabled => _decoratedService.SupportsEnlistmentWhenAutoEnlistmentIsDisabled;
-
         public bool HasDelayedDistributedTransactionCompletion => _decoratedService.HasDelayedDistributedTransactionCompletion;
-
         public DateTime MinDate => _decoratedService.MinDate;
     }
 }

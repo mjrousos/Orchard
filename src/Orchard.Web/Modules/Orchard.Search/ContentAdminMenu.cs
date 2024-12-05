@@ -1,11 +1,16 @@
-﻿using System.Linq;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Linq;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Core.Contents;
 using Orchard.Core.Contents.Settings;
 using Orchard.Environment.Extensions;
-using Orchard.Localization;
-using Orchard.Security;
 using Orchard.UI.Navigation;
 
 namespace Orchard.Search {
@@ -14,25 +19,18 @@ namespace Orchard.Search {
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IContentManager _contentManager;
         private readonly IAuthorizer _authorizer;
-
         public ContentAdminMenu(
             IContentDefinitionManager contentDefinitionManager,
             IContentManager contentManager,
             IAuthorizer authorizer) {
-
             _contentDefinitionManager = contentDefinitionManager;
             _contentManager = contentManager;
             _authorizer = authorizer;
-
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         public string MenuName {
             get { return "admin"; }
-        }
-
         public void GetNavigation(NavigationBuilder builder) {
             // if the user may edit at least one type of Listable content,
             // we add the link to the admin menu for them. This is the same
@@ -56,6 +54,5 @@ namespace Orchard.Search {
                     break;
                 }
             }
-        }
     }
 }

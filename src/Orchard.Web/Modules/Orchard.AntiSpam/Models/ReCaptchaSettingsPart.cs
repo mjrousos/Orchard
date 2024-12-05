@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 
 namespace Orchard.AntiSpam.Models {
@@ -6,15 +14,11 @@ namespace Orchard.AntiSpam.Models {
             get { return this.Retrieve(x => x.PublicKey); }
             set { this.Store(x => x.PublicKey, value); }
         }
-
         public string PrivateKey {
             get { return this.Retrieve(x => x.PrivateKey); }
             set { this.Store(x => x.PrivateKey, value); }
-        }
-
         public bool TrustAuthenticatedUsers {
             get { return this.Retrieve(x => x.TrustAuthenticatedUsers); }
             set { this.Store(x => x.TrustAuthenticatedUsers, value); }
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Data;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Tags.Models;
@@ -10,7 +18,6 @@ namespace Orchard.Tags.Handlers {
  
             OnRemoved<TagsPart>((context, tags) => 
                 tagService.RemoveTagsForContentItem(context.ContentItem));
-
             OnIndexing<TagsPart>(
                 (context, tagsPart) => {
                     foreach (var tag in tagsPart.CurrentTags) {

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +25,6 @@ using MsSqlCeConfiguration = Orchard.Data.Providers.MsSqlCeConfiguration;
 namespace Orchard.Tests {
     public static class DataUtility {
         public static ISessionFactory CreateSessionFactory(string fileName, params Type[] types) {
-
             //var persistenceModel = AutoMap.Source(new Types(types))
             //    .Alterations(alt => AddAlterations(alt, types))
             //    .Conventions.AddFromAssemblyOf<DataModule>();
@@ -25,7 +32,6 @@ namespace Orchard.Tests {
             var persistenceConfigurer = new SqlCeDataServicesProvider(fileName).GetPersistenceConfigurer(true/*createDatabase*/);
             // Uncomment to display SQL while running tests
             // ((MsSqlCeConfiguration)persistenceConfigurer).ShowSql();
-
             return Fluently.Configure()
                 .Database(persistenceConfigurer)
                 .Mappings(m => m.AutoMappings.Add(persistenceModel))
@@ -39,47 +45,28 @@ namespace Orchard.Tests {
                 })
                 .BuildSessionFactory();
         }
-
         private static void AddAlterations(AutoMappingAlterationCollection alterations, IEnumerable<Type> types) {
             foreach (var assembly in types.Select(t => t.Assembly).Distinct()) {
                 alterations.Add(new AutoMappingOverrideAlteration(assembly));
                 alterations.AddFromAssembly(assembly);
             }
             alterations.AddFromAssemblyOf<DataModule>();
-        }
-
         public static ISessionFactory CreateSessionFactory(params Type[] types) {
             return CreateSessionFactory(
                 string.Join(".", types.Reverse().Select(type => type.FullName)),
                 types);
-        }
-
         #region Nested type: Types
-
         private class Types : ITypeSource {
             private readonly IEnumerable<Type> _types;
-
             public Types(params Type[] types) {
                 _types = types;
-            }
-
             #region ITypeSource Members
-
             public IEnumerable<Type> GetTypes() {
                 return _types;
-            }
-
             public void LogSource(IDiagnosticLogger logger) {
                 throw new NotImplementedException();
-            }
-
             public string GetIdentifier() {
-                throw new NotImplementedException();
-            }
-
             #endregion
-        }
-
         #endregion
     }
 }

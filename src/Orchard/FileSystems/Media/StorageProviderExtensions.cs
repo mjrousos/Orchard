@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.IO;
 
@@ -7,24 +15,17 @@ namespace Orchard.FileSystems.Media {
             if (storageProvider.FileExists(path)) {
                 storageProvider.DeleteFile(path);
             }
-
             var file = storageProvider.CreateFile(path);
             using (var stream = file.OpenWrite())
             using (var streamWriter = new StreamWriter(stream)) {
                 streamWriter.Write(contents);
-            }
         }
-
         public static string ReadAllText(this IStorageProvider storageProvider, string path) {
             if (!storageProvider.FileExists(path)) {
                 return String.Empty;
-            }
-
             var file = storageProvider.GetFile(path);
             using (var stream = file.OpenRead())
             using (var streamReader = new StreamReader(stream)) {
                 return streamReader.ReadToEnd();
-            }
-        }
     }
 }

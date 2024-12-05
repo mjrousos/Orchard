@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.DynamicForms.Elements;
 using Orchard.Layouts.Framework.Display;
 using Orchard.Layouts.Framework.Drivers;
@@ -9,19 +17,14 @@ using DescribeContext = Orchard.Forms.Services.DescribeContext;
 namespace Orchard.DynamicForms.Drivers {
     public class PasswordFieldElementDriver : FormsElementDriver<PasswordField>{
         private readonly ITokenizer _tokenizer;
-
         public PasswordFieldElementDriver(IFormsBasedElementServices formsServices, ITokenizer tokenizer) : base(formsServices) {
             _tokenizer = tokenizer;
         }
-
         protected override EditorResult OnBuildEditor(PasswordField element, ElementEditorContext context) {
             var autoLabelEditor = BuildForm(context, "AutoLabel", "Properties:1");
             var placeholderEditor = BuildForm(context, "Placeholder", "Properties:10");
             var passwordFieldValidation = BuildForm(context, "PasswordFieldValidation", "Validation:10");
-
             return Editor(context, autoLabelEditor, placeholderEditor, passwordFieldValidation);
-        }
-
         protected override void DescribeForm(DescribeContext context) {
             context.Form("PasswordFieldValidation", factory => {
                 var shape = (dynamic)factory;
@@ -43,7 +46,6 @@ namespace Orchard.DynamicForms.Drivers {
                         Id: "MaximumLength",
                         Name: "MaximumLength",
                         Title: "Maximum Length",
-                        Classes: new[] { "text", "medium", "tokenized" },
                         Description: T("The maximum length allowed.")),
                     _RegularExpression: shape.Textbox(
                         Id: "RegularExpression",
@@ -55,7 +57,6 @@ namespace Orchard.DynamicForms.Drivers {
                         Id: "CompareWith",
                         Name: "CompareWith",
                         Title: "Compare With",
-                        Classes: new[] { "text", "medium", "tokenized" },
                         Description: T("The name of another field whose value must match with this password field.")),
                     _CustomValidationMessage: shape.Textbox(
                         Id: "CustomValidationMessage",
@@ -67,18 +68,13 @@ namespace Orchard.DynamicForms.Drivers {
                         Id: "ShowValidationMessage",
                         Name: "ShowValidationMessage",
                         Title: "Show Validation Message",
-                        Value: "true",
                         Description: T("Autogenerate a validation message when a validation error occurs for the current field. Alternatively, to control the placement of the validation message you can use the ValidationMessage element instead.")));
-
                 return form;
             });
-        }
-
         protected override void OnDisplaying(PasswordField element, ElementDisplayingContext context) {
             var tokenData = context.GetTokenData();
             context.ElementShape.ProcessedName = _tokenizer.Replace(element.Name, tokenData);
             context.ElementShape.ProcessedLabel = _tokenizer.Replace(element.Label, tokenData, new ReplaceOptions { Encoding = ReplaceOptions.NoEncode });
             context.ElementShape.ProcessedPlaceholder = _tokenizer.Replace(element.Placeholder, tokenData, new ReplaceOptions { Encoding = ReplaceOptions.NoEncode });
-        }
     }
 }

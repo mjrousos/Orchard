@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Environment.Extensions;
@@ -20,10 +27,8 @@ namespace Orchard.Localization.Handlers {
             _localizationService = localizationService;
             _fieldDrivers = fieldDrivers;
             _partDrivers = partDrivers;
-
             OnPublished<IContent>(SynchronizeOnPublish);
         }
-
         protected void SynchronizeOnPublish(PublishContentContext context, IContent part) {
             //Conditions to try and start a synchronization:
             // && The content item is localizable
@@ -43,11 +48,8 @@ namespace Orchard.Localization.Handlers {
                     }
                     foreach (var field in pa.Fields.Where(fi => fi.PartFieldDefinition.Settings.GetModel<LocalizationCultureNeutralitySettings>().CultureNeutral)) {
                         Synchronize(field, locPart, lSet);
-                    }
                 }
             }
-        }
-
         /// <summary>
         /// This method attempts to synchronize a part across the localization set
         /// </summary>
@@ -63,37 +65,19 @@ namespace Orchard.Localization.Handlers {
                     var context = new CloneContentContext(localizationPart.ContentItem, target);
                     partDrivers.Invoke(driver => driver.Cloning(context), context.Logger);
                     partDrivers.Invoke(driver => driver.Cloned(context), context.Logger);
-                }
-            }
-        }
-        /// <summary>
         /// This method attempts to synchronize a field across the localization set
-        /// </summary>
         /// <param name="field">The field that has just been published and that we wish to use to update all corresponding parts from
-        /// the other elements of the localization set.</param>
-        /// <param name="localizationPart">The localization part of the ContentItem that was just published.</param>
-        /// <param name="lSet">The localization set for the synchronization</param>
         private void Synchronize(ContentField field, LocalizationPart localizationPart, List<LocalizationPart> lSet) {
-            if (lSet.Count > 0) {
                 var fieldDrivers = _fieldDrivers.Where(cfd => cfd.GetFieldInfo().FirstOrDefault().FieldTypeName == field.FieldDefinition.Name);
-                //use cloning
-                foreach (var target in lSet.Select(lp => lp.ContentItem)) {
-                    var context = new CloneContentContext(localizationPart.ContentItem, target);
                     context.FieldName = field.Name;
                     fieldDrivers.Invoke(driver => driver.Cloning(context), context.Logger);
                     fieldDrivers.Invoke(driver => driver.Cloned(context), context.Logger);
-                }
-            }
-        }
-
         private List<LocalizationPart> GetSynchronizationSet(LocalizationPart lPart) {
             var lSet = _localizationService.GetLocalizations(
                 content: lPart.ContentItem,
                 versionOptions: VersionOptions.Published).ToList();
             lSet.AddRange(_localizationService.GetLocalizations(
-                content: lPart.ContentItem,
                 versionOptions: VersionOptions.Latest));
             return lSet.Distinct().Where(lp => lp.Id != lPart.Id).ToList();
-        }
     }
 }

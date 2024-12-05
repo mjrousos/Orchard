@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +23,6 @@ namespace Orchard.Mvc.ViewEngines.Razor {
         void CodeGenerationStarted(RazorBuildProvider provider);
         void CodeGenerationCompleted(RazorBuildProvider provider, CodeGenerationCompleteEventArgs e);
     }
-
     /// <summary>
     /// The purpose of this class is to notify the Razor View Engine of Module and Theme
     /// dependencies when compiling Views, so that the Razor Views build provider will add proper 
@@ -31,14 +38,12 @@ namespace Orchard.Mvc.ViewEngines.Razor {
         private readonly IBuildManager _buildManager;
         private readonly IEnumerable<IExtensionLoader> _loaders;
         private readonly IAssemblyLoader _assemblyLoader;
-
         public DefaultRazorCompilationEvents(
             IDependenciesFolder dependenciesFolder,
             IExtensionDependenciesManager extensionDependenciesManager,
             IBuildManager buildManager,
             IEnumerable<IExtensionLoader> loaders,
             IAssemblyLoader assemblyLoader) {
-
             _dependenciesFolder = dependenciesFolder;
             _extensionDependenciesManager = extensionDependenciesManager;
             _buildManager = buildManager;
@@ -46,20 +51,15 @@ namespace Orchard.Mvc.ViewEngines.Razor {
             _assemblyLoader = assemblyLoader;
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public void CodeGenerationStarted(RazorBuildProvider provider) {
             var assembliesToAdd = new List<Assembly>();
-
             DependencyDescriptor moduleDependencyDescriptor = GetModuleDependencyDescriptor(provider.VirtualPath);
-
             IEnumerable<DependencyDescriptor> dependencyDescriptors = _dependenciesFolder.LoadDescriptors();
             List<DependencyDescriptor> filteredDependencyDescriptors;
             if (moduleDependencyDescriptor != null) {
                 // Add module
                 filteredDependencyDescriptors = new List<DependencyDescriptor> { moduleDependencyDescriptor };
-
                 // Add module's references
                 filteredDependencyDescriptors.AddRange(moduleDependencyDescriptor.References
                     .Select(reference => dependencyDescriptors
@@ -74,8 +74,6 @@ namespace Orchard.Mvc.ViewEngines.Razor {
             else {
                 // Fall back for themes
                 filteredDependencyDescriptors = dependencyDescriptors.ToList();
-            }
-
             var entries = filteredDependencyDescriptors
                 .SelectMany(descriptor => _loaders
                                               .Where(loader => descriptor.LoaderName == loader.Name)
@@ -85,7 +83,6 @@ namespace Orchard.Mvc.ViewEngines.Razor {
                                                   references = loader.GetCompilationReferences(descriptor),
                                                   dependencies = _extensionDependenciesManager.GetVirtualPathDependencies(descriptor.Name)
                                               }));
-
             // Add assemblies
             foreach (var entry in entries) {
                 foreach (var reference in entry.references) {
@@ -97,74 +94,44 @@ namespace Orchard.Mvc.ViewEngines.Razor {
                     if (!string.IsNullOrEmpty(reference.BuildProviderTarget)) {
                         // Returned assembly may be null if the .csproj file doesn't containt any .cs file, for example
                         var assembly = _buildManager.GetCompiledAssembly(reference.BuildProviderTarget);
-                        if (assembly != null)
-                            assembliesToAdd.Add(assembly);
-                    }
                 }
-            }
-
             foreach (var assembly in assembliesToAdd) {
                 provider.AssemblyBuilder.AddAssemblyReference(assembly);
-            }
-
             // Add virtual path dependencies (i.e. source files)
             //PERF: Ensure each virtual path is present only once in the list of dependencies
             var virtualDependencies = entries
                 .SelectMany(e => e.dependencies)
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
-
             foreach (var virtualDependency in virtualDependencies) {
                 provider.AddVirtualPathDependency(virtualDependency);
-            }
-
             // Logging
             if (Logger.IsEnabled(LogLevel.Debug)) {
                 if (assembliesToAdd.Count == 0 && provider.VirtualPathDependencies == null) {
                     Logger.Debug("CodeGenerationStarted(\"{0}\") - no dependencies.", provider.VirtualPath);
-                }
                 else {
                     Logger.Debug("CodeGenerationStarted(\"{0}\") - Dependencies: ", provider.VirtualPath);
                     if (provider.VirtualPathDependencies != null) {
                         foreach (var virtualPath in provider.VirtualPathDependencies) {
                             Logger.Debug("  VirtualPath: \"{0}\"", virtualPath);
                         }
-                    }
                     foreach (var assembly in assembliesToAdd) {
                         Logger.Debug("  Reference: \"{0}\"", assembly);
-                    }
-                }
-            }
-        }
-
         private DependencyDescriptor GetModuleDependencyDescriptor(string virtualPath) {
             var appRelativePath = VirtualPathUtility.ToAppRelative(virtualPath);
             var prefix = PrefixMatch(appRelativePath, new[] { "~/Modules/", "~/Core/" });
             if (prefix == null)
                 return null;
-
             var moduleName = ModuleMatch(appRelativePath, prefix);
             if (moduleName == null)
-                return null;
-
             return _dependenciesFolder.GetDescriptor(moduleName);
-        }
-
         private static string ModuleMatch(string virtualPath, string prefix) {
             var index = virtualPath.IndexOf('/', prefix.Length, virtualPath.Length - prefix.Length);
             if (index < 0)
-                return null;
-
             var moduleName = virtualPath.Substring(prefix.Length, index - prefix.Length);
             return (string.IsNullOrEmpty(moduleName) ? null : moduleName);
-        }
-
         private static string PrefixMatch(string virtualPath, params string[] prefixes) {
             return prefixes
                 .FirstOrDefault(p => virtualPath.StartsWith(p, StringComparison.OrdinalIgnoreCase));
-        }
-
         public void CodeGenerationCompleted(RazorBuildProvider provider, CodeGenerationCompleteEventArgs e) {
-        }
-    }
 }

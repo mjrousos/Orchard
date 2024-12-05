@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using FluentNHibernate.Cfg.Db;
 using NHibernate.Cfg;
@@ -6,16 +14,12 @@ namespace Orchard.Data.Providers {
     public class MySqlDataServicesProvider : AbstractDataServicesProvider {
         private readonly string _dataFolder;
         private readonly string _connectionString;
-
         public MySqlDataServicesProvider(string dataFolder, string connectionString) {
             _dataFolder = dataFolder;
             _connectionString = connectionString;
         }
-
         public static string ProviderName {
             get { return "MySql"; }
-        }
-
         public override IPersistenceConfigurer GetPersistenceConfigurer(bool createDatabase) {
             var persistence = MySQLConfiguration.Standard;
             if (string.IsNullOrEmpty(_connectionString)) {
@@ -23,10 +27,7 @@ namespace Orchard.Data.Providers {
             }
             persistence = persistence.ConnectionString(_connectionString);
             return persistence;
-        }
-
         protected override void AlterConfiguration(Configuration config) {
             config.SetProperty(NHibernate.Cfg.Environment.PrepareSql, Boolean.TrueString);
-        }
     }
 }

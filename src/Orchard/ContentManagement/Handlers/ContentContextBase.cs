@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.ContentManagement.Records;
 using Orchard.Logging;
 
@@ -10,7 +18,6 @@ namespace Orchard.ContentManagement.Handlers {
             ContentItemRecord = contentItem.Record;
             ContentManager = contentItem.ContentManager;
         }
-
         public int Id { get; private set; }
         public string ContentType { get; private set; }
         public ContentItem ContentItem { get; private set; }

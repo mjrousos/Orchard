@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -23,7 +31,6 @@ namespace Orchard.DisplayManagement.Descriptors.ResourceBindingStrategy {
         private static readonly char[] UnsafeCharList = "/:?#[]@!&'()*+,;=\r\n\t\f\" <>.-_".ToCharArray();
         private readonly Work<WorkContext> _workContext;
         private readonly IResourceFileHashProvider _resourceFileHashProvider;
-
         protected StaticFileBindingStrategy(
             IExtensionManager extensionManager,
             ShellDescriptor shellDescriptor,
@@ -36,18 +43,13 @@ namespace Orchard.DisplayManagement.Descriptors.ResourceBindingStrategy {
             _workContext = workContext;
             _resourceFileHashProvider = resourceFileHashProvider;
         }
-
         public abstract string GetFileExtension();
         public abstract string GetFolder();
         public abstract string GetShapePrefix();
-
         private static string SafeName(string name) {
             if (string.IsNullOrWhiteSpace(name))
                 return String.Empty;
-
             return name.Strip(UnsafeCharList).ToLowerInvariant();
-        }
-
         public static string GetAlternateShapeNameFromFileName(string fileName) {
             if (fileName == null) {
                 throw new ArgumentNullException("fileName");
@@ -61,23 +63,16 @@ namespace Orchard.DisplayManagement.Descriptors.ResourceBindingStrategy {
                 }
                 var uri = new Uri(fileName);
                 shapeName = uri.Authority + "$" + uri.AbsolutePath + "$" + uri.Query;
-            }
             else {
                 shapeName = Path.GetFileNameWithoutExtension(fileName);
-            }
             return SafeName(shapeName);
-        }
-
         private static IEnumerable<ExtensionDescriptor> Once(IEnumerable<FeatureDescriptor> featureDescriptors) {
             var once = new ConcurrentDictionary<string, object>();
             return featureDescriptors.Select(fd => fd.Extension).Where(ed => once.TryAdd(ed.Id, null)).ToList();
-        }
-
         public void Discover(ShapeTableBuilder builder) {
             var availableFeatures = _extensionManager.AvailableFeatures();
             var activeFeatures = availableFeatures.Where(FeatureIsEnabled);
             var activeExtensions = Once(activeFeatures);
-
             var hits = activeExtensions.SelectMany(extensionDescriptor => {
                 var basePath = Path.Combine(extensionDescriptor.Location, extensionDescriptor.Id).Replace(Path.DirectorySeparatorChar, '/');
                 var virtualPath = Path.Combine(basePath, GetFolder()).Replace(Path.DirectorySeparatorChar, '/');
@@ -92,7 +87,6 @@ namespace Orchard.DisplayManagement.Descriptors.ResourceBindingStrategy {
                     });
                 return shapes;
             });
-
             foreach (var iter in hits) {
                 var hit = iter;
                 var featureDescriptors = hit.extensionDescriptor.Features.Where(fd => fd.Id == hit.extensionDescriptor.Id);
@@ -111,99 +105,57 @@ namespace Orchard.DisplayManagement.Descriptors.ResourceBindingStrategy {
                                 ResourceManager.WriteResource(output, resource, url, condition, attributes);
                                 return null;
                             });
-                }
-            }
-        }
-
-
         private string AddHash(string url) {
             var site = _workContext.Value.CurrentSite;
-
             // Adds the hash of the static resources if neded
             if (site.UseFileHash) {
                 var physicalPath = GetPhysicalPath(url);
                 if (!String.IsNullOrEmpty(physicalPath) && File.Exists(physicalPath)) {
                     return AddQueryStringValue(url, "fileHash", _resourceFileHashProvider.GetResourceFileHash(physicalPath));
-                }
-            }
             return url;
-        }
-
         private string GetPhysicalPath(string url) {
             if (!String.IsNullOrEmpty(url) && !Uri.IsWellFormedUriString(url, UriKind.Absolute) && !url.StartsWith("//")) {
                 if (VirtualPathUtility.IsAbsolute(url) || VirtualPathUtility.IsAppRelative(url)) {
                     return HostingEnvironment.MapPath(url.Split(_queryStringChars)[0]);
-                }
-            }
             return null;
-        }
-
         private string AddQueryStringValue(string url, string name, string value) {
             if (String.IsNullOrEmpty(url)) {
                 return null;
-            }
             var encodedValue = HttpUtility.UrlEncode(value);
             if (url.Contains("?")) {
                 if (url.EndsWith("&")) {
                     return String.Format("{0}{1}={2}", url, name, encodedValue);
-                }
                 else {
                     return String.Format("{0}&{1}={2}", url, name, encodedValue);
-                }
-            }
-            else {
                 return String.Format("{0}?{1}={2}", url, name, encodedValue);
-            }
-        }
-
         private string GetResourceUrl(string shapeUrl, string fileVirtualPath) {
             if (string.IsNullOrEmpty(shapeUrl)) return fileVirtualPath;
-
             return GetPathFromRelativeUrl(shapeUrl).Equals(GetPathFromRelativeUrl(fileVirtualPath), StringComparison.InvariantCultureIgnoreCase) ?
                 shapeUrl : fileVirtualPath;
-        }
-
         private string GetPathFromRelativeUrl(string url) {
             // normalize urls that could be like ~/ or /OrchardLocal/ or /OrchardLocal/tenant-prefix
             // driving them to a ~/ format
             var appRelativeUrl = System.Web.VirtualPathUtility.ToAppRelative(url);
             var path = appRelativeUrl.TrimStart('~');
             var indexOfQueryString = path.IndexOf('?');
-
             return indexOfQueryString >= 0 ? path.Substring(0, indexOfQueryString) : path;
-        }
-
         private bool FeatureIsEnabled(FeatureDescriptor fd) {
             return (DefaultExtensionTypes.IsTheme(fd.Extension.ExtensionType) && (fd.Id == "TheAdmin" || fd.Id == "SafeMode")) ||
                 _shellDescriptor.Features.Any(sf => sf.Name == fd.Id);
-        }
     }
-
     // discovers .css files and turns them into Style__<filename> shapes.
     public class StylesheetBindingStrategy : StaticFileBindingStrategy, IShapeTableProvider {
         public StylesheetBindingStrategy(
-            IExtensionManager extensionManager,
-            ShellDescriptor shellDescriptor,
-            IVirtualPathProvider virtualPathProvider,
-            Work<WorkContext> workContext,
             IResourceFileHashProvider resourceFileHashProvider) : base(
                 extensionManager,
                 shellDescriptor,
                 virtualPathProvider,
                 workContext,
                 resourceFileHashProvider) {
-        }
-
         public override string GetFileExtension() {
             return ".css";
-        }
-
         public override string GetFolder() {
             return "Styles";
-        }
-
         public override string GetShapePrefix() {
             return "Style__";
-        }
-    }
 }

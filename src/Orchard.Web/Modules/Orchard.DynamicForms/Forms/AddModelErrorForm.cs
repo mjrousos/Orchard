@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Forms.Services;
 
 namespace Orchard.DynamicForms.Forms {
@@ -18,9 +26,7 @@ namespace Orchard.DynamicForms.Forms {
                         Id: "errorMessage",
                         Name: "ErrorMessage",
                         Title: "Error Message",
-                        Classes: new[] { "text", "large", "tokenized" },
                         Description: T("The model validation error message to add.")));
-
                 return form;
             });
         }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.IO;
 using System.Net;
@@ -8,14 +16,11 @@ namespace Orchard.Warmup.Services {
         public WebDownloader() {
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public DownloadResult Download(string url) {
             if(String.IsNullOrWhiteSpace(url)) {
                 return null;
             }
-
             try {
                 var request = WebRequest.Create(url) as HttpWebRequest;
                 if (request != null) {
@@ -31,19 +36,10 @@ namespace Orchard.Warmup.Services {
                         }
                     }
                 }
-                return null;
-            }
             catch (WebException e) {
                 if(e.Response as HttpWebResponse != null) {
                     return new DownloadResult { StatusCode = ((HttpWebResponse)e.Response).StatusCode };
-                }
-
-                return null;
-            }
             catch(Exception e) {
                 Logger.Error(e, "An error occurred while downloading url: {0}", url);
-                return null;
-            }
-        }
     }
 }

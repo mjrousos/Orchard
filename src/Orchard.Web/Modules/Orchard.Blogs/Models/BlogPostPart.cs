@@ -1,8 +1,14 @@
-using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using Orchard.ContentManagement.Aspects;
 using Orchard.Core.Common.Models;
-using Orchard.Security;
 using Orchard.Core.Title.Models;
 
 namespace Orchard.Blogs.Models {
@@ -11,26 +17,17 @@ namespace Orchard.Blogs.Models {
             get { return this.As<TitlePart>().Title; }
             set { this.As<TitlePart>().Title = value; }
         }
-
         public string Text {
             get { return this.As<BodyPart>().Text; }
             set { this.As<BodyPart>().Text = value; }
-        }
-
         public BlogPart BlogPart {
             get { return this.As<ICommonPart>().Container.As<BlogPart>(); }
             set { this.As<ICommonPart>().Container = value; }
-        }
-
         public IUser Creator {
             get { return this.As<ICommonPart>().Owner; }
             set { this.As<ICommonPart>().Owner = value; }
-        }
-
         public bool IsPublished {
             get { return ContentItem.VersionRecord != null && ContentItem.VersionRecord.Published; }
-        }
-
         public bool HasDraft {
             get {
                 return (
@@ -38,21 +35,12 @@ namespace Orchard.Blogs.Models {
                                (ContentItem.VersionRecord.Published == false) ||
                                (ContentItem.VersionRecord.Published && ContentItem.VersionRecord.Latest == false)));
             }
-        }
-
         public bool HasPublished {
-            get {
                 return IsPublished || ContentItem.ContentManager.Get(Id, VersionOptions.Published) != null;
-            }
-        }
-
         public DateTime? PublishedUtc {
             get { return this.As<ICommonPart>().PublishedUtc; }
-        }
-
         public DateTime? ArchiveSync {
             get { return this.Retrieve(x => x.ArchiveSync); }
             set { this.Store(x => x.ArchiveSync, value); }
-        }
     }
 }

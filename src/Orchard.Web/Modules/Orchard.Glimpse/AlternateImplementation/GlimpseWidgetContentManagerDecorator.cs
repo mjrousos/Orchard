@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Web.Mvc;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData.Models;
@@ -145,11 +144,9 @@ namespace Orchard.Glimpse.AlternateImplementation {
 
         public dynamic BuildDisplay(IContent content, string displayType = "", string groupId = "") {
             var widgetPart = content.As<WidgetPart>();
-
             if (widgetPart == null) {
                 return _decoratedService.BuildDisplay(content, displayType, groupId);
             }
-
             return _glimpseService.PublishTimedAction(() => _decoratedService.BuildDisplay(content, displayType, groupId),
                 (r, t) => new WidgetMessage {
                     ContentId = content.Id,

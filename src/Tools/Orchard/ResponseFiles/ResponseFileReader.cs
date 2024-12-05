@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,13 +18,11 @@ namespace Orchard.ResponseFiles {
         public string LineText { get; set; }
         public int LineNumber { get; set; }
         public string[] Args { get; set; }
-
         public override object InitializeLifetimeService() {
             // never expire the cross-AppDomain lease on this object
             return null;
         }
     }
-
     public class ResponseFileReader {
         public IEnumerable<ResponseLine> ReadLines(string filename) {
             using (var reader = File.OpenText(filename)) {
@@ -24,7 +30,6 @@ namespace Orchard.ResponseFiles {
                     string lineText = reader.ReadLine();
                     if (lineText == null)
                         yield break;
-
                     yield return new ResponseLine {
                         Filename = filename,
                         LineText = lineText,
@@ -33,6 +38,4 @@ namespace Orchard.ResponseFiles {
                     };
                 }
             }
-        }
-    }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Web.Mvc;
+using System.Collections.Generic;
 using System.Web.Routing;
 using Orchard.Mvc.Routes;
 
@@ -16,46 +15,47 @@ namespace Orchard.Dashboards {
                             {"controller", "Dashboard"},
                             {"action", "Display"}
                         },
-                        new RouteValueDictionary(),
                         new RouteValueDictionary {
                             {"area", "Orchard.Dashboards"}
                         },
-                        new MvcRouteHandler())
+                        new MvcRouteHandler()
+                    )
                 },
-
                 new RouteDescriptor {
+                    Priority = -4,
                     Route = new Route(
-                    "Admin/Dashboards/Settings",
-                    new RouteValueDictionary {
-                        {"area", "Orchard.Dashboards"},
-                        {"controller", "Settings"},
-                        {"action", "Index"}
-                    },
-                    new RouteValueDictionary(),
-                    new RouteValueDictionary {
-                        {"area", "Orchard.Dashboards"}
-                    },
-                    new MvcRouteHandler())
+                        "Admin/Dashboards/Settings",
+                        new RouteValueDictionary {
+                            {"area", "Orchard.Dashboards"},
+                            {"controller", "Settings"},
+                            {"action", "Index"}
+                        },
+                        new RouteValueDictionary {
+                            {"area", "Orchard.Dashboards"}
+                        },
+                        new MvcRouteHandler()
+                    )
                 },
-
                 new RouteDescriptor {
+                    Priority = -4,
                     Route = new Route(
-                    "Admin/Dashboards/List",
-                    new RouteValueDictionary {
-                        {"area", "Orchard.Dashboards"},
-                        {"controller", "Dashboard"},
-                        {"action", "List"}
-                    },
-                    new RouteValueDictionary(),
-                    new RouteValueDictionary {
-                        {"area", "Orchard.Dashboards"}
-                    },
-                    new MvcRouteHandler())
+                        "Admin/Dashboards/List",
+                        new RouteValueDictionary {
+                            {"area", "Orchard.Dashboards"},
+                            {"controller", "Dashboard"},
+                            {"action", "List"}
+                        },
+                        new RouteValueDictionary {
+                            {"area", "Orchard.Dashboards"}
+                        },
+                        new MvcRouteHandler()
+                    )
                 }
             };
 
-            foreach (var routeDescriptor in routeDescriptors)
+            foreach (var routeDescriptor in routeDescriptors) {
                 routes.Add(routeDescriptor);
+            }
         }
     }
 }

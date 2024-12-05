@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Caching;
 
@@ -12,11 +20,8 @@ namespace Orchard.Services {
         /// Gets the current <see cref="DateTime"/> of the system, expressed in Utc
         /// </summary>
         DateTime UtcNow { get; }
-
-        /// <summary>
         /// Provides a <see cref="IVolatileToken"/> instance which can be used to cache some information for a 
         /// specific duration.
-        /// </summary>
         /// <param name="duration">The duration that the token must be valid.</param>
         /// <example>
         /// This sample shows how to use the <see cref="When"/> method by returning the result of
@@ -30,27 +35,16 @@ namespace Orchard.Services {
         /// </code>
         /// </example>
         IVolatileToken When(TimeSpan duration);
-
-        /// <summary>
         /// Provides a <see cref="IVolatileToken"/> instance which can be used to cache some 
         /// until a specific date and time.
-        /// </summary>
         /// <param name="absoluteUtc">The date and time that the token must be valid until.</param>
-        /// <example>
         /// This sample shows how to use the <see cref="WhenUtc"/> method by returning the result of
         /// a method named LoadVotes(), which is computed once, and no more until the end of the year.
-        /// <code>
         /// var endOfYear = _clock.UtcNow;
         /// endOfYear.Month = 12;
         /// endOfYear.Day = 31;
         /// 
-        /// _cacheManager.Get("votes",
-        ///     ctx => {
         ///         ctx.Monitor(_clock.WhenUtc(endOfYear));
-        ///         return LoadVotes();
-        /// });
-        /// </code>
-        /// </example>
         IVolatileToken WhenUtc(DateTime absoluteUtc);
     }
 }

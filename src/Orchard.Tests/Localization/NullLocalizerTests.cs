@@ -1,5 +1,12 @@
-﻿using NUnit.Framework;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using NUnit.Framework;
 
 namespace Orchard.Tests.Localization {
     [TestFixture]
@@ -9,17 +16,11 @@ namespace Orchard.Tests.Localization {
             var result = NullLocalizer.Instance("hello world");
             Assert.That(result.ToString(), Is.EqualTo("hello world"));
         }
-
-        [Test]
         public void StringsShouldFormatIfArgumentsArePassedIn() {
             var result = NullLocalizer.Instance("hello {0} world", "!");
             Assert.That(result.ToString(), Is.EqualTo("hello ! world"));
-        }
-
-        [Test]
         public void StringsShouldNotFormatWithoutAnyArguments() {
             var result = NullLocalizer.Instance("hello {0} world");
             Assert.That(result.ToString(), Is.EqualTo("hello {0} world"));
-        }
     }
 }

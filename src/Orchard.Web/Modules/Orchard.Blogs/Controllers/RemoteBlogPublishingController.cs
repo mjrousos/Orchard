@@ -1,5 +1,12 @@
-using System.Web;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System.Web;
 using System.Web.Routing;
 using System.Xml.Linq;
 using Orchard.Blogs.Models;
@@ -15,7 +22,6 @@ namespace Orchard.Blogs.Controllers {
         private readonly IBlogService _blogService;
         private readonly IRsdConstraint _rsdConstraint;
         private readonly RouteCollection _routeCollection;
-
         public RemoteBlogPublishingController(
             IOrchardServices services, 
             IBlogService blogService, 
@@ -26,27 +32,18 @@ namespace Orchard.Blogs.Controllers {
             _routeCollection = routeCollection;
             Logger = NullLogger.Instance;
         }
-
         protected ILogger Logger { get; set; }
-
         public ActionResult Rsd(string path) {
             Logger.Debug("RSD requested");
-
             var blogPath = _rsdConstraint.FindPath(path);
             
             if (blogPath == null)
                 return HttpNotFound();
-
             BlogPart blogPart = _blogService.Get(blogPath);
-
             if (blogPart == null)
-                return HttpNotFound();
-
             const string manifestUri = "http://archipelago.phrasewise.com/rsd";
-
             var urlHelper = new UrlHelper(ControllerContext.RequestContext, _routeCollection);
             var url = urlHelper.AbsoluteAction("", "", new { Area = "XmlRpc" });
-
             var options = new XElement(
                 XName.Get("service", manifestUri),
                 new XElement(XName.Get("engineName", manifestUri), "Orchard CMS"),
@@ -58,14 +55,11 @@ namespace Orchard.Blogs.Controllers {
                         new XAttribute("preferred", true),
                         new XAttribute("apiLink", url),
                         new XAttribute("blogID", blogPart.Id))));
-
             var doc = new XDocument(new XElement(
                                         XName.Get("rsd", manifestUri),
                                         new XAttribute("version", "1.0"),
                                         options));
-
             Response.Cache.SetCacheability(HttpCacheability.NoCache);
             return Content(doc.ToString(), "text/xml");
-        }
     }
 }

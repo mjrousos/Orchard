@@ -1,12 +1,16 @@
-﻿using System;
-using System.Web.Mvc;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using Orchard.ContentManagement.Aspects;
 using Orchard.Core.Contents.Settings;
 using Orchard.Dashboards.Services;
-using Orchard.Localization;
 using Orchard.Mvc;
-using Orchard.UI.Admin;
 using Orchard.UI.Notify;
 
 namespace Orchard.Dashboards.Controllers {
@@ -42,9 +46,6 @@ namespace Orchard.Dashboards.Controllers {
         [HttpPost]
         [FormValueRequired("submit.Save")]
         public ActionResult Save() {
-            if (!_services.Authorizer.Authorize(Permissions.ManageDashboards))
-                return new HttpUnauthorizedResult();
-
             return UpdateDashboard(dashboard => {
                 if (!dashboard.Has<IPublishingControlAspect>() && !dashboard.TypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable)
                     _services.ContentManager.Publish(dashboard);
@@ -52,13 +53,9 @@ namespace Orchard.Dashboards.Controllers {
             });
         }
 
-        [ActionName("Edit")]
         [HttpPost]
         [FormValueRequired("submit.Publish")]
         public ActionResult Publish() {
-            if (!_services.Authorizer.Authorize(Permissions.ManageDashboards))
-                return new HttpUnauthorizedResult();
-
             return UpdateDashboard(dashboard => {
                 _services.ContentManager.Publish(dashboard);
                 _services.Notifier.Success(T("Your dashboard has been published."));
@@ -75,11 +72,8 @@ namespace Orchard.Dashboards.Controllers {
             }
 
             var contentItem = (ContentItem)editor.ContentItem;
-
             if (contentItem != null)
                 conditonallyPublish(contentItem);
-            else
-                _services.Notifier.Success(T("Your dashboard has been saved."));
 
             return RedirectToAction("Edit");
         }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Glimpse.Core.Extensibility;
@@ -17,9 +25,7 @@ namespace Orchard.Glimpse.Tabs.Layers {
                     .Column(message.Duration.ToTimingString())
                     .QuietIf(!message.Active);
             }
-
             root.AddTimingSummary(messages);
-
             return root.Build();
         }
     }

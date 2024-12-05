@@ -1,23 +1,26 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Mvc;
 using System.Web.Routing;
-using Orchard.ContentManagement;
 using Orchard.Environment.Extensions;
-using Orchard.Localization;
 using Orchard.Mvc;
 using Orchard.UI.Navigation;
 
 namespace Orchard.Alias.Navigation {
-
     [OrchardFeature("Orchard.Alias.BreadcrumbLink")]
     public class NavigationAliasProvider : INavigationFilter {
         private readonly IAliasService _aliasService;
         private readonly IContentManager _contentManager;
         private readonly IHttpContextAccessor _hca;
-
         public NavigationAliasProvider(
             IAliasService aliasService,
             IContentManager contentManager,
@@ -26,7 +29,6 @@ namespace Orchard.Alias.Navigation {
             _contentManager = contentManager;
             _hca = hca;
         }
-
         public IEnumerable<MenuItem> Filter(IEnumerable<MenuItem> items) {
             foreach (var item in items) {
                 if (item.Content != null && item.Content.ContentItem.ContentType == "AliasBreadcrumbMenuItem") {
@@ -35,12 +37,9 @@ namespace Orchard.Alias.Navigation {
                     var appPath = request.ApplicationPath ?? "/";
                     var requestUrl = (path.StartsWith(appPath) ? path.Substring(appPath.Length) : path).TrimStart('/');
                     var endsWithSlash = requestUrl.EndsWith("/");
-
                     var menuPosition = item.Position;
-
                     var urlLevel = endsWithSlash ? requestUrl.Count(l => l == '/') - 1 : requestUrl.Count(l => l == '/');
                     var menuLevel = menuPosition.Count(l => l == '.');
-
                     // Checking the menu item whether it's the leaf element or it's an intermediate element
                     // or it's an unneccessary element according to the url.
                     RouteValueDictionary contentRoute;
@@ -61,7 +60,6 @@ namespace Orchard.Alias.Navigation {
                             for (int i = 0; i < levelDifference; i++) {
                                 requestUrl = requestUrl.Remove(requestUrl.LastIndexOf('/'));
                                 path = path.Remove(path.LastIndexOf('/'));
-                            }
                             contentRoute = _aliasService.Get(requestUrl);
                             if (contentRoute == null) {
                                 // After the exact number of segments is cut out from the url and the
@@ -72,13 +70,9 @@ namespace Orchard.Alias.Navigation {
                                 if (contentRoute == null) {
                                     contentRoute = new RouteValueDictionary();
                                 }
-                            }
                         }
                         else {
                             contentRoute = new RouteValueDictionary();
-                        }
-                    }
-
                     object id;
                     contentRoute.TryGetValue("Id", out id);
                     int contentId;
@@ -92,13 +86,11 @@ namespace Orchard.Alias.Navigation {
                         // content item's route is in this form we already have the id from contentRoute.TryGetValue("Id", out id).
                         var virtualPath = _aliasService.LookupVirtualPaths(contentRoute, _hca.Current()).FirstOrDefault();
                         int.TryParse(virtualPath != null ? virtualPath.VirtualPath.Substring(virtualPath.VirtualPath.LastIndexOf('=') + 1) : "0", out contentId);
-                    }
                     if (contentId != 0) {
                         var currentContentItem = _contentManager.Get(contentId);
                         if (currentContentItem != null) {
                             var menuText = _contentManager.GetItemMetadata(currentContentItem).DisplayText;
                             var routes = _contentManager.GetItemMetadata(currentContentItem).DisplayRouteValues;
-
                             var inserted = new MenuItem {
                                 Text = new LocalizedString(menuText),
                                 IdHint = item.IdHint,
@@ -113,15 +105,10 @@ namespace Orchard.Alias.Navigation {
                                 Permissions = item.Permissions,
                                 Content = item.Content
                             };
-
                             yield return inserted;
-                        }
-                    }
                 }
                 else {
                     yield return item;
-                }
             }
-        }
     }
 }

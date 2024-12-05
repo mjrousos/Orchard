@@ -1,11 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Orchard.ContentManagement {
-
     public interface IHqlExpressionFactory {
-
         void Eq(string propertyName, object value);
         void Like(string propertyName, string value, HqlMatchMode matchMode);
         void InsensitiveLike(string propertyName, string value, HqlMatchMode matchMode);
@@ -42,5 +48,4 @@ namespace Orchard.ContentManagement {
         void AllEq(IDictionary propertyNameValues);
         void NaturalId();
     }
-
 }

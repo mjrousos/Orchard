@@ -1,5 +1,12 @@
-﻿using System.Linq;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Linq;
 using Orchard.Data;
 using Orchard.Roles.Models;
 using Orchard.Settings;
@@ -10,19 +17,14 @@ namespace Orchard.Roles.Services {
     public class RolesUserSuspensionConditionProvider : IUserSuspensionConditionProvider {
         private readonly ISiteService _siteService;
         private readonly IRepository<UserRolesPartRecord> _userRolesRepository;
-
         public RolesUserSuspensionConditionProvider(
             ISiteService siteService,
             IRepository<UserRolesPartRecord> userRolesRepository) {
-
             _siteService = siteService;
             _userRolesRepository = userRolesRepository;
         }
-
         public IContentQuery<UserPart> AlterQuery(IContentQuery<UserPart> query) {
             return query;
-        }
-
         public bool UserIsProtected(UserPart userPart) {
             // Get the user roles: we fetch them directly from the repository rather
             // than through a part, because we are going to need the roles Ids and
@@ -43,8 +45,6 @@ namespace Orchard.Roles.Services {
             // If the user has assigned roles we need to check whether any of those
             // makes them "safe".
             return roleIds.Any(i => safeRoleIds.Contains(i));
-        }
-
         private RolesUserSuspensionSettingsPart _settingsPart;
         private RolesUserSuspensionSettingsPart Settings {
             get {
@@ -52,7 +52,5 @@ namespace Orchard.Roles.Services {
                     _settingsPart = _siteService.GetSiteSettings().As<RolesUserSuspensionSettingsPart>();
                 }
                 return _settingsPart;
-            }
-        }
     }
 }

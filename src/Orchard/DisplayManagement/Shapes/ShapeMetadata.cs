@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +21,6 @@ namespace Orchard.DisplayManagement.Shapes {
             Displaying = Enumerable.Empty<Action<ShapeDisplayingContext>>();
             Displayed = Enumerable.Empty<Action<ShapeDisplayedContext>>();
         }
-
         public string Type { get; set; }
         public string DisplayType { get; set; }
         public string Position { get; set; }
@@ -23,23 +30,16 @@ namespace Orchard.DisplayManagement.Shapes {
         public string Prefix { get; set; }
         public IList<string> Wrappers { get; set; }
         public IList<string> Alternates { get; set; }
-
         public bool WasExecuted { get; set; }
         public IHtmlString ChildContent { get; set; }
-
         public IEnumerable<Action<ShapeDisplayingContext>> Displaying { get; private set; }
         public IEnumerable<Action<ShapeDisplayedContext>> Displayed { get; private set; }
-
         public IList<string> BindingSources { get; set; }
-
         public void OnDisplaying(Action<ShapeDisplayingContext> action) {
             var existing = Displaying ?? Enumerable.Empty<Action<ShapeDisplayingContext>>();
             Displaying = existing.Concat(new[] { action });
-        }
-
         public void OnDisplayed(Action<ShapeDisplayedContext> action) {
             var existing = Displayed ?? Enumerable.Empty<Action<ShapeDisplayedContext>>();
             Displayed = existing.Concat(new[] { action });
-        }
     }
 }

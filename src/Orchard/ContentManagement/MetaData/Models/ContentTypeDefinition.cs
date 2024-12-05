@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -11,14 +19,9 @@ namespace Orchard.ContentManagement.MetaData.Models {
             Parts = parts.ToReadOnlyCollection();
             Settings = settings;
         }
-
         public ContentTypeDefinition(string name, string displayName) {
-            Name = name;
-            DisplayName = displayName;
             Parts = Enumerable.Empty<ContentTypePartDefinition>();
             Settings = new SettingsDictionary();
-        }
-
         [StringLength(128)]
         public string Name { get; private set; }
         [Required, StringLength(1024)]

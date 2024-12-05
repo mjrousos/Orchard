@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,16 +26,12 @@ namespace Orchard.AuditTrail.Services {
                     writer.Flush();
                     writer.Close();
                 }
-
                 return result.Root;
             }
         }
-
         public IEnumerable<DiffNode> Analyze(XElement original, XElement diffGram) {
             var stack = new Stack<XElement>();
-
             stack.Push(new XElement("original", original));
-
             using (var reader = diffGram.CreateReader()) {
                 while (!reader.EOF) {
                     var readNext = true;
@@ -40,12 +44,10 @@ namespace Orchard.AuditTrail.Services {
                                 ? default(int?) : matchInt - 1;
                             var diffType = reader.LocalName;
                             var currentElement = stack.Peek();
-
                             if (currentElement.HasElements && index != null) {
                                 var sourceElement = currentElement.Elements().ElementAt(index.Value);
                                 stack.Push(sourceElement);
                             }
-
                             if (diffType != "node") {
                                 switch (diffType) {
                                     case "change":
@@ -53,7 +55,6 @@ namespace Orchard.AuditTrail.Services {
                                             var attributeName = match.Substring(1);
                                             var originalValue = currentElement.Attribute(attributeName).Value;
                                             var currentValue = reader.ReadElementContentAsString();
-
                                             readNext = false;
                                             yield return
                                                 new DiffNode {
@@ -67,16 +68,9 @@ namespace Orchard.AuditTrail.Services {
                                             var elementName = currentElement.Name.ToString();
                                             var originalContent = currentElement.Value;
                                             var currentContent = reader.ReadElementContentAsString();
-
-                                            readNext = false;
-                                            yield return
-                                                new DiffNode {
-                                                    Type = DiffType.Change,
                                                     Context = BuildContextName(stack, elementName),
                                                     Previous = originalContent,
                                                     Current = currentContent
-                                                };
-                                        }
                                         break;
                                     case "add":
                                         var nodeName = reader.GetAttribute("name");
@@ -85,30 +79,21 @@ namespace Orchard.AuditTrail.Services {
                                         if (reader.NodeType != XmlNodeType.EndElement) {
                                             nodeName = reader.Name;
                                             addedContent = reader.ReadOuterXml();
-                                        }
                                         yield return 
                                             new DiffNode { 
                                                 Type = DiffType.Addition, 
                                                 Context = BuildContextName(stack, nodeName), 
                                                 Current = addedContent 
                                             };
-                                        break;
                                 }
-                            }
                             break;
                         case XmlNodeType.EndElement:
                             if(stack.Any())
                                 stack.Pop();
-                            break;
                     }
                     if (readNext)
                         reader.Read();
-                }
-            }
-        }
-
         private string BuildContextName(IEnumerable<XElement> stack, string nodeName) {
             return String.Format("{0}/{1}", String.Join("/", stack.Reverse().Skip(1).Select(x => x.Name)), nodeName);
-        }
     }
 }

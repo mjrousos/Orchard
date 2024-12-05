@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement.Handlers;
 using Orchard.PublishLater.Models;
 using Orchard.PublishLater.Services;
@@ -6,19 +14,16 @@ using Orchard.Tasks.Scheduling;
 namespace Orchard.PublishLater.Handlers {
     public class PublishLaterPartHandler : ContentHandler {
         private readonly IPublishLaterService _publishLaterService;
-
         public PublishLaterPartHandler(
             IPublishLaterService publishLaterService,
             IPublishingTaskManager publishingTaskManager) {
             _publishLaterService = publishLaterService;
-
             OnLoading<PublishLaterPart>((context, part) => LazyLoadHandlers(part));
             OnVersioning<PublishLaterPart>((context, part, newVersionPart) => LazyLoadHandlers(newVersionPart));
             OnRemoved<PublishLaterPart>((context, part) => publishingTaskManager.DeleteTasks(part.ContentItem));
             OnPublishing<PublishLaterPart>((context, part) =>
             {
                 var existingPublishTask = publishingTaskManager.GetPublishTask(context.ContentItem);
-
                 //Check if there is already and existing publish task for old version.
                 if (existingPublishTask != null)
                 {
@@ -27,9 +32,7 @@ namespace Orchard.PublishLater.Handlers {
                 }
             });
         }
-
         protected void LazyLoadHandlers(PublishLaterPart part) {
             part.ScheduledPublishUtc.Loader(() => _publishLaterService.GetScheduledPublishUtc(part));
-        }
     }
 }

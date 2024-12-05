@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +22,6 @@ namespace Orchard.Data.Conventions {
         public void Apply(IPropertyInstance instance) {
             instance.CustomType<UtcDateTimeType>();
         }
-
         public void Accept(IAcceptanceCriteria<IPropertyInspector> criteria) {
             criteria.Expect(x =>
                 x.Property.Name.EndsWith("Utc", StringComparison.OrdinalIgnoreCase) && (
@@ -22,6 +29,5 @@ namespace Orchard.Data.Conventions {
                     x.Property.PropertyType.Equals(typeof(DateTime?))
                 )
             );
-        }
     }
 }

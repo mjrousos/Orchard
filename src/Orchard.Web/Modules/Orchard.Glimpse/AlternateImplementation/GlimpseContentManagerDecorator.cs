@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData.Models;
@@ -7,6 +7,7 @@ using Orchard.Glimpse.Extensions;
 using Orchard.Glimpse.Services;
 using Orchard.Glimpse.Tabs.ContentManager;
 using Orchard.Indexing;
+using Orchard.Compat.Orchard.ContentManagement;
 
 namespace Orchard.Glimpse.AlternateImplementation {
     [OrchardFeature(FeatureNames.ContentManager)]
@@ -55,21 +56,21 @@ namespace Orchard.Glimpse.AlternateImplementation {
         public ContentItem Get(int id, VersionOptions options) {
             return _glimpseService.PublishTimedAction(() => _decoratedService.Get(id, options), (r, t) => new ContentManagerGetMessage {
                 ContentId = id,
-                ContentType = GetContentType(id, r),
+                ContentType = GetContentType(id, r, options),
                 Name = r.GetContentName(),
                 Duration = t.Duration,
                 VersionOptions = options
-            }, TimelineCategories.ContentManager, r => "Get: " + GetContentType(id, r), r => r.GetContentName()).ActionResult;
+            }, TimelineCategories.ContentManager, r => "Get: " + GetContentType(id, r, options), r => r.GetContentName()).ActionResult;
         }
 
         public ContentItem Get(int id, VersionOptions options, QueryHints hints) {
             return _glimpseService.PublishTimedAction(() => _decoratedService.Get(id, options, hints), (r, t) => new ContentManagerGetMessage {
                 ContentId = id,
-                ContentType = GetContentType(id, r),
+                ContentType = GetContentType(id, r, options),
                 Name = r.GetContentName(),
                 Duration = t.Duration,
                 VersionOptions = options
-            }, TimelineCategories.ContentManager, r => "Get: " + GetContentType(id, r), r => r.GetContentName()).ActionResult;
+            }, TimelineCategories.ContentManager, r => "Get: " + GetContentType(id, r, options), r => r.GetContentName()).ActionResult;
         }
 
         public IEnumerable<ContentItem> GetAllVersions(int id) {
@@ -172,11 +173,9 @@ namespace Orchard.Glimpse.AlternateImplementation {
             if (item != null) {
                 return item.ContentType;
             }
-
             if (options == null) {
                 return "Unknown content type.";
             }
-
             return options.VersionRecordId == 0 ? $"Content item: {id} is not published." : "Unknown content type.";
         }
 

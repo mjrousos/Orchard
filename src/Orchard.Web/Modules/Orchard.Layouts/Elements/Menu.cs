@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.Layouts.Helpers;
 
 namespace Orchard.Layouts.Elements {
@@ -6,20 +14,14 @@ namespace Orchard.Layouts.Elements {
             get { return this.Retrieve(x => x.StartLevel); }
             set { this.Store(x => x.StartLevel, value); }
         }
-
         public int Levels {
             get { return this.Retrieve(x => x.Levels); }
             set { this.Store(x => x.Levels, value); }
-        }
-
         public int MenuContentItemId {
             get { return this.Retrieve(x => x.MenuContentItemId); }
             set { this.Store(x => x.MenuContentItemId, value); }
-        }
-
         public bool ShowFullMenu {
             get { return this.Retrieve(x => x.ShowFullMenu); }
             set { this.Store(x => x.ShowFullMenu, value); }
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.DynamicForms.Activities;
 using Orchard.DynamicForms.Services;
@@ -13,12 +21,10 @@ namespace Orchard.DynamicForms.Handlers {
         public WorkflowValidatorCoordinator(IWorkflowManager workflowManager) {
             _workflowManager = workflowManager;
         }
-
         public override void Validating(FormValidatingEventContext context) {
             var form = context.Form;
             var values = context.Values;
             var formValuesDictionary = values.ToTokenDictionary();
-
             var formTokenContext = new FormSubmissionTokenContext {
                 Form = form,
                 ModelState = context.ModelState,
@@ -27,9 +33,6 @@ namespace Orchard.DynamicForms.Handlers {
             var tokensData = new Dictionary<string, object>(formValuesDictionary) {
                 {"Updater", context.Updater},
                 {"FormSubmission", formTokenContext},
-            };
-
             _workflowManager.TriggerEvent(name: DynamicFormValidatingActivity.EventName, target: null, tokensContext: () => tokensData);
-        }
     }
 }

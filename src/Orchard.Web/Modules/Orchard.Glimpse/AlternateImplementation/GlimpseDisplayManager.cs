@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -13,7 +13,6 @@ using Orchard.DisplayManagement.Shapes;
 using Orchard.Environment.Extensions;
 using Orchard.Glimpse.Services;
 using Orchard.Glimpse.Tabs.Shapes;
-using Orchard.Localization;
 using Orchard.Logging;
 
 namespace Orchard.Glimpse.AlternateImplementation {
@@ -24,7 +23,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
         private readonly IGlimpseService _glimpseService;
         private readonly IWorkContextAccessor _workContextAccessor;
         private readonly IEnumerable<IShapeDisplayEvents> _shapeDisplayEvents;
-
         // this need to be Shape instead of IShape - cast to interface throws error on clr types like HtmlString
         private static readonly CallSite<Func<CallSite, object, Shape>> _convertAsShapeCallsite = CallSite<Func<CallSite, object, Shape>>.Create(
             new ForgivingConvertBinder(
@@ -32,7 +30,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
                     CSharpBinderFlags.ConvertExplicit,
                     typeof (Shape),
                     null /*typeof(DefaultDisplayManager)*/)));
-
         public GlimpseDisplayManager(
             IWorkContextAccessor workContextAccessor,
             IEnumerable<IShapeDisplayEvents> shapeDisplayEvents,
@@ -45,10 +42,8 @@ namespace Orchard.Glimpse.AlternateImplementation {
             T = NullLocalizer.Instance;
             Logger = NullLogger.Instance;
         }
-
         public Localizer T { get; set; }
         public ILogger Logger { get; set; }
-
         public IHtmlString Execute(DisplayContext context) {
             var shape = _convertAsShapeCallsite.Target(_convertAsShapeCallsite, context.Value);
 
@@ -71,15 +66,15 @@ namespace Orchard.Glimpse.AlternateImplementation {
                     Shape = shape,
                     ShapeMetadata = shapeMetadata
                 };
+
                 _shapeDisplayEvents.Invoke(sde => sde.Displaying(displayingContext), Logger);
 
-                // find base shape association using only the fundamental shape type. 
-                // alternates that may already be registered do not affect the "displaying" event calls
+                // find base shape association using only the fundamental shape type
                 ShapeBinding shapeBinding;
                 if (TryGetDescriptorBinding(shapeMetadata.Type, Enumerable.Empty<string>(), shapeTable, out shapeBinding)) {
                     shapeBinding.ShapeDescriptor.Displaying.Invoke(action => action(displayingContext), Logger);
 
-                    // copy all binding sources (all templates for this shape) in order to use them as Localization scopes
+                    // copy all binding sources in order to use them as Localization scopes
                     shapeMetadata.BindingSources = shapeBinding.ShapeDescriptor.BindingSources.Where(x => x != null).ToList();
                     if (!shapeMetadata.BindingSources.Any()) {
                         shapeMetadata.BindingSources.Add(shapeBinding.ShapeDescriptor.BindingSource);
@@ -89,7 +84,7 @@ namespace Orchard.Glimpse.AlternateImplementation {
                 // invoking ShapeMetadata displaying events
                 shapeMetadata.Displaying.Invoke(action => action(displayingContext), Logger);
 
-                // use pre-fectched content if available (e.g. coming from specific cache implmentation)
+                // use pre-fectched content if available
                 if (displayingContext.ChildContent != null) {
                     shape.Metadata.ChildContent = displayingContext.ChildContent;
                 }
@@ -112,7 +107,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
                 }
 
                 var displayedContext = new ShapeDisplayedContext {
-                    Shape = shape,
                     ShapeMetadata = shape.Metadata,
                     ChildContent = shape.Metadata.ChildContent,
                 };
@@ -140,7 +134,7 @@ namespace Orchard.Glimpse.AlternateImplementation {
                 // invoking ShapeMetadata displayed events
                 shapeMetadata.Displayed.Invoke(action => action(displayedContext), Logger);
 
-                return shapeBinding;
+                return shape.Metadata.ChildContent;
             }, (r, t) => new ShapeMessage(shape.Metadata) {
                 Duration = t.Duration,
                 BindingName = r.BindingName,
@@ -169,13 +163,11 @@ namespace Orchard.Glimpse.AlternateImplementation {
                 if (shapeTable.Bindings.TryGetValue(shapeTypeScan, out shapeBinding)) {
                     return true;
                 }
-
                 var delimiterIndex = shapeTypeScan.LastIndexOf("__");
                 if (delimiterIndex < 0) {
                     shapeBinding = null;
                     return false;
                 }
-
                 shapeTypeScan = shapeTypeScan.Substring(0, delimiterIndex);
             }
         }
@@ -184,12 +176,10 @@ namespace Orchard.Glimpse.AlternateImplementation {
             if (value == null) {
                 return null;
             }
-
             var result = value as IHtmlString;
             if (result != null) {
                 return result;
             }
-
             return new HtmlString(HttpUtility.HtmlEncode(value));
         }
 
@@ -203,12 +193,10 @@ namespace Orchard.Glimpse.AlternateImplementation {
 
         private class ForgivingConvertBinder : ConvertBinder {
             private readonly ConvertBinder _innerBinder;
-
             public ForgivingConvertBinder(ConvertBinder innerBinder)
                 : base(innerBinder.ReturnType, innerBinder.Explicit) {
                 _innerBinder = innerBinder;
             }
-
             public override DynamicMetaObject FallbackConvert(DynamicMetaObject target, DynamicMetaObject errorSuggestion) {
                 // adjust the normal csharp convert binder to allow failure to become null.
                 // this causes the same net effect as the "as" keyword, but may be applied to dynamic objects
@@ -217,7 +205,6 @@ namespace Orchard.Glimpse.AlternateImplementation {
                     errorSuggestion ?? new DynamicMetaObject(Expression.Default(_innerBinder.ReturnType), GetTypeRestriction(target)));
                 return result;
             }
-
             private static BindingRestrictions GetTypeRestriction(DynamicMetaObject obj) {
                 if ((obj.Value == null) && obj.HasValue) {
                     return BindingRestrictions.GetInstanceRestriction(obj.Expression, null);

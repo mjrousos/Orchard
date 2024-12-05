@@ -1,11 +1,15 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
-using System.Web.Mvc;
 using Orchard.Collections;
-using Orchard.ContentManagement;
-using Orchard.DisplayManagement;
 using Orchard.Indexing;
-using Orchard.Localization;
 using Orchard.Logging;
 using Orchard.Search.Helpers;
 using Orchard.Search.Models;
@@ -17,45 +21,37 @@ using Orchard.UI.Navigation;
 using Orchard.UI.Notify;
 
 namespace Orchard.Search.Controllers {
-
     [ValidateInput(false), Themed]
     public class SearchController : Controller {
         private readonly ISearchService _searchService;
         private readonly IContentManager _contentManager;
         private readonly ISiteService _siteService;
-
         public SearchController(
             IOrchardServices services,
             ISearchService searchService,
             IContentManager contentManager,
             ISiteService siteService,
             IShapeFactory shapeFactory) {
-
              Services = services;
             _searchService = searchService;
             _contentManager = contentManager;
             _siteService = siteService;
-
             T = NullLocalizer.Instance;
             Logger = NullLogger.Instance;
             Shape = shapeFactory;
         }
-
         private IOrchardServices Services { get; set; }
         public Localizer T { get; set; }
         public ILogger Logger { get; set; }
         dynamic Shape { get; set; }
-
         public ActionResult Index(PagerParameters pagerParameters, string searchIndex = null, string q = "") {
             var pager = new Pager(_siteService.GetSiteSettings(), pagerParameters);
             var searchSettingPart = Services.WorkContext.CurrentSite.As<SearchSettingsPart>();
             var index = !String.IsNullOrWhiteSpace(searchIndex) ? searchIndex.Trim() : searchSettingPart.SearchIndex;
-
             if (String.IsNullOrEmpty(index)) {
                 Services.Notifier.Error(T("Please define a default search index."));
                 return HttpNotFound();
             }
-
             IPageOfItems<ISearchHit> searchHits = new PageOfItems<ISearchHit>(new ISearchHit[] { });
             try {
                 searchHits = _searchService.Query(
@@ -67,20 +63,14 @@ namespace Orchard.Search.Controllers {
             } catch(Exception exception) {
                 Logger.Error(T("Invalid search query: {0}", exception.Message).Text);
                 Services.Notifier.Error(T("Invalid search query: {0}", exception.Message));
-            }
-
             var list = Shape.List();
             var foundIds = searchHits.Select(searchHit => searchHit.ContentItemId).ToList();
-
             // ignore search results which content item has been removed or unpublished
             var foundItems = _contentManager.GetMany<IContent>(foundIds, VersionOptions.Published, new QueryHints()).ToList();
             foreach (var contentItem in foundItems) {
                 list.Add(_contentManager.BuildDisplay(contentItem, searchSettingPart.DisplayType));
-            }
             searchHits.TotalItemCount -= foundIds.Count() - foundItems.Count();
-
             var pagerShape = Shape.Pager(pager).TotalItemCount(searchHits.TotalItemCount);
-
             var searchViewModel = new SearchViewModel {
                 Query = q,
                 TotalItemCount = searchHits.TotalItemCount,
@@ -90,10 +80,7 @@ namespace Orchard.Search.Controllers {
                 Pager = pagerShape,
                 IndexName = index
             };
-
             //todo: deal with page requests beyond result count
-
             return View(searchViewModel);
-        }
     }
 }

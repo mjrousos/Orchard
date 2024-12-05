@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 using Orchard.Themes;
 
 namespace Orchard.Tokens.Controllers {
@@ -16,8 +23,7 @@ namespace Orchard.Tokens.Controllers {
             var tokenTypes = _tokenManager.Describe(Enumerable.Empty<string>());
             var results = new List<object>();
 
-            foreach (var tokenType in tokenTypes.OrderBy(d => d.Name.ToString()))
-            {
+            foreach (var tokenType in tokenTypes.OrderBy(d => d.Name.ToString())) {
                 results.Add(new {
                     label = tokenType.Name.Text,
                     desc = tokenType.Description.Text,

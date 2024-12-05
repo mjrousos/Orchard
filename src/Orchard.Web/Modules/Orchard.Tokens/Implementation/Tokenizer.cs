@@ -1,4 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Routing;
@@ -44,14 +52,11 @@ namespace Orchard.Tokens.Implementation {
             if (String.IsNullOrEmpty(text)) {
                 return String.Empty;
             }
-
             // do we have to replace tokens with hashes ?
             bool hashMode = text.Contains("#{");
-
             var tokenset = Parse(text, hashMode);
             var tokens = tokenset.Item2;
             var replacements = Evaluate(options.Predicate == null ? tokens : tokens.Where(options.Predicate), data);
-
             return replacements.Aggregate(tokenset.Item1,
                 (current, replacement) => current.Replace((hashMode ? "#{" : "{") + replacement.Key + "}",
                 (options.Encoding ?? ReplaceOptions.NoEncode)(replacement.Key, replacement.Value ?? "")));
@@ -64,7 +69,6 @@ namespace Orchard.Tokens.Implementation {
                 var tokenStart = 0;
                 for (var i = 0; i < text.Length; i++) {
                     var c = text[i];
-
                     if (c == '{') {
                         if (i + 1 < text.Length && text[i + 1] == '{') {
                             text = text.Substring(0, i) + text.Substring(i + 1);
@@ -87,15 +91,15 @@ namespace Orchard.Tokens.Implementation {
                             }
                         }
                     }
-                    
-                    if (!hashMode && c == '{') {                       
+
+                    if (!hashMode && c == '{') {
                         if (inTokenDepth == 0) tokenStart = i;
                         inTokenDepth++;
                     }
-                    else if (hashMode && c == '#' 
-                        && i + 1 < text.Length && text[i + 1] == '{'
-                        && (i + 2 > text.Length || text[i + 2] != '{') ) {          
-                        if (inTokenDepth == 0) tokenStart = i+1;
+                    else if (hashMode && c == '#' &&
+                            i + 1 < text.Length && text[i + 1] == '{' &&
+                            (i + 2 > text.Length || text[i + 2] != '{')) {
+                        if (inTokenDepth == 0) tokenStart = i + 1;
                         inTokenDepth++;
                     }
                 }
@@ -110,6 +114,5 @@ namespace Orchard.Tokens.Implementation {
             }
             return Tuple.Create(token, "", token);
         }
-
     }
 }

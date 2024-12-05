@@ -1,7 +1,13 @@
-﻿using System.Linq;
 using Orchard.ContentManagement;
-using Orchard.Environment.Extensions;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Linq;
+using Orchard.Environment.Extensions;
 using Orchard.Localization.Models;
 using Orchard.Taxonomies.Events;
 using Orchard.Taxonomies.Models;
@@ -34,6 +40,5 @@ namespace Orchard.Taxonomies.EventHandlers {
             }
             if (termsRemoved)
                 _notifier.Warning(T("Some terms were not moved because their culture was different from the culture of the selected parent."));
-        }
     }
 }

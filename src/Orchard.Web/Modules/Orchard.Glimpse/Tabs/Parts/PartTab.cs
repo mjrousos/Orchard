@@ -1,16 +1,14 @@
-﻿using Glimpse.Core.Extensibility;
-using Glimpse.Core.Extensions;
 using System.Linq;
+using Glimpse.Core.Extensibility;
+using Glimpse.Core.Extensions;
 
 namespace Orchard.Glimpse.Tabs.Parts {
     public class PartTab : TabBase, ITabSetup, IKey {
         public override object GetData(ITabContext context) {
             var messages = context.GetMessages<PartMessage>().ToList();
-
             if (!messages.Any()) {
                 return null;
             }
-
             return messages;
         }
 

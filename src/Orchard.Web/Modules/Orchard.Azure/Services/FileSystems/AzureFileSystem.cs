@@ -1,4 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,31 +15,19 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using Orchard.FileSystems.Media;
 
 namespace Orchard.Azure.Services.FileSystems {
-
     public class AzureFileSystem {
-
         public const string FolderEntry = "$$$ORCHARD$$$.$$$";
-
         private readonly bool _isPrivate;
         private readonly IMimeTypeProvider _mimeTypeProvider;
-
         protected string _root;
         protected string _absoluteRoot;
         protected string _publicHostName;
-
         private CloudStorageAccount _storageAccount;
         private CloudBlobClient _blobClient;
         private CloudBlobContainer _container;
 
-        public string StorageConnectionString {
-            get;
-            protected set;
-        }
-
-        public string ContainerName {
-            get;
-            protected set;
-        }
+        public string StorageConnectionString { get; protected set; }
+        public string ContainerName { get; protected set; }
 
         public CloudStorageAccount StorageAccount {
             get {
@@ -67,65 +63,49 @@ namespace Orchard.Azure.Services.FileSystems {
             if (_storageAccount != null) {
                 return;
             }
-
             _storageAccount = CloudStorageAccount.Parse(StorageConnectionString);
             _absoluteRoot = Combine(Combine(_storageAccount.BlobEndpoint.AbsoluteUri, ContainerName), _root);
-
             _blobClient = _storageAccount.CreateCloudBlobClient();
             // Get and create the container if it does not exist
             // The container is named with DNS naming restrictions (i.e. all lower case)
             _container = _blobClient.GetContainerReference(ContainerName);
- 
+
             ////Set the default service version to the current version "2015-12-11" so that newer features and optimizations are enabled on the images and videos stored in the blob storage.
             var properties = _blobClient.GetServiceProperties();
             if (properties.DefaultServiceVersion == null) {
                 properties.DefaultServiceVersion = "2015-12-11";
                 _blobClient.SetServiceProperties(properties);
             }
-            
+
             _container.CreateIfNotExists(_isPrivate ? BlobContainerPublicAccessType.Off : BlobContainerPublicAccessType.Blob);
         }
 
         private static string ConvertToRelativeUriPath(string path) {
             var newPath = path.Replace(@"\", "/");
-
             if (newPath.StartsWith("/", StringComparison.OrdinalIgnoreCase) || newPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || newPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) {
                 throw new ArgumentException("Path must be relative");
             }
-
             return newPath;
         }
 
         private static string GetFolderName(string path) => path.Substring(path.LastIndexOf('/') + 1);
 
         public string Combine(string path1, string path2) {
-            if (path1 == null) {
+            if (path1 == null)
                 throw new ArgumentNullException("path1");
-            }
-
-            if (path2 == null) {
+            if (path2 == null)
                 throw new ArgumentNullException("path2");
-            }
-
-            if (String.IsNullOrEmpty(path2)) {
+            if (String.IsNullOrEmpty(path2))
                 return path1;
-            }
-
-            if (String.IsNullOrEmpty(path1)) {
+            if (String.IsNullOrEmpty(path1))
                 return path2;
-            }
-
-            if (path2.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || path2.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) {
+            if (path2.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || path2.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 return path2;
-            }
-
-            return (path1.TrimEnd('/') + '/' + path2.TrimStart('/'));
+            return path1.TrimEnd('/') + '/' + path2.TrimStart('/');
         }
 
         public IStorageFile GetFile(string path) {
-
             path = ConvertToRelativeUriPath(path);
-
             Container.EnsureBlobExists(String.Concat(_root, path));
             return new AzureBlobFileStorage(Container.GetBlockBlobReference(String.Concat(_root, path)), _absoluteRoot);
         }
@@ -139,16 +119,11 @@ namespace Orchard.Azure.Services.FileSystems {
         }
 
         public IEnumerable<IStorageFile> ListFiles(string path) {
-
             path = path ?? String.Empty;
-            path = ConvertToRelativeUriPath(path);
-
             string prefix = Combine(Combine(Container.Name, _root), path);
-
             if (!prefix.EndsWith("/")) {
                 prefix += "/";
             }
-
             return BlobClient.ListBlobs(prefix)
                 .OfType<CloudBlockBlob>()
                 .Where(blobItem => !blobItem.Uri.AbsoluteUri.EndsWith(FolderEntry))
@@ -157,10 +132,6 @@ namespace Orchard.Azure.Services.FileSystems {
         }
 
         public IEnumerable<IStorageFolder> ListFolders(string path) {
-
-            path = path ?? String.Empty;
-            path = ConvertToRelativeUriPath(path);
-
             // return root folders
             if (String.Concat(_root, path) == String.Empty) {
                 return Container.ListBlobs()
@@ -168,7 +139,6 @@ namespace Orchard.Azure.Services.FileSystems {
                     .Select<CloudBlobDirectory, IStorageFolder>(d => new AzureBlobFolderStorage(d, _absoluteRoot))
                     .ToList();
             }
-
             if (!Container.DirectoryExists(String.Concat(_root, path))) {
                 try {
                     CreateFolder(path);
@@ -178,7 +148,6 @@ namespace Orchard.Azure.Services.FileSystems {
                                                                 path, ex));
                 }
             }
-
             return Container.GetDirectoryReference(String.Concat(_root, path))
                 .ListBlobs()
                 .OfType<CloudBlobDirectory>()
@@ -189,10 +158,8 @@ namespace Orchard.Azure.Services.FileSystems {
         public bool TryCreateFolder(string path) {
             try {
                 if (!Container.DirectoryExists(String.Concat(_root, path))) {
-                    CreateFolder(path);
                     return true;
                 }
-
                 // return false to be consistent with FileSystemProvider's implementation
                 return false;
             }
@@ -202,60 +169,43 @@ namespace Orchard.Azure.Services.FileSystems {
         }
 
         public void CreateFolder(string path) {
-            path = ConvertToRelativeUriPath(path);
-
             if (FileSystemStorageProvider.FolderNameContainsInvalidCharacters(GetFolderName(path))) {
                 throw new InvalidNameCharacterException("The directory name contains invalid character(s)");
             }
-
             Container.EnsureDirectoryDoesNotExist(String.Concat(_root, path));
-
             // Creating a virtually hidden file to make the directory an existing concept
             CreateFile(Combine(path, FolderEntry));
-
             int lastIndex;
             while ((lastIndex = path.LastIndexOf('/')) > 0) {
                 path = path.Substring(0, lastIndex);
-                if (!Container.DirectoryExists(String.Concat(_root, path))) {
-                    CreateFile(Combine(path, FolderEntry));
-                }
+                CreateFile(Combine(path, FolderEntry));
             }
         }
 
         public void DeleteFolder(string path) {
-            path = ConvertToRelativeUriPath(path);
-
             Container.EnsureDirectoryExists(String.Concat(_root, path));
             foreach (var blob in Container.GetDirectoryReference(String.Concat(_root, path)).ListBlobs()) {
                 if (blob is CloudBlockBlob)
                     ((CloudBlockBlob)blob).Delete();
-
                 if (blob is CloudBlobDirectory)
                     DeleteFolder(blob.Uri.ToString().Substring(Container.Uri.ToString().Length + 1 + _root.Length));
             }
         }
 
         public void RenameFolder(string path, string newPath) {
-            path = ConvertToRelativeUriPath(path);
             newPath = ConvertToRelativeUriPath(newPath);
-
             if (FileSystemStorageProvider.FolderNameContainsInvalidCharacters(GetFolderName(newPath))) {
                 throw new InvalidNameCharacterException("The new directory name contains invalid character(s)");
             }
-
             // Workaround for https://github.com/Azure/azure-storage-net/issues/892.
             // Renaming a folder by only changing the casing corrupts all the files in the folder.
             if (path.Equals(newPath, StringComparison.OrdinalIgnoreCase)) {
                 var tempPath = Guid.NewGuid().ToString() + "/";
-
                 RenameFolder(path, tempPath);
-
                 path = tempPath;
             }
-
             if (!path.EndsWith("/"))
                 path += "/";
-
             if (!newPath.EndsWith("/"))
                 newPath += "/";
             foreach (var blob in Container.GetDirectoryReference(_root + path).ListBlobs()) {
@@ -265,7 +215,6 @@ namespace Orchard.Azure.Services.FileSystems {
                     string destination = String.Concat(newPath, filename);
                     RenameFile(source, destination);
                 }
-
                 if (blob is CloudBlobDirectory) {
                     var blobDir = (CloudBlobDirectory)blob;
                     string foldername = blobDir.Prefix.Substring(blobDir.Parent.Prefix.Length);
@@ -277,24 +226,16 @@ namespace Orchard.Azure.Services.FileSystems {
         }
 
         public void DeleteFile(string path) {
-            path = ConvertToRelativeUriPath(path);
-
             Container.EnsureBlobExists(Combine(_root, path));
             var blob = Container.GetBlockBlobReference(Combine(_root, path));
             blob.DeleteIfExists();
         }
 
         public void RenameFile(string path, string newPath) {
-            path = ConvertToRelativeUriPath(path);
-            newPath = ConvertToRelativeUriPath(newPath);
-
             if (FileSystemStorageProvider.FileNameContainsInvalidCharacters(Path.GetFileName(newPath))) {
                 throw new InvalidNameCharacterException("The new file name contains invalid character(s)");
             }
-
-            Container.EnsureBlobExists(String.Concat(_root, path));
             Container.EnsureBlobDoesNotExist(String.Concat(_root, newPath));
-
             var blob = Container.GetBlockBlobReference(String.Concat(_root, path));
             var newBlob = Container.GetBlockBlobReference(String.Concat(_root, newPath));
             newBlob.StartCopy(blob);
@@ -302,56 +243,42 @@ namespace Orchard.Azure.Services.FileSystems {
         }
 
         public void CopyFile(string path, string newPath) {
-            path = ConvertToRelativeUriPath(path);
-            newPath = ConvertToRelativeUriPath(newPath);
-
-            Container.EnsureBlobExists(String.Concat(_root, path));
-            Container.EnsureBlobDoesNotExist(String.Concat(_root, newPath));
-
-            var blob = Container.GetBlockBlobReference(String.Concat(_root, path));
-            var newBlob = Container.GetBlockBlobReference(String.Concat(_root, newPath));
-            newBlob.StartCopy(blob);
+            // Implementation for copying a file
         }
 
         public IStorageFile CreateFile(string path) {
-            path = ConvertToRelativeUriPath(path);
-
             if (FileSystemStorageProvider.FileNameContainsInvalidCharacters(Path.GetFileName(path))) {
                 throw new InvalidNameCharacterException("The file name contains invalid character(s)");
             }
-
             if (Container.BlobExists(String.Concat(_root, path))) {
                 throw new ArgumentException("File " + path + " already exists");
             }
-
             // create all folder entries in the hierarchy
-            int lastIndex;
             var localPath = path;
+            int lastIndex;
             while ((lastIndex = localPath.LastIndexOf('/')) > 0) {
                 localPath = localPath.Substring(0, lastIndex);
                 var folder = Container.GetBlockBlobReference(String.Concat(_root, Combine(localPath, FolderEntry)));
                 folder.OpenWrite().Dispose();
             }
-
             var blob = Container.GetBlockBlobReference(String.Concat(_root, path));
             var contentType = _mimeTypeProvider.GetMimeType(path);
             if (!String.IsNullOrWhiteSpace(contentType)) {
                 blob.Properties.ContentType = contentType;
             }
-
             blob.UploadFromStream(new MemoryStream(new byte[0]));
             return new AzureBlobFileStorage(blob, _absoluteRoot);
         }
 
         public string GetPublicUrl(string path) {
-            path = ConvertToRelativeUriPath(path);
             var uriBuilder = new UriBuilder(Container.GetBlockBlobReference(String.Concat(_root, path)).Uri);
-            if (!string.IsNullOrEmpty(_publicHostName)) uriBuilder.Host = _publicHostName;
+            if (!string.IsNullOrEmpty(_publicHostName))
+                uriBuilder.Host = _publicHostName;
             return uriBuilder.Uri.ToString();
         }
 
         private class AzureBlobFileStorage : IStorageFile {
-            private CloudBlockBlob _blob;
+            private readonly CloudBlockBlob _blob;
             private readonly string _rootPath;
 
             public AzureBlobFileStorage(CloudBlockBlob blob, string rootPath) {
@@ -408,29 +335,17 @@ namespace Orchard.Azure.Services.FileSystems {
             }
 
             public string GetName() => GetFolderName(GetPath());
-
-            public string GetPath() {
-                return _blob.Uri.ToString().Substring(_rootPath.Length).Trim('/');
-            }
-
-            public long GetSize() {
-                return GetDirectorySize(_blob);
-            }
-
-            public DateTime GetLastUpdated() {
-                return DateTime.MinValue;
-            }
+            public long GetSize() => GetDirectorySize(_blob);
+            public DateTime GetLastUpdated() => DateTime.MinValue;
 
             public IStorageFolder GetParent() {
-                if (_blob.Parent != null) {
+                if (_blob.Parent != null)
                     return new AzureBlobFolderStorage(_blob.Parent, _rootPath);
-                }
                 throw new ArgumentException("Directory " + _blob.Uri + " does not have a parent directory");
             }
 
             private static long GetDirectorySize(CloudBlobDirectory directoryBlob) {
                 long size = 0;
-
                 foreach (var blobItem in directoryBlob.ListBlobs()) {
                     if (blobItem is CloudBlockBlob blob) {
                         size += blob.Properties.Length;
@@ -439,7 +354,6 @@ namespace Orchard.Azure.Services.FileSystems {
                         size += GetDirectorySize(directory);
                     }
                 }
-
                 return size;
             }
         }

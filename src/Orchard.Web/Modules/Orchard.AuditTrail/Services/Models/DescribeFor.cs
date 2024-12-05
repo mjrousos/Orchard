@@ -1,23 +1,25 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 using Orchard.AuditTrail.Helpers;
-using Orchard.Localization;
 
 namespace Orchard.AuditTrail.Services.Models {
     public class DescribeFor {
         private readonly IList<AuditTrailEventDescriptor> _events = new List<AuditTrailEventDescriptor>();
-
         public DescribeFor(string category, LocalizedString name) {
             Category = category;
             Name = name;
         }
-
         public IEnumerable<AuditTrailEventDescriptor> Events {
             get { return _events; }
-        }
-
         public string Category { get; private set; }
         public LocalizedString Name { get; private set; }
-
         public DescribeFor Event(
             IAuditTrailEventProvider provider, 
             string eventName, 
@@ -25,7 +27,6 @@ namespace Orchard.AuditTrail.Services.Models {
             LocalizedString description, 
             bool enableByDefault = false, 
             bool isMandatory = false) {
-
             _events.Add(new AuditTrailEventDescriptor {
                 CategoryDescriptor = new AuditTrailCategoryDescriptor {
                     Category = Category,
@@ -38,8 +39,6 @@ namespace Orchard.AuditTrail.Services.Models {
                 IsEnabledByDefault = enableByDefault,
                 IsMandatory = isMandatory
             });
-
             return this;
-        }
     }
 }

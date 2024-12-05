@@ -1,5 +1,12 @@
-using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using Orchard.Autoroute.Models;
 using Orchard.CulturePicker.Services;
 using Orchard.Environment.Extensions;
@@ -13,7 +20,6 @@ namespace Orchard.Localization.Controllers {
         private readonly ILocalizationService _localizationService;
         private readonly ICultureStorageProvider _cultureStorageProvider;
         public IOrchardServices Services { get; set; }
-
         public UserCultureSelectorController(
             IOrchardServices services,
             ILocalizationService localizationService,
@@ -22,27 +28,19 @@ namespace Orchard.Localization.Controllers {
             _localizationService = localizationService;
             _cultureStorageProvider = cultureStorageProvider;
         }
-
         public ActionResult ChangeCulture(string culture) {
             if (string.IsNullOrEmpty(culture)) {
                 throw new ArgumentNullException(culture);
             }
-
             var returnUrl = Utils.GetReturnUrl(Services.WorkContext.HttpContext.Request);
             if (string.IsNullOrEmpty(returnUrl))
                 returnUrl = "";
-
             if (_localizationService.TryGetRouteForUrl(returnUrl, out AutoroutePart currentRoutePart)
                 && _localizationService.TryFindLocalizedRoute(currentRoutePart.ContentItem, culture, out AutoroutePart localizedRoutePart)) {
                 returnUrl = localizedRoutePart.Path;
-            }
-
             _cultureStorageProvider.SetCulture(culture);
             if (!returnUrl.StartsWith("~/")) {
                 returnUrl = "~/" + returnUrl;
-            }
-
             return this.RedirectLocal(returnUrl);
-        }
     }
 }

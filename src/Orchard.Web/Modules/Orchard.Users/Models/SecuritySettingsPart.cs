@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Globalization;
-using Orchard.ContentManagement;
 
 namespace Orchard.Users.Models {
     public class SecuritySettingsPart : ContentPart {
@@ -19,6 +26,5 @@ namespace Orchard.Users.Models {
             get { return this.Retrieve(x => x.ShouldInvalidateAuthOnPasswordChanged); }
             set { this.Store(x => x.ShouldInvalidateAuthOnPasswordChanged, value); }
         }
-
     }
 }

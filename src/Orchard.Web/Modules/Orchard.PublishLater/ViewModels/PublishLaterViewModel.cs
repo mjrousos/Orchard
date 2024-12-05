@@ -1,22 +1,24 @@
-﻿using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 using Orchard.Core.Common.ViewModels;
 using Orchard.PublishLater.Models;
 
 namespace Orchard.PublishLater.ViewModels {
     public class PublishLaterViewModel {
         private readonly PublishLaterPart _publishLaterPart;
-
         public PublishLaterViewModel(PublishLaterPart publishLaterPart) {
             _publishLaterPart = publishLaterPart;
         }
-
         public ContentItem ContentItem { get { return _publishLaterPart.ContentItem; } }
-
         public bool IsPublished {
             get { return ContentItem.VersionRecord != null && ContentItem.VersionRecord.Published; }
-        }
-
         public bool HasDraft {
             get {
                 return (
@@ -24,12 +26,8 @@ namespace Orchard.PublishLater.ViewModels {
                     && ((ContentItem.VersionRecord.Published == false)
                         || (ContentItem.VersionRecord.Published && ContentItem.VersionRecord.Latest == false)));
             }
-        }
-
         public bool HasPublished {
             get { return IsPublished || ContentItem.ContentManager.Get(ContentItem.Id, VersionOptions.Published) != null; }
-        }
-
         public DateTimeEditor Editor { get; set; }
     }
 }

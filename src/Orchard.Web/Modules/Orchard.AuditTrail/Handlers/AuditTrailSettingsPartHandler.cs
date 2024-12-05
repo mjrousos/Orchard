@@ -1,11 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.AuditTrail.Models;
 using Orchard.AuditTrail.Providers.AuditTrail;
 using Orchard.AuditTrail.Services;
 using Orchard.Caching;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Handlers;
-using Orchard.Localization;
 
 namespace Orchard.AuditTrail.Handlers {
     public class AuditTrailSettingsPartHandler : ContentHandler {
@@ -13,7 +19,6 @@ namespace Orchard.AuditTrail.Handlers {
         private readonly IAuditTrailManager _auditTrailManager;
         private readonly IWorkContextAccessor _wca;
         private string _oldEventSettings;
-
         public AuditTrailSettingsPartHandler(ISignals signals, IAuditTrailManager auditTrailManager, IWorkContextAccessor wca) {
             _signals = signals;
             _auditTrailManager = auditTrailManager;
@@ -25,13 +30,9 @@ namespace Orchard.AuditTrail.Handlers {
             OnGetContentItemMetadata<AuditTrailSettingsPart>(GetMetadata);
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         private void GetMetadata(GetContentItemMetadataContext context, AuditTrailSettingsPart part) {
             context.Metadata.EditorGroupInfo.Add(new GroupInfo(T("Audit Trail")));
-        }
-
         private void SetupLazyFields(ActivatedContentContext context, AuditTrailSettingsPart part) {
             part._eventProviderSettingsField.Loader(() => _auditTrailManager.DeserializeProviderConfiguration(part.Retrieve<string>("Events")));
             part._eventProviderSettingsField.Setter(value => {
@@ -39,18 +40,12 @@ namespace Orchard.AuditTrail.Handlers {
                 _signals.Trigger("AuditTrail.EventSettings");
                 return value;
             });
-        }
-
         private void BeginUpdateEvent(UpdateContentContext context, AuditTrailSettingsPart part) {
             _oldEventSettings = part.Retrieve<string>("Events");
-        }
-
         private void EndUpdateEvent(UpdateContentContext context, AuditTrailSettingsPart part) {
             var newEventSettings = part.Retrieve<string>("Events");
-
             if (newEventSettings == _oldEventSettings)
                 return;
-
             _auditTrailManager.CreateRecord<AuditTrailSettingsEventProvider>(
                 eventName: AuditTrailSettingsEventProvider.EventsChanged,
                 eventData: new Dictionary<string, object> {
@@ -58,6 +53,5 @@ namespace Orchard.AuditTrail.Handlers {
                     {"NewSettings", _auditTrailManager.ToEventData(newEventSettings)}
                 },
                 user: _wca.GetContext().CurrentUser);
-        }
     }
 }

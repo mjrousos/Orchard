@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Core.Contents.Extensions;
@@ -19,18 +27,13 @@ namespace Orchard.AuditTrail {
                 .Column<string>("EventFilterData", c => c.WithLength(256))
                 .Column<string>("Comment", c => c.Unlimited())
                 .Column<string>("ClientIpAddress", c => c.WithLength(46)));
-
             ContentDefinitionManager.AlterPartDefinition("AuditTrailPart", part => part
                 .Attachable()
                 .WithDescription("Adds an inline audit trail to content items, and allows editors to enter a comment when saving content items."));
-
             return 2;
         }
-
         public int UpdateFrom1() {
             SchemaBuilder.AlterTable("AuditTrailEventRecord", table => table
                 .AddColumn<string>("ClientIpAddress", c => c.WithLength(46)));
-            return 2;
-        }
     }
 }

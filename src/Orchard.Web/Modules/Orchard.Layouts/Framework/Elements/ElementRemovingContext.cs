@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 
 namespace Orchard.Layouts.Framework.Elements {
     public class ElementRemovingContext {
@@ -9,7 +16,6 @@ namespace Orchard.Layouts.Framework.Elements {
             RemovedElements = removedElements;
             Content = content;
         }
-
         public IContent Content { get; private set; }
         // All the other elements on the canvas.
         public IEnumerable<Element> Elements { get; set; }

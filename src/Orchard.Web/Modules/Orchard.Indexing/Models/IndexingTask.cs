@@ -1,5 +1,12 @@
-using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using Orchard.Tasks.Indexing;
 
 namespace Orchard.Indexing.Models {
@@ -8,18 +15,14 @@ namespace Orchard.Indexing.Models {
         private readonly IndexingTaskRecord _record;
         private ContentItem _item;
         private bool _itemInitialized;
-
         public IndexingTask(IContentManager contentManager, IndexingTaskRecord record) {
             // in spite of appearances, this is actually a created class, not IoC, 
             // but dependencies are passed in for lazy initialization purposes
             _contentManager = contentManager;
             _record = record;
         }
-
         public DateTime? CreatedUtc {
             get { return _record.CreatedUtc; }
-        }
-
         public ContentItem ContentItem {
             get {
                 if (!_itemInitialized) {
@@ -31,6 +34,5 @@ namespace Orchard.Indexing.Models {
                 }
                 return _item;
             }
-        }
     }
 }

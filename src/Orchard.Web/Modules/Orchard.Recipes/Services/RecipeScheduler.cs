@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using log4net;
@@ -14,7 +22,6 @@ namespace Orchard.Recipes.Services {
         private readonly IShellDescriptorManager _shellDescriptorManager;
         private readonly Lazy<IRecipeStepExecutor> _recipeStepExecutor;
         private readonly IShellDescriptorManagerEventHandler _events;
-
         public RecipeScheduler(
             IProcessingEngine processingEngine,
             ShellSettings shellSettings,
@@ -28,9 +35,7 @@ namespace Orchard.Recipes.Services {
             _events = events;
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public void ScheduleWork(string executionId) {
             var shellDescriptor = _shellDescriptorManager.GetShellDescriptor();
             // TODO: this task entry may need to become appdata folder backed if it isn't already
@@ -39,8 +44,6 @@ namespace Orchard.Recipes.Services {
                 shellDescriptor,
                 "IRecipeSchedulerEventHandler.ExecuteWork",
                 new Dictionary<string, object> { { "executionId", executionId } });
-        }
-
         public void ExecuteWork(string executionId) {
             ThreadContext.Properties["ExecutionId"] = executionId;
             try {
@@ -55,11 +58,8 @@ namespace Orchard.Recipes.Services {
                     // https://github.com/OrchardCMS/Orchard/issues/3672
                     // Because recipes execute in their own workcontext, we need to restart the shell, as signaling a cache won't work across workcontexts.
                     _events.Changed(_shellDescriptorManager.GetShellDescriptor(), _shellSettings.Name);
-                }
             }
             finally {
                 ThreadContext.Properties["ExecutionId"] = null;
-            }
-        }
     }
 }

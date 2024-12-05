@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +17,8 @@ namespace Orchard.Layouts.Helpers {
     public static class EditorResultExtensions {
         public static IEnumerable<string> CollectTabs(this EditorResult editorResult) {
             var set = new HashSet<ShapePosition>();
-
             foreach (var editor in editorResult.Editors) {
                 var positionText = editor.Metadata.Position;
-
                 if (!String.IsNullOrWhiteSpace(positionText)) {
                     var position = ShapePosition.Parse(positionText);
                     set.Add(position);

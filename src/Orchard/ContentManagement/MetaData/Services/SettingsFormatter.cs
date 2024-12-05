@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -17,27 +25,20 @@ namespace Orchard.ContentManagement.MetaData.Services {
             if (element == null) {
                 return new SettingsDictionary();
             }
-
             return new SettingsDictionary(
                 element.Attributes()
                     .ToDictionary(attr => XmlConvert.DecodeName(attr.Name.LocalName), attr => attr.Value));
         }
-
-        /// <summary>
         /// Maps a settings dictionary to an XML element.
-        /// </summary>
         /// <param name="settingsDictionary">The settings dictionary.</param>
         /// <returns>The XML element.</returns>
         public XElement Map(SettingsDictionary settingsDictionary) {
             if (settingsDictionary == null) {
                 return new XElement("settings");
-            }
-
             return new XElement(
                 "settings", 
                 settingsDictionary
                     .Where(kv => kv.Value != null)
                     .Select(kv => new XAttribute(XmlConvert.EncodeLocalName(kv.Key), kv.Value)));
-        }
     }
 }

@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
 using Orchard.ContentManagement.MetaData.Models;
@@ -14,22 +21,15 @@ namespace Orchard.Taxonomies.Settings {
                 yield return DefinitionTemplate(model);
             }
         }
-
         public override IEnumerable<TemplateViewModel> TypePartEditorUpdate(ContentTypePartDefinitionBuilder builder, IUpdateModel updateModel) {
             if (builder.Name != "TermPart") {
                 yield break;
-            }
-
             var model = new TermPartSettings();
-
             if (updateModel.TryUpdateModel(model, "TermPartSettings", null, null)) {
                 builder
                     .WithSetting("TermPartSettings.ChildDisplayType", model.ChildDisplayType)
                     .WithSetting("TermPartSettings.OverrideDefaultPagination", model.OverrideDefaultPagination.ToString())
                     .WithSetting("TermPartSettings.PageSize", model.PageSize.ToString(CultureInfo.InvariantCulture));
-            }
-
             yield return DefinitionTemplate(model);
-        }
     }
 }

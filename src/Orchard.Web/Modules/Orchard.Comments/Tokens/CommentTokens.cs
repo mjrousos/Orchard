@@ -1,17 +1,20 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 using Orchard.Comments.Models;
 using Orchard.Comments.Services;
-using Orchard.ContentManagement;
-using Orchard.Localization;
 using Orchard.Tokens;
 
 namespace Orchard.Comments.Tokens {
-
     public class CommentTokens : ITokenProvider {
         private readonly IContentManager _contentManager;
         private readonly ICommentService _commentService;
-
         public CommentTokens(
             IContentManager contentManager,
             ICommentService commentService) {
@@ -19,9 +22,7 @@ namespace Orchard.Comments.Tokens {
             _commentService = commentService;
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         public void Describe(DescribeContext context) {
             context.For("Content", T("Comments"), T("Comments"))
                 .Token("CommentedOn", T("Commented On"), T("The content item this comment was created on."))
@@ -33,8 +34,6 @@ namespace Orchard.Comments.Tokens {
                 .Token("CommentModerateUrl", T("Comment moderation Url"), T("The absolute url to follow in order to moderate this comment."))
                 .Token("CommentDeleteUrl", T("Comment deletion Url"), T("The absolute url to follow in order to delete this comment."))
                 ;
-        }
-
         public void Evaluate(EvaluateContext context) {
             context.For<IContent>("Content")
                 .Token("CommentedOn", content => content.As<CommentPart>().CommentedOn)
@@ -50,12 +49,8 @@ namespace Orchard.Comments.Tokens {
                 .Token("CommentApproveUrl", content => _commentService.CreateProtectedUrl("Approve", content.As<CommentPart>()))
                 .Token("CommentModerateUrl", content => _commentService.CreateProtectedUrl("Moderate", content.As<CommentPart>()))
                 .Token("CommentDeleteUrl", content => _commentService.CreateProtectedUrl("Delete", content.As<CommentPart>()))
-                ;
-        }
-
         private static string CommentAuthor(IContent comment) {
             var commentPart = comment.As<CommentPart>();
             return String.IsNullOrWhiteSpace(commentPart.UserName) ? commentPart.Author : commentPart.UserName;
-        }
     }
 }

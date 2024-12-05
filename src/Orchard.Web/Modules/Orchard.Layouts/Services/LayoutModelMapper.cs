@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -35,7 +35,6 @@ namespace Orchard.Layouts.Services {
             // (e.g. setting some HtmlID property from empty to "my-id" and then clearing out that field).
             node.PropertyChanged += (sender, args) => {
                 var value = node[args.PropertyName] as JValue;
-
                 if (value != null && value.Value == null)
                     node[args.PropertyName] = "";
             };
@@ -64,13 +63,14 @@ namespace Orchard.Layouts.Services {
 
         private Element ParseEditorNode(JToken node, Container parent, int index, DescribeElementsContext describeContext) {
             var element = LoadElement(node, parent, index, describeContext);
-            var childNodes = (JArray)node["children"];
             var container = element as Container;
+            var childNodes = (JArray)node["children"];
 
-            if (container != null)
+            if (container != null) {
                 container.Elements = childNodes != null
                     ? childNodes.Select((x, i) => ParseEditorNode(x, container, i, describeContext)).Where(x => x != null).ToList()
                     : new List<Element>();
+            }
 
             return element;
         }
@@ -79,10 +79,8 @@ namespace Orchard.Layouts.Services {
             var type = (string)node["type"];
             var map = SelectMap(x => x.LayoutElementType == type);
             var element = map.ToElement(_elementManager, describeContext, node);
-
             element.Container = parent;
             element.Index = index;
-
             return element;
         }
 

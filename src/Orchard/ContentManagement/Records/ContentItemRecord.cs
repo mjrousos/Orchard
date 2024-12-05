@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 using Orchard.ContentManagement.FieldStorage.InfosetStorage;
 using Orchard.Data.Conventions;
@@ -10,11 +18,9 @@ namespace Orchard.ContentManagement.Records {
             // ReSharper restore DoNotCallOverridableMethodsInConstructor
             Infoset = new Infoset();
         }
-
         public virtual int Id { get; set; }
         public virtual ContentTypeRecord ContentType { get; set; }
         public virtual IList<ContentItemVersionRecord> Versions { get; set; }
-
         [StringLengthMax]
         public virtual string Data { get { return Infoset.Data; } set { Infoset.Data = value; } }
         public virtual Infoset Infoset { get; protected set; }
