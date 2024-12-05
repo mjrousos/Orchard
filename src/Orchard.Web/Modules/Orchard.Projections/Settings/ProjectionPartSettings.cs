@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using Orchard.Projections.ViewModels;
@@ -7,14 +15,12 @@ namespace Orchard.Projections.Settings {
         public ProjectionPartSettings() {
             FilterQueryRecordsId = new List<string>();
         }
-
         public string QueryLayoutRecordId { get; set; }
         // saved identity part for import
         public string IdentityQueryLayoutRecord { get; set; }
         public IEnumerable<QueryRecordEntry> QueryRecordEntries { get; set; }
         public IEnumerable<string> FilterQueryRecordsId { get; set; }
         public string FilterQueryRecordId { get; set; }
-        // saved identity part for import
         public string IdentityFilterQueryRecord { get; set; }
         public int Items { get; set; }
         public bool LockEditingItems { get; set; }

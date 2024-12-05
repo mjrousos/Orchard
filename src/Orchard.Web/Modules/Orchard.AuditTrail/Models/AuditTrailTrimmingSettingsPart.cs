@@ -1,5 +1,12 @@
-﻿using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 
 namespace Orchard.AuditTrail.Models {
     public class AuditTrailTrimmingSettingsPart : ContentPart {
@@ -10,21 +17,13 @@ namespace Orchard.AuditTrail.Models {
             get { return this.Retrieve(x => x.RetentionPeriod, defaultValue: 10); }
             set { this.Store(x => x.RetentionPeriod, value); }
         }
-
-        /// <summary>
         /// Gets or sets the miminum wait time in hours between audit trail trimming runs.
-        /// </summary>
         public int MinimumRunInterval {
             get { return this.Retrieve(x => x.MinimumRunInterval, defaultValue: 12); }
             set { this.Store(x => x.MinimumRunInterval, value); }
-        }
-
-        /// <summary>
         /// Gets or sets the time in UTC at which the audit trail was last trimmed.
-        /// </summary>
         public DateTime? LastRunUtc {
             get { return this.Retrieve(x => x.LastRunUtc); }
             set { this.Store(x => x.LastRunUtc, value); }
-        }
     }
 }

@@ -1,40 +1,36 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using System.Xml.Linq;
 using Orchard.Data;
-using Orchard.Localization;
 using Orchard.Recipes.Services;
 using Orchard.Workflows.Models;
 
 namespace Orchard.Workflows.Recipes.Builders {
     public class WorkflowsStep : RecipeBuilderStep {
         private readonly IRepository<WorkflowDefinitionRecord> _workflowDefinitionRepository;
-
         public WorkflowsStep(IRepository<WorkflowDefinitionRecord> workflowDefinitionRepository) {
             _workflowDefinitionRepository = workflowDefinitionRepository;
         }
-
         public override string Name {
             get { return "Workflows"; }
-        }
-
         public override LocalizedString DisplayName {
             get { return T("Workflows"); }
-        }
-
         public override LocalizedString Description {
             get { return T("Exports workflow definitions."); }
-        }
-
         public override void Build(BuildContext context) {
             var workflowDefinitions = _workflowDefinitionRepository.Table.ToList();
-
             if (!workflowDefinitions.Any()) {
                 return;
             }
-
             var root = new XElement("Workflows");
             context.RecipeDocument.Element("Orchard").Add(root);
-
             foreach (var workflowDefinition in workflowDefinitions.OrderBy(x => x.Name)) {
                 root.Add(new XElement("Workflow",
                     new XAttribute("Name", workflowDefinition.Name),
@@ -53,8 +49,5 @@ namespace Orchard.Workflows.Recipes.Builders {
                                 new XAttribute("SourceEndpoint", transition.SourceEndpoint ?? ""),
                                 new XAttribute("DestinationActivityId", transition.DestinationActivityRecord.Id),
                                 new XAttribute("DestinationEndpoint", transition.DestinationEndpoint ?? ""))))));
-            }
-        }
     }
 }
-

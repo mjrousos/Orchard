@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -12,11 +20,9 @@ namespace NHibernate.Linq.Visitors
 	public class CollectionAliasVisitor : NHibernateExpressionVisitor
 	{
 		private IEnumerable<ParameterExpression> _currentCollectionAliases;
-
 		private string FindCollectionAlias(System.Type elementType)
 		{
 			if (_currentCollectionAliases == null) return null;
-
 			foreach (ParameterExpression p in _currentCollectionAliases)
 			{
 				if (p.Type == elementType)
@@ -24,43 +30,24 @@ namespace NHibernate.Linq.Visitors
 					return p.Name;
 				}
 			}
-
 			return null;
 		}
-
 		protected override Expression VisitCollectionAccess(CollectionAccessExpression expr)
-		{
 			EntityExpression elementExpression = expr.ElementExpression;
 			if (elementExpression == null)
 				return expr;
-
 			string alias = FindCollectionAlias(elementExpression.Type);
-
 			if (String.IsNullOrEmpty(alias))
-				return expr;
-
 			elementExpression = new EntityExpression(elementExpression.AssociationPath, alias, elementExpression.Type, elementExpression.MetaData, elementExpression.Expression);
 			return new CollectionAccessExpression(expr.Name, expr.Type, expr.NHibernateType, expr.Expression, elementExpression);
-		}
-
 		protected override Expression VisitMethodCall(MethodCallExpression expr)
-		{
 			if (expr.Arguments.Count > 1)
-			{
 				LambdaExpression lambda = LinqUtil.StripQuotes(expr.Arguments[1]) as LambdaExpression;
 				if (lambda != null)
-				{
 					_currentCollectionAliases = lambda.Parameters;
-				}
-			}
-
 			return base.VisitMethodCall(expr);
-		}
-
 		public static Expression AssignCollectionAccessAliases(Expression expr)
-		{
 			CollectionAliasVisitor visitor = new CollectionAliasVisitor();
 			return visitor.Visit(expr);
-		}
 	}
 }

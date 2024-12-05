@@ -1,20 +1,23 @@
-﻿using System;
-using System.Web.Mvc;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
-using Orchard.Events;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
+using Orchard.Events;
 using Orchard.Tags.Services;
 
 namespace Orchard.Tags.Projections {
     public interface IFormProvider : IEventHandler {
         void Describe(dynamic context);
     }
-
     public class TagsFilterForms : IFormProvider {
         private readonly ITagService _tagService;
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public TagsFilterForms(
             IShapeFactory shapeFactory,
             ITagService tagService) {
@@ -22,11 +25,9 @@ namespace Orchard.Tags.Projections {
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(dynamic context) {
             Func<IShapeFactory, dynamic> form =
                 shape => {
-
                     var f = Shape.Form(
                         Id: "SelectTags",
                         _Tags: Shape.SelectList(
@@ -46,16 +47,10 @@ namespace Orchard.Tags.Projections {
                                 Title: T("Is all of"), Value: "1"
                                 )
                             ));
-
                     foreach (var tag in _tagService.GetTags()) {
                         f._Tags.Add(new SelectListItem { Value = tag.Id.ToString(), Text = tag.TagName });
                     }
-
                     return f;
                 };
-
             context.Form("SelectTags", form);
-
-        }
-    }
 }

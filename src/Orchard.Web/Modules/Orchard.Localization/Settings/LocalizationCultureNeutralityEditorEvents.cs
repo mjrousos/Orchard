@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
 using Orchard.ContentManagement.MetaData.Models;
@@ -24,7 +31,6 @@ namespace Orchard.Localization.Settings {
                 var settings = definition.Settings.GetModel<LocalizationCultureNeutralitySettings>();
                 yield return DefinitionTemplate(settings);
             }
-        }
         public override IEnumerable<TemplateViewModel> PartFieldEditorUpdate(ContentPartFieldDefinitionBuilder builder, IUpdateModel updateModel) {
             var typeDefinition = _contentDefinitionManager.GetTypeDefinition(builder.PartName);
             if (_typeHasLocalizationPart || (typeDefinition != null && typeDefinition.Parts.Any(ctpd => ctpd.PartDefinition.Name == "LocalizationPart"))) {
@@ -33,29 +39,11 @@ namespace Orchard.Localization.Settings {
                 if (updateModel.TryUpdateModel(settings, "LocalizationCultureNeutralitySettings", null, null)) {
                     builder.WithSetting("LocalizationCultureNeutralitySettings.CultureNeutral", settings.CultureNeutral.ToString(CultureInfo.InvariantCulture));
                 }
-                yield return DefinitionTemplate(settings);
-            }
-        }
         //Parts
         public override IEnumerable<TemplateViewModel> TypePartEditor(ContentTypePartDefinition definition) {
             if (_typeHasLocalizationPart || definition.ContentTypeDefinition.Parts.Any(ctpd => ctpd.PartDefinition.Name == "LocalizationPart")) {
-                _typeHasLocalizationPart = true;
-                var settings = definition.Settings.GetModel<LocalizationCultureNeutralitySettings>();
-                yield return DefinitionTemplate(settings);
-            }
-        }
-
         public override IEnumerable<TemplateViewModel> TypePartEditorUpdate(ContentTypePartDefinitionBuilder builder, IUpdateModel updateModel) {
             var typeDefinition = _contentDefinitionManager.GetTypeDefinition(builder.TypeName);
             if (_typeHasLocalizationPart || typeDefinition.Parts.Any(ctpd => ctpd.PartDefinition.Name == "LocalizationPart")) {
-                _typeHasLocalizationPart = true;
-                var settings = new LocalizationCultureNeutralitySettings();
-                if (updateModel.TryUpdateModel(settings, "LocalizationCultureNeutralitySettings", null, null)) {
-                    builder.WithSetting("LocalizationCultureNeutralitySettings.CultureNeutral", settings.CultureNeutral.ToString(CultureInfo.InvariantCulture));
-                }
-                yield return DefinitionTemplate(settings);
-            }
-        }
-
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using Orchard.Alias.Implementation.Holder;
@@ -11,26 +19,21 @@ namespace Orchard.Alias.Implementation.Updater {
     public interface IAliasHolderUpdater : IDependency {
         void Refresh();
     }
-
     public class AliasHolderUpdater : IAliasHolderUpdater {
         private readonly IAliasHolder _aliasHolder;
         private readonly IAliasStorage _storage;
         private readonly IAliasUpdateCursor _cursor;
-
         public ILogger Logger { get; set; }
-
         public AliasHolderUpdater(IAliasHolder aliasHolder, IAliasStorage storage, IAliasUpdateCursor cursor) {
             _aliasHolder = aliasHolder;
             _storage = storage;
             _cursor = cursor;
             Logger = NullLogger.Instance;
         }
-
         public void Refresh() {
             try {
                 // only retreive aliases which have not been processed yet
                 var aliases = _storage.List(x => x.Id > _cursor.Cursor).ToArray();
-
                 // update the last processed id
                 if (aliases.Any()) {
                     _cursor.Cursor = aliases.Last().Item5;
@@ -39,23 +42,11 @@ namespace Orchard.Alias.Implementation.Updater {
             }
             catch (Exception ex) {
                 Logger.Error(ex, "Exception during Alias refresh");
-            }
-        }
-    }
-
     public class AliasUpdaterEvent : IOrchardShellEvents {
-
         private readonly IAliasHolderUpdater _aliasHolderUpdater;
-
         public AliasUpdaterEvent(IAliasHolderUpdater aliasHolderUpdater) {
             _aliasHolderUpdater = aliasHolderUpdater;
-        }
-
         void IOrchardShellEvents.Activated() {
             _aliasHolderUpdater.Refresh();
-        }
-
         void IOrchardShellEvents.Terminating() {
-        }
-    }
 }

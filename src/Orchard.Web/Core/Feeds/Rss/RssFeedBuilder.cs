@@ -1,5 +1,12 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 using System.Xml.Linq;
 using Orchard.Core.Feeds.Models;
 
@@ -14,20 +21,14 @@ namespace Orchard.Core.Feeds.Rss {
             }
             return null;
         }
-
         public ActionResult Process(FeedContext context, Action populate) {
             var rss = new XElement("rss");
             rss.SetAttributeValue("version", "2.0");
-
             var channel = new XElement("channel");
             context.Response.Element = channel;
             rss.Add(channel);
-
             populate();
-
             return new RssResult(new XDocument(rss));
-        }
-
         public FeedItem<TItem> AddItem<TItem>(FeedContext context, TItem item) {
             var feedItem = new FeedItem<TItem> {
                 Item = item,
@@ -36,16 +37,10 @@ namespace Orchard.Core.Feeds.Rss {
             context.Response.Items.Add(feedItem);
             context.Response.Element.Add(feedItem.Element);
             return feedItem;
-        }
-
         public void AddProperty(FeedContext context, FeedItem feedItem, string name, string value) {
             if (feedItem == null) {
                 context.Response.Element.Add(new XElement(name, value));
-            }
             else {
                 feedItem.Element.Add(new XElement(name, value));
-            }
-        }
     }
-
 }

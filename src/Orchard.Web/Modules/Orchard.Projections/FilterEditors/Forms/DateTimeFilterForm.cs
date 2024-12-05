@@ -1,33 +1,33 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using System.Web.Mvc;
-using Orchard.ContentManagement;
-using Orchard.DisplayManagement;
 using Orchard.Environment;
 using Orchard.Forms.Services;
-using Orchard.Localization;
 using Orchard.UI.Resources;
 
 namespace Orchard.Projections.FilterEditors.Forms {
     public class DateTimeFilterForm : IFormProvider {
         public const string FormName = "DateTimeFilter";
         private static readonly Regex _dateRegEx = new Regex(@"(?<year>\d{1,4})(\-(?<month>\d{1,2})(\-(?<day>\d{1,2})\s*((?<hour>\d{1,2})(:(?<minute>\d{1,2})(:(?<second>\d{1,2}))?)?)?)?)?"); 
-
         private readonly Work<IResourceManager> _resourceManager;
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public DateTimeFilterForm(IShapeFactory shapeFactory, Work<IResourceManager> resourceManager) {
             _resourceManager = resourceManager;
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             Func<IShapeFactory, object> form =
                 shape => {
-
                     var f = Shape.Form(
                         Id: "DateTimeFilter",
                         _Operator: Shape.SelectList(
@@ -47,55 +47,37 @@ namespace Orchard.Projections.FilterEditors.Forms {
                                 Title: T("An offset from the current time"), Value: "1",
                                 Description: T("You can provide time in the past by using negative values. e.g., -1 day")
                                 )
-                            ),
                         _FieldSetSingle: Shape.FieldSet(
                             Id: "fieldset-single",
                             _Value: Shape.TextBox(
                                 Id: "value", Name: "Value",
                                 Title: T("Value"),
                                 Classes: new [] {"tokenized"}
-                                ),
                             _ValueUnit: Shape.SelectList(
                                 Id: "value-unit", Name: "ValueUnit",
                                 Title: T("Unit"),
                                 Size: 1,
                                 Multiple: false
-                                )
-                            ),
                         _FieldSetMin: Shape.FieldSet(
                             Id: "fieldset-min",
                             _Min: Shape.TextBox(
                                 Id: "min", Name: "Min",
                                 Title: T("Min"),
                                 Classes: new[] { "tokenized" }
-                                ),
                             _MinUnit: Shape.SelectList(
                                 Id: "min-unit", Name: "MinUnit",
-                                Title: T("Unit"),
-                                Size: 1,
-                                Multiple: false
-                                )
-                            ),
                         _FieldSetMax: Shape.FieldSet(
                             Id: "fieldset-max",
                             _Max: Shape.TextBox(
                                 Id: "max", Name: "Max",
                                 Title: T("Max"),
-                                Classes: new[] { "tokenized" }
-                                ),
                             _MaxUnit: Shape.SelectList(
                                 Id: "max-unit", Name: "MaxUnit",
-                                Title: T("Unit"),
-                                Size: 1,
-                                Multiple: false
-                                )
                             )
                     );
-
                     _resourceManager.Value.Require("script", "jQuery");
                     _resourceManager.Value.Include("script", "~/Modules/Orchard.Projections/Scripts/datetime-editor-filter.js", "~/Modules/Orchard.Projections/Scripts/datetime-editor-filter.js");
                     _resourceManager.Value.Include("stylesheet", "~/Modules/Orchard.Projections/Styles/datetime-editor-filter.css", "~/Modules/Orchard.Projections/Styles/datetime-editor-filter.css");
-
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(DateTimeOperator.LessThan), Text = T("Is less than").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(DateTimeOperator.LessThanEquals), Text = T("Is less than or equal to").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(DateTimeOperator.Equals), Text = T("Is equal to").Text });
@@ -106,7 +88,6 @@ namespace Orchard.Projections.FilterEditors.Forms {
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(DateTimeOperator.NotBetween), Text = T("Is not between").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(DateTimeOperator.IsNull), Text = T("Is null").Text });
                     f._Operator.Add(new SelectListItem { Value = Convert.ToString(DateTimeOperator.IsNotNull), Text = T("Is not null").Text });
-
                     foreach (var unit in new[] { f._FieldSetSingle._ValueUnit, f._FieldSetMin._MinUnit, f._FieldSetMax._MaxUnit }) {
                         unit.Add(new SelectListItem { Value = Convert.ToString(DateTimeSpan.Year), Text = T("Year").Text });
                         unit.Add(new SelectListItem { Value = Convert.ToString(DateTimeSpan.Month), Text = T("Month").Text });
@@ -115,18 +96,11 @@ namespace Orchard.Projections.FilterEditors.Forms {
                         unit.Add(new SelectListItem { Value = Convert.ToString(DateTimeSpan.Minute), Text = T("Minute").Text });
                         unit.Add(new SelectListItem { Value = Convert.ToString(DateTimeSpan.Second), Text = T("Second").Text });
                     }
-
                     return f;
                 };
-
             context.Form(FormName, form);
-
-        }
-
         public static Action<IHqlExpressionFactory> GetFilterPredicate(dynamic formState, string property, DateTime now, bool asTicks = false) {
-
             var op = (DateTimeOperator)Enum.Parse(typeof(DateTimeOperator), Convert.ToString(formState.Operator));
-
             if (op == DateTimeOperator.IsNull)
                 return y => y.IsNull(property);
             else
@@ -134,62 +108,40 @@ namespace Orchard.Projections.FilterEditors.Forms {
                 return y => y.IsNotNull(property);
             else {
                 string type = Convert.ToString(formState.ValueType);
-
                 DateTime? min, max;
-
                 // Are those dates or time spans
                 if (type == "0") {
                     if (op == DateTimeOperator.Between || op == DateTimeOperator.NotBetween) {
                         min = GetLowBoundPattern(Convert.ToString(formState.Min));
                         max = GetHighBoundPattern(Convert.ToString(formState.Max));
-                    }
                     else {
                         min = GetLowBoundPattern(Convert.ToString(formState.Value));
                         max = GetHighBoundPattern(Convert.ToString(formState.Value));
-                    }
                 }
                 else {
-                    if (op == DateTimeOperator.Between || op == DateTimeOperator.NotBetween) {
                         min = ApplyDelta(now, formState.MinUnit.Value, Int32.Parse(formState.Min.Value));
                         max = ApplyDelta(now, formState.MaxUnit.Value, Int32.Parse(formState.Max.Value));
-                    }
-                    else {
                         min = max = ApplyDelta(now, Convert.ToString(formState.ValueUnit), Convert.ToInt32(formState.Value));
-                    }
-                }
-
                 if (min.HasValue)
                   min = min.Value.ToUniversalTime();
-
                 if (max.HasValue)
                   max = max.Value.ToUniversalTime();
-
                 object minValue;
             
-                if (min.HasValue)
                     minValue = min.Value;
                 else
                     minValue = "";
-
                 object maxValue;
-
-                if (max.HasValue)
                     maxValue = max.Value;
-                else
                     maxValue = "";
-
                 if(asTicks) {
                     if (min.HasValue)
                         minValue = min.Value.Ticks;
                     else
                         minValue = 0;
-
                     if (max.HasValue)
                         maxValue = max.Value.Ticks;
-                    else
                         maxValue = 0;
-                }
-
                 switch (op) {
                     case DateTimeOperator.LessThan:
                         return x => x.Lt(property, maxValue);
@@ -201,24 +153,17 @@ namespace Orchard.Projections.FilterEditors.Forms {
                         }
                         return y => y.And(x => x.Ge(property, minValue), x => x.Le(property, maxValue));
                     case DateTimeOperator.NotEquals:
-                        if (min == max) {
                             return x => x.Not(y => y.Eq(property, minValue));
-                        }
                         return y => y.Or(x => x.Lt(property, minValue), x => x.Gt(property, maxValue));
                     case DateTimeOperator.GreaterThan:
                         return x => x.Gt(property, minValue);
                     case DateTimeOperator.GreaterThanEquals:
                         return x => x.Ge(property, minValue);
                     case DateTimeOperator.Between:
-                        return y => y.And(x => x.Ge(property, minValue), x => x.Le(property, maxValue));
                     case DateTimeOperator.NotBetween:
-                        return y => y.Or(x => x.Lt(property, minValue), x => x.Gt(property, maxValue));
                     default:
                         throw new ArgumentOutOfRangeException();
-                }
             }
-        }
-
         /// <summary>
         /// Returns the low bound value of a date pattern. e.g., 2011-10 will return 2011-10-01 00:00:00
         /// </summary>
@@ -226,10 +171,7 @@ namespace Orchard.Projections.FilterEditors.Forms {
         protected static DateTime? GetLowBoundPattern(string datePattern) {
             if (string.IsNullOrEmpty(datePattern)) {
               return null;
-            }
-            else {
               var match = _dateRegEx.Match(datePattern);
-
               return DateTime.Parse(
                   String.Format("{0}-{1}-{2} {3}:{4}:{5}",
                                 match.Groups["year"].Success ? match.Groups["year"].Value : "1980",
@@ -239,12 +181,8 @@ namespace Orchard.Projections.FilterEditors.Forms {
                                 match.Groups["minute"].Success ? match.Groups["minute"].Value : "00",
                                 match.Groups["second"].Success ? match.Groups["second"].Value : "00"),
                   CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-            }
-        }
-
         protected static DateTime ApplyDelta(DateTime now, string unit, int value) {
             var span = (DateTimeSpan)Enum.Parse(typeof(DateTimeSpan), unit);
-
             switch (span) {
                 case DateTimeSpan.Year:
                     return now.AddYears(value);
@@ -260,70 +198,32 @@ namespace Orchard.Projections.FilterEditors.Forms {
                     return now.AddSeconds(value);
                 default:
                     return now;
-            }
-        }
-
         public static LocalizedString DisplayFilter(string fieldName, dynamic formState, Localizer T) {
-            var op = (DateTimeOperator)Enum.Parse(typeof(DateTimeOperator), Convert.ToString(formState.Operator));
-
-            if (op == DateTimeOperator.IsNull)
                 return T("{0} is null", fieldName);
-            else
-            if (op == DateTimeOperator.IsNotNull)
                 return T("{0} is not null", fieldName);
-            else {
-                string type = Convert.ToString(formState.ValueType);
                 string value = Convert.ToString(formState.Value);
                 string min = Convert.ToString(formState.Min);
                 string max = Convert.ToString(formState.Max);
                 string valueUnit = Convert.ToString(formState.ValueUnit);
                 string minUnit = Convert.ToString(formState.MinUnit);
                 string maxUnit = Convert.ToString(formState.MaxUnit);
-
-                if (type == "0") {
                     valueUnit = minUnit = maxUnit = String.Empty;
-                }
-                else {
                     valueUnit = " " + valueUnit;
                     minUnit = " " + minUnit;
                     maxUnit = " " + maxUnit;
-                }
-
-                switch (op) {
-                    case DateTimeOperator.LessThan:
                         return T("{0} is less than {1}{2}", fieldName, value, T(valueUnit));
-                    case DateTimeOperator.LessThanEquals:
                         return T("{0} is less than or equal to {1}{2}", fieldName, value, T(valueUnit));
-                    case DateTimeOperator.Equals:
                         return T("{0} equals {1}{2}", fieldName, value, T(valueUnit));
-                    case DateTimeOperator.NotEquals:
                         return T("{0} is not equal to {1}{2}", fieldName, value, T(valueUnit));
-                    case DateTimeOperator.GreaterThan:
                         return T("{0} is greater than {1}{2}", fieldName, value, T(valueUnit));
-                    case DateTimeOperator.GreaterThanEquals:
                         return T("{0} is greater than or equal to {1}{2}", fieldName, value, T(valueUnit));
-                    case DateTimeOperator.Between:
                         return T("{0} is between {1}{2} and {3}{4}", fieldName, min, T(minUnit), max, T(maxUnit));
-                    case DateTimeOperator.NotBetween:
                         return T("{0} is not between {1}{2} and {3}{4}", fieldName, min, T(minUnit), max, T(maxUnit));
-                }
-            }
-
             // should never be hit, but fail safe
             return new LocalizedString(fieldName);
-        }
-
-        /// <summary>
-        /// Returns the low bound value of a date pattern. e.g., 2011-10 will return 2011-10-01 00:00:00
-        /// </summary>
-        /// <remarks>DateTime is stored in UTC but entered in local</remarks>
         protected static DateTime? GetHighBoundPattern(string datePattern) {
-            if (string.IsNullOrEmpty(datePattern)) {
                 return null;
-            }
-            else {
                 var match = _dateRegEx.Match(datePattern);
-
                 string year, month;
                 return DateTime.Parse(
                     String.Format("{0}-{1}-{2} {3}:{4}:{5}",
@@ -334,11 +234,7 @@ namespace Orchard.Projections.FilterEditors.Forms {
                                   match.Groups["minute"].Success ? match.Groups["minute"].Value : "59",
                                   match.Groups["second"].Success ? match.Groups["second"].Value : "59"),
                     CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
-            }
-        }
-
     }
-
     public enum DateTimeOperator {
         LessThan,
         LessThanEquals,
@@ -350,8 +246,6 @@ namespace Orchard.Projections.FilterEditors.Forms {
         NotBetween,
         IsNull,
         IsNotNull
-    }
-
     public enum DateTimeSpan {
         Year,
         Month,
@@ -359,5 +253,4 @@ namespace Orchard.Projections.FilterEditors.Forms {
         Hour,
         Minute,
         Second
-    }
 }

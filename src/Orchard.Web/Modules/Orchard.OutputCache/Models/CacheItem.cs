@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 
 namespace Orchard.OutputCache.Models {
@@ -5,7 +13,6 @@ namespace Orchard.OutputCache.Models {
     public class CacheItem {
         // used for serialization compatibility
         public static readonly string Version = "2";
-
         public DateTime CachedOnUtc { get; set; }
         public int Duration { get; set; }
         public int GraceTime { get; set; }
@@ -19,29 +26,18 @@ namespace Orchard.OutputCache.Models {
         public int StatusCode { get; set; }
         public string[] Tags { get; set; }
         public string ETag { get; set; }
-
         public int ValidFor {
             get { return Duration; }
         }
-
         public DateTime ValidUntilUtc {
             get { return CachedOnUtc.AddSeconds(ValidFor); }
-        }
-
         public bool IsValid(DateTime utcNow) {
             return utcNow < ValidUntilUtc;
-        }
-
         public int StoredFor {
             get { return Duration + GraceTime; }
-        }
-
         public DateTime StoredUntilUtc {
             get { return CachedOnUtc.AddSeconds(StoredFor); }
-        }
-
         public bool IsInGracePeriod(DateTime utcNow) {
             return utcNow > ValidUntilUtc && utcNow < StoredUntilUtc;
-        }
     }
 }

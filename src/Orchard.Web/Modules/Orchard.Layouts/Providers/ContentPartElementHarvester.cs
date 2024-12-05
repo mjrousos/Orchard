@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,24 +26,19 @@ namespace Orchard.Layouts.Providers {
         private readonly Work<IContentDefinitionManager> _contentDefinitionManager;
         private readonly Work<IElementFactory> _elementFactory;
         private readonly Work<IElementManager> _elementManager;
-
         public ContentPartElementHarvester(
             Work<IContentDefinitionManager> contentDefinitionManager,
             Work<IElementFactory> elementFactory,
             Work<IElementManager> elementManager) {
-
             _contentDefinitionManager = contentDefinitionManager;
             _elementFactory = elementFactory;
             _elementManager = elementManager;
         }
-
         public IEnumerable<ElementDescriptor> HarvestElements(HarvestElementsContext context) {
             var elementType = typeof(Elements.ContentPart);
             var contentPartElement = _elementFactory.Value.Activate(elementType);
             var contentParts = GetContentParts(context);
-
             return contentParts.Select(contentPart => {
-
                 var partSettings = contentPart.Settings.TryGetModel<ContentPartSettings>();
                 var partDescription = partSettings != null ? partSettings.Description : null;
                 var description = T.Encode(!String.IsNullOrWhiteSpace(partDescription) ? partDescription : contentPart.Name);
@@ -47,26 +50,18 @@ namespace Orchard.Layouts.Providers {
                     }
                 };
             });
-        }
-
         private IEnumerable<ContentPartDefinition> GetContentParts(HarvestElementsContext context) {
             var contentTypeDefinition = context.Content != null
                 ? _contentDefinitionManager.Value.GetTypeDefinition(context.Content.ContentItem.ContentType)
                 : default(ContentTypeDefinition);
-
             var parts = contentTypeDefinition != null
                 ? contentTypeDefinition.Parts.Select(x => x.PartDefinition)
                 : _contentDefinitionManager.Value.ListPartDefinitions();
-
             return parts.Where(p => p.Settings.GetModel<ContentPartLayoutSettings>().Placeable);
-        }
-
         private void Displaying(ElementDisplayingContext context) {
             var drivers = _elementManager.Value.GetDrivers(context.Element);
-
             foreach (var driver in drivers) {
                 driver.Displaying(context);
             }
-        }
     }
 }

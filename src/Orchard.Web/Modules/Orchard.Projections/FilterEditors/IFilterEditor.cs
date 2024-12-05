@@ -1,6 +1,12 @@
-﻿using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 
 namespace Orchard.Projections.FilterEditors {
     /// <summary>
@@ -8,26 +14,15 @@ namespace Orchard.Projections.FilterEditors {
     /// An implementation is responsible for returning a specific Form, and return a predicate.
     /// </summary>
     public interface IFilterEditor : IDependency {
-
         /// <summary>
         /// Whether this instance can handle a given storage type
         /// </summary>
         bool CanHandle(Type type);
-
-        /// <summary>
         /// The name of the form which will represent this editor
-        /// </summary>
         string FormName { get; }
-
-        /// <summary>
         /// Returns a predicate representing the filter
-        /// </summary>
         Action<IHqlExpressionFactory> Filter(string property, dynamic formState);
-
-        /// <summary>
         /// Returns a textual description of a filter
-        /// </summary>
         LocalizedString Display(string property, dynamic formState);
-
     }
 }

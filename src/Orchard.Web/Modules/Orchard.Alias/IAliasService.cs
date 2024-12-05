@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Web.Routing;
@@ -14,16 +22,12 @@ namespace Orchard.Alias {
         /// </summary>
         /// <param name="aliasSource"></param>
         void DeleteBySource(string aliasSource);
-
         IEnumerable<string> Lookup(RouteValueDictionary routeValues);
         IEnumerable<string> Lookup(string routePath);
-
         void Replace(string aliasPath, RouteValueDictionary routeValues, string aliasSource, bool isManaged = false);
         void Replace(string aliasPath, string routePath, string aliasSource, bool isManaged = false);
-
         IEnumerable<Tuple<string, RouteValueDictionary>> List();
         IEnumerable<Tuple<string, RouteValueDictionary, string>> List(string sourceStartsWith);
         IEnumerable<VirtualPathData> LookupVirtualPaths(RouteValueDictionary routeValues, System.Web.HttpContextBase httpContext);
-
     }
 }

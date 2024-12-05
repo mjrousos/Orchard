@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,13 +20,9 @@ namespace Orchard.ContentManagement
             var eagerlyLoadQueryResult = new EagerlyLoadQueryResult<T>(items, contentManager);
             return eagerlyLoadQueryResult.IncludeMediaLibraryPickerFields();
         }
-
         public static EagerlyLoadQueryResult<T> IncludeMediaLibraryPickerFields<T>(this IContentQuery<T> query) where T : class, IContent {
             var manager = query.ContentManager;
             var eagerlyLoadQueryResult = new EagerlyLoadQueryResult<T>(query.List(), manager);
-            return eagerlyLoadQueryResult.IncludeMediaLibraryPickerFields();
-        }
-
         public static EagerlyLoadQueryResult<T> IncludeMediaLibraryPickerFields<T>(this EagerlyLoadQueryResult<T> eagerlyLoadQueryResult) where T : class, IContent {
             var containerIds = new HashSet<int>();
             foreach (var part in eagerlyLoadQueryResult.Result) {
@@ -40,9 +44,6 @@ namespace Orchard.ContentManagement
                             preloadedMedias.Add(preloadedMedia);
                     }
                     mediaLibraryPickerField.MediaParts = preloadedMedias;
-                }
-            }
             return eagerlyLoadQueryResult;
-        }
     }
 }

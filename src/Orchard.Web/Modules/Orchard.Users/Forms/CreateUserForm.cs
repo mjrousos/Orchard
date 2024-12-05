@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
@@ -27,38 +35,27 @@ namespace Orchard.Users.Forms {
                         Name: "Password",
                         Title: T("Password"),
                         Description: T("The password of the user to be created."),
-                        Classes: new[] { "text", "large", "tokenized" }),
                     _Approved: shape.Checkbox(
                         Id: "approved",
                         Name: "Approved",
                         Title: T("Approved"),
                         Description: T("Check to approve the created user."),
                         Value: true));
-
                 return form;
             });
         }
-
         void IFormEventHandler.Validating(ValidatingContext context) {
             if (context.FormName != "CreateUser") return;
-
             var userName = context.ValueProvider.GetValue("UserName").AttemptedValue;
             var email = context.ValueProvider.GetValue("Email").AttemptedValue;
             var password = context.ValueProvider.GetValue("Password").AttemptedValue;
-
             if (String.IsNullOrWhiteSpace(userName)) {
                 context.ModelState.AddModelError("UserName", T("You must specify a username or a token that evaluates to a username.").Text);
             }
-
             if (String.IsNullOrWhiteSpace(email)) {
                 context.ModelState.AddModelError("Email", T("You must specify an email address or a token that evaluates to an email address.").Text);
-            }
-
             if (String.IsNullOrWhiteSpace(password)) {
                 context.ModelState.AddModelError("Password", T("You must specify a password or a token that evaluates to a password.").Text);
-            }
-        }
-
         void IFormEventHandler.Building(BuildingContext context) {}
         void IFormEventHandler.Built(BuildingContext context) {}
         void IFormEventHandler.Validated(ValidatingContext context) {}

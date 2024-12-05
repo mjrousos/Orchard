@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using Orchard.ContentManagement.Records;
 using Orchard.Data;
@@ -12,57 +20,35 @@ namespace Orchard.ContentManagement.Handlers {
             return new StorageFilter<TRecord>(repository);
         }
     }
-
     public class StorageFilter<TRecord> : StorageFilterBase<ContentPart<TRecord>> where TRecord : ContentPartRecord, new() {
         protected readonly IRepository<TRecord> _repository;
-
         public StorageFilter(IRepository<TRecord> repository) {
             if (this.GetType() == typeof(StorageFilter<TRecord>) && typeof(TRecord).IsSubclassOf(typeof(ContentPartVersionRecord))) {
                 throw new ArgumentException(
                     string.Format("Use {0} (or {1}.For<TRecord>()) for versionable record types", typeof(StorageVersionFilter<>).Name, typeof(StorageFilter).Name),
                     "repository");
-            }
-
             _repository = repository;
-        }
-
         protected virtual TRecord GetRecordCore(ContentItemVersionRecord versionRecord) {
             return _repository.Get(versionRecord.ContentItemRecord.Id);
-        }
-
         protected virtual TRecord CreateRecordCore(ContentItemVersionRecord versionRecord, TRecord record = null) {
             if (record == null) {
                 record = new TRecord();
-            }
             record.ContentItemRecord = versionRecord.ContentItemRecord;
             _repository.Create(record);
             return record;
-        }
-
         protected override void Activated(ActivatedContentContext context, ContentPart<TRecord> instance) {
             if (instance.Record != null) {
                 throw new InvalidOperationException(string.Format(
                     "Having more than one storage filter for a given part ({0}) is invalid.",
                     typeof(ContentPart<TRecord>).FullName));
-            }
             instance.Record = new TRecord();
-        }
-
         protected override void Creating(CreateContentContext context, ContentPart<TRecord> instance) {
             CreateRecordCore(context.ContentItemVersionRecord, instance.Record);
-        }
-
         protected override void Loading(LoadContentContext context, ContentPart<TRecord> instance) {
             var versionRecord = context.ContentItemVersionRecord;
             instance._record.Loader(() => GetRecordCore(versionRecord) ?? CreateRecordCore(versionRecord));
-        }
-
         protected override void Versioning(VersionContentContext context, ContentPart<TRecord> existing, ContentPart<TRecord> building) {
             building.Record = existing.Record;
-        }
-
         protected override void Destroying(DestroyContentContext context, ContentPart<TRecord> instance) {
             _repository.Delete(instance.Record);
-        }
-    }
 }

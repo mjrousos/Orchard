@@ -1,13 +1,19 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.DynamicForms.Helpers;
 using Orchard.DynamicForms.Services;
 using Orchard.DynamicForms.Services.Models;
-using Orchard.Localization;
 
 namespace Orchard.DynamicForms.ValidationRules {
     public class Compare : ValidationRule {
         public string TargetName { get; set; }
-
         public override void Validate(ValidateInputContext context) {
             var targetValue = context.Values[TargetName];
             if (!String.Equals(context.AttemptedValue, targetValue)) {
@@ -15,16 +21,12 @@ namespace Orchard.DynamicForms.ValidationRules {
                 context.ModelState.AddModelError(context.FieldName, message.Text);
             }
         }
-
         public override void RegisterClientAttributes(RegisterClientValidationAttributesContext context) {
             context.ClientAttributes["data-val-equalto"] = GetValidationMessage(context).Text;
             context.ClientAttributes["data-val-equalto-other"] = "*." + TargetName;
-        }
-
         private LocalizedString GetValidationMessage(ValidationContext context) {
             return String.IsNullOrWhiteSpace(ErrorMessage)
                 ? T("{0} must match the value of {1}.", context.FieldName, TargetName)
                 : T(ErrorMessage, context);
-        }
     }
 }

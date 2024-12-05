@@ -1,10 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using System.Xml;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentTypes.Events;
-using Orchard.Localization;
 using Orchard.Logging;
 using Orchard.Recipes.Models;
 using Orchard.Recipes.Services;
@@ -13,25 +19,17 @@ namespace Orchard.Recipes.Providers.Executors {
     public class RemoveContentDefinitionStep : RecipeExecutionStep {
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IContentDefinitionEventHandler _contentDefinitonEventHandlers;
-
         public RemoveContentDefinitionStep(
             RecipeExecutionLogger logger, IContentDefinitionManager contentDefinitionManager, IContentDefinitionEventHandler contentDefinitonEventHandlers) : base(logger) {
             _contentDefinitionManager = contentDefinitionManager;
             _contentDefinitonEventHandlers = contentDefinitonEventHandlers;
         }
-
         public override string Name {
             get { return "RemoveContentDefinition"; }
-        }
-
         public override LocalizedString DisplayName {
             get { return T("Remove Content Definition"); }
-        }
-
         public override LocalizedString Description {
             get { return T("Removes a list of content definitions."); }
-        }
-
         // <RemoveContentDefinition>
         //  <Types>
         //   <Blog creatable = "true" >
@@ -48,7 +46,6 @@ namespace Orchard.Recipes.Providers.Executors {
                     case "Types":
                         foreach (var element in metadataElement.Elements()) {
                             var typeName = XmlConvert.DecodeName(element.Name.LocalName);
-
                             Logger.Information("Removing content type '{0}'.", typeName);
                             try {
                                 _contentDefinitionManager.DeleteTypeDefinition(typeName);
@@ -57,32 +54,18 @@ namespace Orchard.Recipes.Providers.Executors {
                             catch (Exception ex) {
                                 Logger.Error(ex, "Error while removing content type '{0}'.", typeName);
                                 throw;
-                            }
                         }
                         break;
-
                     case "Parts":
-                        foreach (var element in metadataElement.Elements()) {
                             var partElement = element;
                             var partName = XmlConvert.DecodeName(element.Name.LocalName);
-
                             Logger.Information("Removing content part definition '{0}'.", partName);
-                            try {
                                 _contentDefinitionManager.DeletePartDefinition(partName);
                                 _contentDefinitonEventHandlers.ContentPartRemoved(new ContentPartRemovedContext {ContentPartDefinition = _contentDefinitionManager.GetPartDefinition(partName)});
-                            }
-                            catch (Exception ex) {
                                 Logger.Error(ex, "Error while removing content part definition for '{0}'.", partName);
-                                throw;
-                            }
-                        }
-                        break;
-
                     default:
                         Logger.Warning("Unrecognized element '{0}' encountered; skipping", metadataElement.Name.LocalName);
-                        break;
                 }
             }
-        }
     }
 }

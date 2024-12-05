@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement.MetaData;
 using Orchard.Core.Contents.Extensions;
 using Orchard.Data.Migration;
@@ -19,7 +27,6 @@ namespace Orchard.CustomForms {
                     .DisplayedAs("Custom Form")
                     .Draftable()
                 );
-
             SchemaBuilder.CreateTable("CustomFormPartRecord", table => table.ContentPartVersionRecord()
                 .Column<string>("ContentType", c => c.WithLength(255))
                 .Column<bool>("CustomMessage")
@@ -27,52 +34,29 @@ namespace Orchard.CustomForms {
                 .Column<bool>("Redirect")
                 .Column<string>("RedirectUrl", c => c.Unlimited())
                 .Column<bool>("SaveContentItem")
-                );
-
             return 1;
         }
-
         public int UpdateFrom1() {
             ContentDefinitionManager.AlterTypeDefinition("CustomFormWidget",
-                cfg => cfg
                     .WithPart("WidgetPart")
-                    .WithPart("CommonPart")
                     .WithIdentity()
-                    .WithPart("CustomFormPart")
                     .WithSetting("Stereotype", "Widget")
-                );
-
             return 2;
-        }
-
         public int UpdateFrom2() {
             ContentDefinitionManager.AlterTypeDefinition("CustomForm", cfg =>
                 cfg.Draftable(false)
-                );
-
             return 3;
-        }
-
         public int UpdateFrom3() {
             SchemaBuilder.AlterTable("CustomFormPartRecord", table => table.AddColumn<string>("SubmitButtonText"));
-
             return 4;
-        }
-
         public int UpdateFrom4() {
             SchemaBuilder.AlterTable("CustomFormPartRecord", table => table.AddColumn<bool>("UseContentTypePermissions"));
-
             return 5;
-        }
         public int UpdateFrom5() {
             SchemaBuilder.AlterTable("CustomFormPartRecord", table => table.AddColumn<bool>("SavePublishContentItem", c => c.WithDefault(false)));
             SchemaBuilder.AlterTable("CustomFormPartRecord", table => table.AddColumn<string>("PublishButtonText"));
             return 6;
-        }
-
-
         public void Uninstall() {
             ContentDefinitionManager.DeleteTypeDefinition("CustomForm");
-        }
     }
 }

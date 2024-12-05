@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.Environment.Extensions;
@@ -9,27 +17,21 @@ namespace Orchard.Taxonomies.Drivers {
     [OrchardFeature("Orchard.Taxonomies.LocalizationExtensions")]
     public class LocalizedTaxonomyPartDriver : ContentPartDriver<TaxonomyPart> {
         private readonly ITaxonomyExtensionsService _taxonomyExtensionsService;
-
         public LocalizedTaxonomyPartDriver(ITaxonomyExtensionsService taxonomyExtensionsService) {
             _taxonomyExtensionsService = taxonomyExtensionsService;
         }
-
         protected override string Prefix { get { return "LocalizedTaxonomy"; } }
-
         protected override DriverResult Editor(TaxonomyPart part, dynamic shapeHelper) {
             AssociateTermTypeViewModel model = new AssociateTermTypeViewModel();
             model.TermTypes = _taxonomyExtensionsService.GetAllTermTypes();
             model.TermCreationAction = TermCreationOptions.CreateLocalized;
             model.SelectedTermTypeId = part.TermTypeName;
             model.ContentItem = part;
-
             return ContentShape("Parts_TaxonomyTermSelector",
                                 () => shapeHelper.EditorTemplate(
                                           TemplateName: "Parts/TaxonomyTermSelector",
                                           Model: model,
                                           Prefix: Prefix));
-        }
-
         protected override DriverResult Editor(TaxonomyPart part, IUpdateModel updater, dynamic shapeHelper) {
             if (string.IsNullOrWhiteSpace(part.TermTypeName)) {
                 AssociateTermTypeViewModel model = new AssociateTermTypeViewModel();
@@ -40,15 +42,11 @@ namespace Orchard.Taxonomies.Drivers {
                             break;
                         case TermCreationOptions.UseExisting:
                             part.TermTypeName = model.SelectedTermTypeId;
-                            break;
                         default:
                             part.TermTypeName = null;
-                            break;
                     }
                 }
             }
-
             return Editor(part, shapeHelper);
-        }
     }
 }

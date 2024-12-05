@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
-using System.Web.Mvc;
 using System.Web.Routing;
 using Orchard.Core.Settings.Controllers;
 using Orchard.Mvc.Routes;
@@ -17,28 +24,19 @@ namespace Orchard.Core.Settings {
                             {"controller", "Admin"},
                             {"action", "Index"}
                         },
-                        new RouteValueDictionary {
                             {"groupInfoId",  new SettingsActionConstraint()}
-                        },
-                        new RouteValueDictionary {
-                            {"area", "Settings"},
                             {"groupInfoId", ""}
-                        },
                         new MvcRouteHandler())
             };
-
             routes.Add(routeDescriptor);
         }
     }
-
     public class SettingsActionConstraint : IRouteConstraint {
         public bool Match(HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection) {
             if (routeDirection == RouteDirection.UrlGeneration)
                 return true;
-
             if (!values.ContainsKey(parameterName))
                 return false;
-
             // just hard-coding to know action name strings for now
             var potentialActionName = values[parameterName] as string;
             return !string.IsNullOrWhiteSpace(potentialActionName)
@@ -47,6 +45,4 @@ namespace Orchard.Core.Settings {
                    && !potentialActionName.Equals("AddCulture", StringComparison.OrdinalIgnoreCase)
                    && !potentialActionName.Equals("DeleteCulture", StringComparison.OrdinalIgnoreCase)
                 ;
-        }
-    }
 }

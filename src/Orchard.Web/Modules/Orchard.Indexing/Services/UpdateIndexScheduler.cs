@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using Orchard.Environment.Configuration;
@@ -10,7 +18,6 @@ namespace Orchard.Indexing.Services {
         private readonly ShellSettings _shellSettings;
         private readonly IShellDescriptorManager _shellDescriptorManager;
         private readonly Lazy<IIndexingTaskExecutor> _indexingTaskExecutor;
-
         public UpdateIndexScheduler(
             IProcessingEngine processingEngine,
             ShellSettings shellSettings,
@@ -22,7 +29,6 @@ namespace Orchard.Indexing.Services {
             _shellDescriptorManager = shellDescriptorManager;
             _indexingTaskExecutor = indexingTaskExecutor;
         }
-
         public void Schedule(string indexName) {
             var shellDescriptor = _shellDescriptorManager.GetShellDescriptor();
             _processingEngine.AddTask(
@@ -31,12 +37,9 @@ namespace Orchard.Indexing.Services {
                 "IIndexNotifierHandler.UpdateIndex",
                 new Dictionary<string, object> { { "indexName", indexName } }
             );
-        }
-
         public void UpdateIndex(string indexName) {
             if(_indexingTaskExecutor.Value.UpdateIndexBatch(indexName)) {
                 Schedule(indexName);
             }
-        }
     }
 }

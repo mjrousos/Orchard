@@ -1,9 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NuGet;
 using Orchard.Environment.Extensions;
-
 
 namespace Orchard.Packaging.Services {
     /// <summary>
@@ -18,25 +25,16 @@ namespace Orchard.Packaging.Services {
             }
             if (sourceRepository == null) {
                 throw new ArgumentNullException("sourceRepository");
-            }
             if (extensionManager == null) {
                 throw new ArgumentNullException("extensionManager");
-            }
             Project = project;
             SourceRepository = sourceRepository;
             _extensionManager = extensionManager;
         }
-
         private IProjectSystem Project {
             get;
             set;
-        }
-
         private IPackageRepository SourceRepository {
-            get;
-            set;
-        }
-
         public override IQueryable<IPackage> GetPackages() {
             IEnumerable<IPackage> repositoryPackages = SourceRepository.GetPackages().ToList();
             IEnumerable<IPackage> packages = from extension in _extensionManager.AvailableExtensions()
@@ -45,12 +43,8 @@ namespace Orchard.Packaging.Services {
                                    let package = repositoryPackages.FirstOrDefault(p => p.Id == id && (version == null || p.Version == version))
                                    where package != null
                                    select package;
-
             return packages.AsQueryable();
-        }
-
         public override void AddPackage(IPackage package) {}
-
         public override void RemovePackage(IPackage package) {}
     }
 }

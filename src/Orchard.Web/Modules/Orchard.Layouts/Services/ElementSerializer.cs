@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,27 +19,19 @@ namespace Orchard.Layouts.Services {
     public class ElementSerializer : IElementSerializer {
         private readonly IElementManager _elementManager;
         private readonly IElementFactory _elementFactory;
-
         public ElementSerializer(IElementManager elementManager, IElementFactory elementFactory) {
             _elementManager = elementManager;
             _elementFactory = elementFactory;
         }
-
         public Element Deserialize(string data, DescribeElementsContext describeContext) {
             if (String.IsNullOrWhiteSpace(data))
                 return null;
-
             var token = JToken.Parse(data);
             var element = ParseNode(node: token, parent: null, index: 0, describeContext: describeContext);
-
             return element;
-        }
-
         public string Serialize(Element element) {
             var dto = ToDto(element);
             return JToken.FromObject(dto).ToString(Formatting.None);
-        }
-
         public object ToDto(Element element, int index = 0) {
             var container = element as Container;
             var dto = new {
@@ -47,14 +47,9 @@ namespace Orchard.Layouts.Services {
                 rule = element.Rule
             };
             return dto;
-        }
-
         public Element ParseNode(JToken node, Container parent, int index, DescribeElementsContext describeContext) {
             var elementTypeName = (string)node["typeName"];
-
             if (String.IsNullOrWhiteSpace(elementTypeName))
-                return null;
-
             var data = (string)node["data"];
             var htmlId = (string)node["htmlId"];
             var htmlClass = (string)node["htmlClass"];
@@ -64,10 +59,8 @@ namespace Orchard.Layouts.Services {
             var exportableData = ElementDataHelper.Deserialize((string)node["exportableData"]);
             var childNodes = node["elements"];
             var elementDescriptor = _elementManager.GetElementDescriptorByTypeName(describeContext, elementTypeName);
-
             if (elementDescriptor == null)
                 return null; // This happens if an element exists in a layout, but its type is no longer available due to its feature being disabled.
-
             var element = _elementFactory.Activate(elementDescriptor, e => {
                 e.Container = parent;
                 e.Index = index;
@@ -78,17 +71,10 @@ namespace Orchard.Layouts.Services {
                 e.HtmlStyle = htmlStyle;
                 e.Rule = rule;
             });
-
-            var container = element as Container;
-
             if (container != null)
                 container.Elements = childNodes != null
                     ? childNodes.Select((x, i) => ParseNode(x, container, i, describeContext)).Where(x => x != null).ToList()
                     : new List<Element>();
-
             element.IsTemplated = node.Value<bool>("isTemplated");
-
-            return element;
-        }
     }
 }

@@ -1,6 +1,12 @@
-﻿using System.Xml;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Xml;
 using Orchard.Recipes.Models;
 using Orchard.Recipes.Services;
 using Orchard.Recipes.ViewModels;
@@ -11,22 +17,14 @@ namespace Orchard.Recipes.Providers.Builders {
         public RecipeMetadataStep(IOrchardServices orchardServices) {
             _orchardServices = orchardServices;
         }
-
         public override string Name {
             get { return "RecipeMetadata"; }
-        }
-
         public override LocalizedString DisplayName {
             get { return T("Recipe Metadata"); }
-        }
-
         public override LocalizedString Description {
             get { return T("Provides additional information about the recipe."); }
-        }
-
         public override int Priority { get { return 1000; } }
         public override int Position { get { return -1000; } }
-
         public string RecipeName { get; set; }
         public string RecipeDescription { get; set; }
         public string RecipeAuthor { get; set; }
@@ -35,16 +33,12 @@ namespace Orchard.Recipes.Providers.Builders {
         public string RecipeCategory { get; set; }
         public string RecipeVersion { get; set; }
         public bool IsSetupRecipe { get; set; }
-
         public override dynamic BuildEditor(dynamic shapeFactory) {
             return UpdateEditor(shapeFactory, null);
-        }
-
         public override dynamic UpdateEditor(dynamic shapeFactory, IUpdateModel updater) {
             var viewModel = new SetupRecipeStepViewModel {
                 RecipeAuthor = _orchardServices.WorkContext.CurrentUser.UserName
             };
-
             if (updater != null && updater.TryUpdateModel(viewModel, Prefix, null, null)) {
                 RecipeName = viewModel.RecipeName;
                 RecipeDescription = viewModel.RecipeDescription;
@@ -55,10 +49,7 @@ namespace Orchard.Recipes.Providers.Builders {
                 RecipeVersion = viewModel.RecipeVersion;
                 IsSetupRecipe = viewModel.IsSetupRecipe;
             }
-
             return shapeFactory.EditorTemplate(TemplateName: "BuilderSteps/RecipeMetadata", Model: viewModel, Prefix: Prefix);
-        }
-
         public override void Configure(RecipeBuilderStepConfigurationContext context) {
             RecipeName = context.ConfigurationElement.Attr("Name");
             RecipeDescription = context.ConfigurationElement.Attr("Description");
@@ -68,8 +59,6 @@ namespace Orchard.Recipes.Providers.Builders {
             RecipeCategory = context.ConfigurationElement.Attr("Category");
             RecipeVersion = context.ConfigurationElement.Attr("Version");
             IsSetupRecipe = context.ConfigurationElement.Attr<bool>("IsSetupRecipe");
-        }
-
         public override void Build(BuildContext context) {
             var recipeElement = context.RecipeDocument.Element("Orchard").Element("Recipe");
             
@@ -81,6 +70,5 @@ namespace Orchard.Recipes.Providers.Builders {
             recipeElement.SetElementValue("Category", RecipeCategory);
             recipeElement.SetElementValue("Version", RecipeVersion);
             recipeElement.SetElementValue("IsSetupRecipe", IsSetupRecipe);
-        }
     }
 }

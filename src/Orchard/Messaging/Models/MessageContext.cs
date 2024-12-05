@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +24,6 @@ namespace Orchard.Messaging.Models {
         public IEnumerable<string> Addresses { get; set; }
         public Dictionary<string, string> Properties { get; private set; }
         public bool MessagePrepared { get; set; }
-
         public MessageContext() {
             Properties = new Dictionary<string, string>();
             MailMessage = new MailMessage();

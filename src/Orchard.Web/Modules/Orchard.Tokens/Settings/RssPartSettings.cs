@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
 using Orchard.ContentManagement.MetaData.Models;
@@ -7,7 +14,6 @@ using Orchard.ContentManagement.ViewModels;
 
 namespace Orchard.Tokens.Settings {
     public class RssPartSettings {
-
         public string Title { get; set; }
         public string Link { get; set; }
         public string Description { get; set; }
@@ -17,7 +23,6 @@ namespace Orchard.Tokens.Settings {
         public string PubDate { get; set; }
         public string Source { get; set; }
     }
-
     public class RssPartSettingsEvents : ContentDefinitionEditorEventsBase {
         public override IEnumerable<TemplateViewModel> TypePartEditor(ContentTypePartDefinition definition) {
             if (definition.PartDefinition.Name == "RssPart") {
@@ -25,7 +30,6 @@ namespace Orchard.Tokens.Settings {
                 yield return DefinitionTemplate(model);
             }
         }
-
         public override IEnumerable<TemplateViewModel> TypePartEditorUpdate(ContentTypePartDefinitionBuilder builder, IUpdateModel upOwnerModel) {
             if (builder.Name == "RssPart") {
                 var model = new RssPartSettings();
@@ -39,9 +43,4 @@ namespace Orchard.Tokens.Settings {
                     builder.WithSetting("RssPartSettings.PubDate", model.PubDate);
                     builder.WithSetting("RssPartSettings.Source", model.Source);
                 }
-
-                yield return DefinitionTemplate(model);
-            }
-        }
-    }
 }

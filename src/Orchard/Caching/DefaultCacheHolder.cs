@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Concurrent;
 
@@ -9,17 +17,13 @@ namespace Orchard.Caching {
     public class DefaultCacheHolder : ICacheHolder {
         private readonly ICacheContextAccessor _cacheContextAccessor;
         private readonly ConcurrentDictionary<CacheKey, object> _caches = new ConcurrentDictionary<CacheKey, object>();
-
         public DefaultCacheHolder(ICacheContextAccessor cacheContextAccessor) {
             _cacheContextAccessor = cacheContextAccessor;
         }
-
         class CacheKey : Tuple<Type, Type, Type> {
             public CacheKey(Type component, Type key, Type result)
                 : base(component, key, result) {
             }
-        }
-
         /// <summary>
         /// Gets a Cache entry from the cache. If none is found, an empty one is created and returned.
         /// </summary>
@@ -31,6 +35,5 @@ namespace Orchard.Caching {
             var cacheKey = new CacheKey(component, typeof(TKey), typeof(TResult));
             var result = _caches.GetOrAdd(cacheKey, k => new Cache<TKey, TResult>(_cacheContextAccessor));
             return (Cache<TKey, TResult>)result;
-        }
     }
 }

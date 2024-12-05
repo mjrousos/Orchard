@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.UI.Resources;
 
 namespace Orchard.jQuery {
@@ -6,14 +14,12 @@ namespace Orchard.jQuery {
             var manifest = builder.Add();
             manifest.DefineScript("jQuery").SetUrl("jquery-1.11.1.min.js", "jquery-1.11.1.js").SetVersion("1.11.1").SetCdn("//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.1.min.js", "//ajax.aspnetcdn.com/ajax/jQuery/jquery-1.11.1.js");
             manifest.DefineScript("jQueryMigrate").SetUrl("jquery-migrate-1.2.1.min.js", "jquery-migrate-1.2.1.js").SetVersion("1.2.1").SetCdn("//ajax.aspnetcdn.com/ajax/jquery.migrate/jquery-migrate-1.2.1.min.js", "//ajax.aspnetcdn.com/ajax/jquery.migrate/jquery-migrate-1.2.1.js");
-
             // Full jQuery UI package.
             manifest.DefineScript("jQueryUI").SetUrl("ui/jquery-ui.min.js", "ui/jquery-ui.js").SetVersion("1.11.2").SetDependencies("jQuery").SetCdn("//ajax.aspnetcdn.com/ajax/jquery.ui/1.11.2/jquery-ui.min.js", "//ajax.aspnetcdn.com/ajax/jquery.ui/1.11.2/jquery-ui.js");
             manifest.DefineStyle("jQueryUI").SetUrl("jquery-ui.min.css", "jquery-ui.css").SetVersion("1.11.2");
             manifest.DefineStyle("jQueryUI_Structure").SetUrl("jquery-ui.structure.min.css", "jquery-ui.structure.css").SetVersion("1.11.2");
             manifest.DefineStyle("jQueryUI_Theme").SetUrl("jquery-ui.theme.min.css", "jquery-ui.theme.css").SetVersion("1.11.2");
             manifest.DefineStyle("jQueryUI_Orchard").SetVersion("1.11.2").SetDependencies("jQueryUI", "jQueryUI_Structure", "jQueryUI_Theme");
-
             // Individual jQuery UI components.
             manifest.DefineScript("jQueryUI_Core").SetUrl("ui/core.min.js", "ui/core.js").SetVersion("1.11.2").SetDependencies("jQuery");
             manifest.DefineScript("jQueryUI_Widget").SetUrl("ui/widget.min.js", "ui/widget.js").SetVersion("1.11.2").SetDependencies("jQuery");
@@ -52,32 +58,25 @@ namespace Orchard.jQuery {
             manifest.DefineScript("jQueryEffects_Size").SetUrl("ui/effect-size.min.js", "ui/effect-size.js").SetVersion("1.11.2").SetDependencies("jQueryEffects_Core");
             manifest.DefineScript("jQueryEffects_Slide").SetUrl("ui/effect-slide.min.js", "ui/effect-slide.js").SetVersion("1.11.2").SetDependencies("jQueryEffects_Core");
             manifest.DefineScript("jQueryEffects_Transfer").SetUrl("ui/effect-transfer.min.js", "ui/effect-transfer.js").SetVersion("1.11.2").SetDependencies("jQueryEffects_Core");
-
             // Additional utilities and plugins.
             manifest.DefineScript("jQueryUtils").SetUrl("jquery.utils.js").SetDependencies("jQuery");
             manifest.DefineScript("jQueryPlugin").SetUrl("jquery.plugin.min.js", "jquery.plugin.js").SetDependencies("jQuery");
-
             // jQuery Calendars.
             manifest.DefineScript("jQueryCalendars_All").SetUrl("calendars/jquery.calendars.all.min.js", "calendars/jquery.calendars.all.js").SetDependencies("jQueryPlugin").SetVersion("2.0.0");
             manifest.DefineScript("jQueryCalendars_Picker_Ext").SetUrl("calendars/jquery.calendars.picker.ext.min.js", "calendars/jquery.calendars.picker.ext.js").SetDependencies("jQueryCalendars_Picker").SetVersion("2.0.0");
             manifest.DefineStyle("jQueryCalendars_Picker").SetUrl("jquery.calendars.picker.css").SetVersion("2.0.0");
             manifest.DefineStyle("jQueryUI_Calendars_Picker").SetUrl("ui.calendars.picker.css").SetDependencies("jQueryUI_Orchard").SetVersion("2.0.0");
-
             // jQuery Time Entry.
             manifest.DefineScript("jQueryTimeEntry").SetUrl("timeentry/jquery.timeentry.min.js", "timeentry/jquery.timeentry.js").SetDependencies("jQueryPlugin").SetVersion("2.0.1");
             manifest.DefineStyle("jQueryTimeEntry").SetUrl("jquery.timeentry.css").SetVersion("2.0.1");
-
             // jQuery Date/Time Editor Enhancements.
             manifest.DefineStyle("jQueryDateTimeEditor").SetUrl("jquery-datetime-editor.css").SetDependencies("DateTimeEditor");
-
             // jQuery File Upload.
             manifest.DefineScript("jQueryIFrameTransport").SetUrl("jquery.iframe-transport.min.js", "jquery.iframe-transport.js").SetVersion("1.9.0").SetDependencies("jQuery");
             manifest.DefineScript("jQueryFileUpload").SetUrl("jquery.fileupload.min.js", "jquery.fileupload.js").SetVersion("5.41.0").SetDependencies("jQueryIFrameTransport").SetDependencies("jQueryUI_Widget");
-
             // jQuery Color Box.
             manifest.DefineScript("jQueryColorBox").SetUrl("colorbox/jquery.colorbox.min.js", "colorbox/jquery.colorbox.js").SetVersion("1.5.13").SetDependencies("jQuery");
             manifest.DefineStyle("jQueryColorBox").SetUrl("colorbox.css").SetVersion("1.5.13");
-
             // jQuery Cookie.
             manifest.DefineScript("jQueryCookie").SetUrl("jquery.cookie.min.js", "jquery.cookie.js").SetVersion("1.4.1").SetDependencies("jQuery");
         }

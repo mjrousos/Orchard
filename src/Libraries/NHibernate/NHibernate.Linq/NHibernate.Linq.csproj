@@ -42,6 +42,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
     </Reference>
@@ -72,6 +73,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Compile Include="Expressions\CollectionAccessExpression.cs" />
     <Compile Include="Expressions\NHibernateExpression.cs" />
     <Compile Include="Expressions\QuerySourceExpression.cs" />
@@ -123,9 +125,11 @@
     <Compile Include="Visitors\WhereArgumentsVisitor.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Autofac;
@@ -7,13 +15,10 @@ using Orchard.Environment.Extensions.Models;
 namespace Orchard.DisplayManagement.Descriptors.ShapeAttributeStrategy {
     public class ShapeAttributeBindingModule : Module {
         readonly List<ShapeAttributeOccurrence> _occurrences = new List<ShapeAttributeOccurrence>();
-
         protected override void Load(ContainerBuilder builder) {
             builder.RegisterInstance(_occurrences).As<IEnumerable<ShapeAttributeOccurrence>>();
         }
-
         protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration) {
-
             var occurrences = registration.Activator.LimitType.GetMethods()
                 .SelectMany(mi => mi.GetCustomAttributes(typeof(ShapeAttribute), false).OfType<ShapeAttribute>()
                                       .Select(sa => new ShapeAttributeOccurrence(
@@ -22,13 +27,9 @@ namespace Orchard.DisplayManagement.Descriptors.ShapeAttributeStrategy {
                                                         registration,
                                                         () => GetFeature(registration))))
                 .ToArray();
-
             if (occurrences.Any())
                 _occurrences.AddRange(occurrences);
-        }
-
         private static Feature GetFeature(IComponentRegistration registration) {
             object value; return registration.Metadata.TryGetValue("Feature", out value) ? value as Feature : null;
-        }
     }
 }

@@ -1,11 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Orchard.Localization;
 
 namespace Orchard.Rules.Models {
     public class DescribeEventContext {
         private readonly Dictionary<string, DescribeEventFor> _describes = new Dictionary<string, DescribeEventFor>();
-
         public IEnumerable<TypeDescriptor<EventDescriptor>> Describe() {
             return _describes.Select(kp => new TypeDescriptor<EventDescriptor> {
                 Category = kp.Key,
@@ -14,11 +20,8 @@ namespace Orchard.Rules.Models {
                 Descriptors = kp.Value.Types
             });
         }
-
         public DescribeEventFor For(string target) {
             return For(target, null, null);
-        }
-
         public DescribeEventFor For(string category, LocalizedString name, LocalizedString description) {
             DescribeEventFor describeFor;
             if (!_describes.TryGetValue(category, out describeFor)) {
@@ -26,8 +29,5 @@ namespace Orchard.Rules.Models {
                 _describes[category] = describeFor;
             }
             return describeFor;
-        }
     }
-
-
 }

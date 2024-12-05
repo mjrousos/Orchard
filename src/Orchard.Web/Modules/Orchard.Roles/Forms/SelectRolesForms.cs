@@ -1,9 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
-using System.Web.Mvc;
-using Orchard.DisplayManagement;
 using Orchard.Forms.Services;
-using Orchard.Localization;
 using Orchard.Roles.Services;
 
 namespace Orchard.Roles.Forms {
@@ -11,7 +16,6 @@ namespace Orchard.Roles.Forms {
         private readonly IRoleService _roleService;
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public SelectRolesForms(
             IShapeFactory shapeFactory,
             IRoleService roleService) {
@@ -19,11 +23,9 @@ namespace Orchard.Roles.Forms {
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             Func<IShapeFactory, dynamic> form =
                 shape => {
-
                     var f = Shape.Form(
                         Id: "AnyOfRoles",
                         _Parts: Shape.SelectList(
@@ -34,18 +36,12 @@ namespace Orchard.Roles.Forms {
                             Multiple: true
                             )
                         );
-
                     f._Parts.Add(new SelectListItem { Value = "", Text = T("Any").Text });
-
                     foreach (var role in _roleService.GetRoles().OrderBy(x => x.Name)) {
                         f._Parts.Add(new SelectListItem { Value = role.Name, Text = role.Name });
                     }
-
                     return f;
                 };
-
             context.Form("SelectRoles", form);
-
-        }
     }
 }

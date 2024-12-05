@@ -61,6 +61,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
     </Reference>
@@ -186,6 +187,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Compile Include="Caching\CacheScopeTests.cs" />
     <Compile Include="Caching\CacheTests.cs" />
     <Compile Include="Caching\ClockCachingTests.cs" />
@@ -373,6 +375,7 @@
     <Compile Include="Utility\ReflectTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <ProjectReference Include="..\Orchard.Web\Core\Orchard.Core.csproj">
       <Project>{9916839C-39FC-4CEB-A5AF-89CA7E87119F}</Project>
       <Name>Orchard.Core</Name>
@@ -385,17 +388,20 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <EmbeddedResource Include="Environment\Extensions\FoldersData\Sample1\Module.txt" />
     <EmbeddedResource Include="Environment\Extensions\FoldersData\Sample2\Two.txt" />
     <EmbeddedResource Include="Environment\Extensions\FoldersData\Sample3\Module.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
@@ -413,18 +419,23 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <EmbeddedResource Include="Environment\Extensions\FoldersData\Sample4\Module.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <EmbeddedResource Include="Environment\Extensions\FoldersData\Sample5\Module.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <EmbeddedResource Include="Environment\Extensions\FoldersData\Sample6\Module.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <EmbeddedResource Include="Environment\Extensions\FoldersData\Sample7\Module.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
@@ -435,6 +446,7 @@
   -->
   <Target Name="CopySqlCeBinaries">
     <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
       <SqlCeBinariesx86 Include="$(ProjectDir)..\..\lib\sqlce\x86\**\*" />
       <SqlCeBinariesx64 Include="$(ProjectDir)..\..\lib\sqlce\amd64\**\*" />
     </ItemGroup>

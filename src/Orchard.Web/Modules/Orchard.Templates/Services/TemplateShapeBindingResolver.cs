@@ -1,5 +1,12 @@
-﻿using Orchard.Caching;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.Caching;
 using Orchard.ContentManagement.MetaData;
 using Orchard.DisplayManagement.Implementation;
 using Orchard.Templates.Models;
@@ -7,11 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using System.Web.Mvc;
-using Orchard.DisplayManagement;
 using Orchard.DisplayManagement.Descriptors;
 using System.Web.Routing;
-using Orchard.UI.Admin;
 
 namespace Orchard.Templates.Services {
     public class TemplateShapeBindingResolver : IShapeBindingResolver {
@@ -21,7 +25,6 @@ namespace Orchard.Templates.Services {
         private IContentDefinitionManager _contentDefinitionManager;
         private ITemplateService _templateService;
         private readonly RequestContext _requestContext;
-
         public TemplateShapeBindingResolver(
             ICacheManager cacheManager,
             ISignals signals,
@@ -36,29 +39,22 @@ namespace Orchard.Templates.Services {
             _templateService = templateService;
             _requestContext = requestContext;
         }
-
         public bool TryGetDescriptorBinding(string shapeType, out ShapeBinding shapeBinding) {
             var processors = BuildShapeProcessors();
-
             var acceptableRenderingModes = new List<RenderingMode>() { RenderingMode.FrontEndAndAdmin };
             if (AdminFilter.IsApplied(_requestContext)) {
                 acceptableRenderingModes.Add(RenderingMode.Admin);
             }
             else {
                 acceptableRenderingModes.Add(RenderingMode.FrontEnd);
-            }
-
             var templateResults = processors[shapeType].Where(template => acceptableRenderingModes.Contains(template.RenderingMode));
             TemplateResult templateResult = null;
             var templateResultsCount = templateResults.Count();
             if (templateResultsCount == 1) {
                 templateResult = templateResults.FirstOrDefault();
-            }
             else if (templateResultsCount > 1) {
                 // Templates with the same name but specified rendering mode are prioritized.
                 templateResult = templateResults.FirstOrDefault(template => template.RenderingMode != RenderingMode.FrontEndAndAdmin);
-            }
-
             if (templateResult != null) {
                 shapeBinding = new ShapeBinding {
                     BindingName = "Templates",
@@ -68,27 +64,19 @@ namespace Orchard.Templates.Services {
                         templateResult.Processor, ctx.Value)),
                     ShapeDescriptor = new ShapeDescriptor { ShapeType = shapeType }
                 };
-
                 return true;
-            }
-
             shapeBinding = null;
             return false;
-        }
-
         private ILookup<string, TemplateResult> BuildShapeProcessors() {
             return _cacheManager.Get("Template.ShapeProcessors", true, ctx => {
                 ctx.Monitor(_signals.When(DefaultTemplateService.TemplatesSignal));
-
                 // select all name of types which contains ShapePart
                 var typesWithShapePart = _contentDefinitionManager
                     .ListTypeDefinitions()
                     .Where(ct => ct.Parts.Any(cp => cp.PartDefinition.Name == "ShapePart"))
                     .Select(ct => ct.Name)
                     .ToArray();
-
                 var allTemplates = _contentManager.Query<ShapePart>(typesWithShapePart).List();
-
                 return allTemplates.Select(shapePart => new TemplateResult {
                     Name = shapePart.Name,
                     Template = shapePart.Template,
@@ -96,17 +84,12 @@ namespace Orchard.Templates.Services {
                     RenderingMode = shapePart.RenderingMode
                 }).ToLookup(template => template.Name);
             });
-        }
-
         private static IHtmlString CoerceHtmlString(object invoke) {
             return invoke as IHtmlString ?? (invoke != null ? new HtmlString(invoke.ToString()) : null);
-        }
-
         private class TemplateResult {
             public string Name { get; set; }
             public string Processor { get; set; }
             public string Template { get; set; }
             public RenderingMode RenderingMode { get; set; }
-        }
     }
 }

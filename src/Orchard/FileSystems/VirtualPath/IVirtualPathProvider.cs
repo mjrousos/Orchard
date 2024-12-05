@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
@@ -8,7 +16,6 @@ namespace Orchard.FileSystems.VirtualPath {
         string Combine(params string[] paths);
         string ToAppRelative(string virtualPath);
         string MapPath(string virtualPath);
-
         bool FileExists(string virtualPath);
         bool TryFileExists(string virtualPath);
         Stream OpenFile(string virtualPath);
@@ -18,12 +25,10 @@ namespace Orchard.FileSystems.VirtualPath {
         string GetFileHash(string virtualPath);
         string GetFileHash(string virtualPath, IEnumerable<string> dependencies);
         void DeleteFile(string virtualPath);
-
         bool DirectoryExists(string virtualPath);
         void CreateDirectory(string virtualPath);
         string GetDirectoryName(string virtualPath);
         void DeleteDirectory(string virtualPath);
-
         IEnumerable<string> ListFiles(string path);
         IEnumerable<string> ListDirectories(string path);
     }

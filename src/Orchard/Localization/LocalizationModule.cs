@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -10,17 +18,12 @@ using Module = Autofac.Module;
 namespace Orchard.Localization {
     public class LocalizationModule : Module {
         private readonly ConcurrentDictionary<string, Localizer> _localizerCache;
-
         public LocalizationModule() {
             _localizerCache = new ConcurrentDictionary<string, Localizer>();
         }
-
         protected override void Load(ContainerBuilder builder) {
             builder.RegisterType<Text>().As<IText>().InstancePerDependency();
-        }
-
         protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration) {
-
             var userProperty = FindUserProperty(registration.Activator.LimitType);
             if (userProperty != null) {
                 List<string> scopes = new List<string>();
@@ -30,7 +33,6 @@ namespace Orchard.Localization {
                     scopes.Add(type.FullName);
                     type = type.BaseType;
                 }
-
                 foreach(var scope in scopes) {
                     registration.Activated += (sender, e) => {
                         if (e.Instance.GetType().FullName != scope) {
@@ -39,12 +41,8 @@ namespace Orchard.Localization {
                         var localizer = _localizerCache.GetOrAdd(scope, key => LocalizationUtilities.Resolve(e.Context, scopes));
                         userProperty.SetValue(e.Instance, localizer, null);
                     };
-                }
             }
-        }
-
         private static PropertyInfo FindUserProperty(Type type) {
             return type.GetProperty("T", typeof(Localizer));
-        }
     }
 }

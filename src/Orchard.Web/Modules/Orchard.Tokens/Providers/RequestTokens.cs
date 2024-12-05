@@ -1,8 +1,14 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Linq;
 using System.Web;
-using Orchard.ContentManagement;
-using Orchard.Localization;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -27,53 +33,54 @@ namespace Orchard.Tokens.Providers {
                 .Token("Form:*", T("Form:<element>"), T("The Form value for the specified element. To chain text, surround the <element> with parentheses, e.g. 'Form:(param1)'."))
                 .Token("Route:*", T("Route:<key>"), T("The Route value for the specified key."))
                 .Token("Content", T("Content"), T("The request routed Content Item."), "Content")
-                .Token("Header:*", T("Header:<element>"), T("The request routed Content Item."), "The Header value for the specified element. To chain text, surround the <element> with parentheses, e.g. 'Header:(param1)'.")
-
-            ;
+                .Token("Header:*", T("Header:<element>"), T("The Header value for the specified element. To chain text, surround the <element> with parentheses, e.g. 'Header:(param1)'."));
         }
 
         public void Evaluate(EvaluateContext context) {
             if (_workContextAccessor.GetContext().HttpContext == null) {
                 return;
             }
-            /* Supported Syntaxes for Request and Form tokens are:
-             * 1. QueryString:(param1) or Form:(param1) 
-             * 2. QueryString:param1 or Form:param1
-             * 3. QueryString:(param1).SomeOtherTextToken or Form:(param1).SomeOtherTextToken
-             * 
-             * If you want to Chain TextTokens you have to use the 3rd syntax
-             * the element, here param1, has been surrounded with parentheses in order to preserve backward compatibility.
-             */
+
             context.For("Request", _workContextAccessor.GetContext().HttpContext.Request)
                 .Token(
                     token => token.StartsWith("QueryString:", StringComparison.OrdinalIgnoreCase) ? FilterTokenParam(token) : null,
-                    (token, request) => {
-                        return request.QueryString.Get(token);
-                    }
+                    (token, request) => request.QueryString.Get(token)
                 )
-                .Chain(token => token.StartsWith("QueryString:", StringComparison.OrdinalIgnoreCase) ? FilterChainParam(token) : null,
-                "Text", (token, request) => request.QueryString.Get(token))
+                .Chain(
+                    token => token.StartsWith("QueryString:", StringComparison.OrdinalIgnoreCase) ? FilterChainParam(token) : null,
+                    "Text",
+                    (token, request) => request.QueryString.Get(token)
+                )
                 .Token(
                     token => token.StartsWith("Form:", StringComparison.OrdinalIgnoreCase) ? FilterTokenParam(token) : null,
                     (token, request) => request.Form.Get(token)
                 )
-                .Chain(token => token.StartsWith("Form:", StringComparison.OrdinalIgnoreCase) ? FilterChainParam(token) : null
-                , "Text", (token, request) => request.Form.Get(token))
+                .Chain(
+                    token => token.StartsWith("Form:", StringComparison.OrdinalIgnoreCase) ? FilterChainParam(token) : null,
+                    "Text",
+                    (token, request) => request.Form.Get(token)
+                )
                 .Token(
                     token => token.StartsWith("Header:", StringComparison.OrdinalIgnoreCase) ? FilterTokenParam(token) : null,
                     (token, request) => request.Headers[token]
                 )
-                .Chain(token => token.StartsWith("Header:", StringComparison.OrdinalIgnoreCase) ? FilterChainParam(token) : null,
-                "Text", (token, request) => request.Headers[token])
+                .Chain(
+                    token => token.StartsWith("Header:", StringComparison.OrdinalIgnoreCase) ? FilterChainParam(token) : null,
+                    "Text",
+                    (token, request) => request.Headers[token]
+                )
                 .Token(
                     token => token.StartsWith("Route:", StringComparison.OrdinalIgnoreCase) ? token.Substring("Route:".Length) : null,
                     (token, request) => GetRouteValue(token, request)
-                )             
-                .Token("Content",
-                    (request) => DisplayText(GetRoutedContentItem(request))
                 )
-                .Chain("Content", "Content",
-                    (request) => GetRoutedContentItem(request)
+                .Token(
+                    "Content",
+                    request => DisplayText(GetRoutedContentItem(request))
+                )
+                .Chain(
+                    "Content",
+                    "Content",
+                    request => GetRoutedContentItem(request)
                 );
         }
 
@@ -82,7 +89,6 @@ namespace Orchard.Tokens.Providers {
             if (!request.RequestContext.RouteData.Values.TryGetValue(token, out result)) {
                 return String.Empty;
             }
-
             return result.ToString();
         }
 
@@ -91,12 +97,15 @@ namespace Orchard.Tokens.Providers {
             String action = GetRouteValue("action", request);
             int contentId;
 
-            if (!String.Equals(area, "Containers", StringComparison.OrdinalIgnoreCase) && !String.Equals(area, "Contents", StringComparison.OrdinalIgnoreCase)) {
+            if (!String.Equals(area, "Containers", StringComparison.OrdinalIgnoreCase) &&
+                !String.Equals(area, "Contents", StringComparison.OrdinalIgnoreCase)) {
                 return null;
             }
+
             if (!String.Equals(GetRouteValue("controller", request), "Item", StringComparison.OrdinalIgnoreCase)) {
                 return null;
             }
+
             if (!int.TryParse(GetRouteValue("id", request), out contentId)) {
                 return null;
             }
@@ -112,65 +121,56 @@ namespace Orchard.Tokens.Providers {
                 }
                 return _contentManager.Get(contentId, versionOptions);
             }
-            else {
-                return null;
-            }
+
+            return null;
         }
 
         private string DisplayText(IContent content) {
             if (content == null) {
                 return String.Empty;
             }
-
             return _contentManager.GetItemMetadata(content).DisplayText;
         }
 
         private static string FilterTokenParam(string token) {
             string tokenPrefix;
             int chainIndex, tokenLength;
+
             if (token.IndexOf(":") == -1) {
                 return null;
             }
+
             tokenPrefix = token.Substring(0, token.IndexOf(":"));
             if (!_textChainableTokens.Contains(tokenPrefix, StringComparer.OrdinalIgnoreCase)) {
-                return null;
+                return token.Substring((tokenPrefix + ":").Length);
             }
 
-            // use ")." as chars combination to discover the end of the parameter
             chainIndex = token.IndexOf(").") + 1;
             tokenLength = (tokenPrefix + ":").Length;
-            if (chainIndex == 0) {// ")." has not be found
+
+            if (chainIndex == 0) {
                 return token.Substring(tokenLength).Trim(new char[] { '(', ')' });
             }
+
             if (!token.StartsWith((tokenPrefix + ":"), StringComparison.OrdinalIgnoreCase) || chainIndex <= tokenLength) {
                 return null;
             }
+
             return token.Substring(tokenLength, chainIndex - tokenLength).Trim(new char[] { '(', ')' });
         }
+
         private static Tuple<string, string> FilterChainParam(string token) {
-            string tokenPrefix;
-            int chainIndex, tokenLength;
+            string tokenPrefix = token.Substring(0, token.IndexOf(":"));
+            int chainIndex = token.IndexOf(").") + 1;
+            int tokenLength = (tokenPrefix + ":").Length;
 
-            if (token.IndexOf(":") == -1) {
-                return null;
-            }
-            tokenPrefix = token.Substring(0, token.IndexOf(":"));
-            if (!_textChainableTokens.Contains(tokenPrefix, StringComparer.OrdinalIgnoreCase)) {
-                return null;
-            }
-
-            // use ")." as chars combination to discover the end of the parameter
-            chainIndex = token.IndexOf(").") + 1;
-            tokenLength = (tokenPrefix + ":").Length;
-            if (chainIndex == 0) { // ")." has not be found
+            if (chainIndex == 0) {
                 return new Tuple<string, string>(token.Substring(tokenLength).Trim(new char[] { '(', ')' }), "");
             }
-            if (!token.StartsWith((tokenPrefix + ":"), StringComparison.OrdinalIgnoreCase) || chainIndex <= tokenLength) {
-                return null;
-            }
-            return new Tuple<string, string>(token.Substring(tokenLength, chainIndex - tokenLength).Trim(new char[] { '(', ')' }), token.Substring(chainIndex + 1));
 
+            return new Tuple<string, string>(
+                token.Substring(tokenLength, chainIndex - tokenLength).Trim(new char[] { '(', ')' }),
+                token.Substring(chainIndex + 1));
         }
     }
-
 }

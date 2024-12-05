@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.FieldStorage.InfosetStorage;
 using Orchard.ContentManagement.Records;
@@ -7,14 +15,11 @@ namespace Orchard.Tests.ContentManagement {
         public static ContentItem PreparePart<TPart, TRecord>(TPart part, string contentType, int id = -1)
             where TPart : ContentPart<TRecord>
             where TRecord : ContentPartRecord, new() {
-
             part.Record = new TRecord();
             return PreparePart(part, contentType, id);
         }
-
         public static ContentItem PreparePart<TPart>(TPart part, string contentType, int id = -1)
             where TPart : ContentPart {
-
             var contentItem = part.ContentItem = new ContentItem {
                 VersionRecord = new ContentItemVersionRecord {
                     ContentItemRecord = new ContentItemRecord()
@@ -25,6 +30,5 @@ namespace Orchard.Tests.ContentManagement {
             contentItem.Weld(part);
             contentItem.Weld(new InfosetPart());
             return contentItem;
-        }
     }
 }

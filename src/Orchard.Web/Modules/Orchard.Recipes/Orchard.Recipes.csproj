@@ -52,6 +52,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
@@ -95,6 +96,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Module.txt" />
     <Content Include="Scripts\recipebuilderstep-data.js" />
     <Content Include="Styles\recipebuilderstep-content.css" />
@@ -103,6 +105,7 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Compile Include="AdminMenu.cs" />
     <Compile Include="Commands\RecipesCommands.cs" />
     <Compile Include="Controllers\AdminController.cs" />
@@ -146,6 +149,7 @@
     <Compile Include="ViewModels\SiteSettingsStepViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <ProjectReference Include="..\..\..\Orchard\Orchard.Framework.csproj">
       <Project>{2D1D92BB-4555-4CBE-8D0E-63563D6CE4C6}</Project>
       <Name>Orchard.Framework</Name>
@@ -161,31 +165,39 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Scripts\Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Styles\Web.config">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\BuilderSteps\Content.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\BuilderSteps\RecipeMetadata.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\ExecutionSteps\Content.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Admin\RecipeResult.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Admin\Index.cshtml" />
   </ItemGroup>
   <PropertyGroup>

@@ -1,14 +1,20 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.Layouts.Framework.Drivers;
 using Orchard.Layouts.Models;
-using Orchard.Localization;
 
 namespace Orchard.Layouts.ViewModels {
     public class EditElementViewModel {
         public EditElementViewModel() {
             Tabs = new List<string>();
         }
-
         public EditorResult EditorResult { get; set; }
         public string TypeName { get; set; }
         public LocalizedString DisplayText { get; set; }

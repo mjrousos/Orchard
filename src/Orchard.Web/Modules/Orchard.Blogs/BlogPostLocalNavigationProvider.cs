@@ -1,6 +1,12 @@
-﻿using Orchard.Blogs.Services;
-using Orchard.Localization;
+using Orchard.ContentManagement;
 using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.Blogs.Services;
 using Orchard.UI.Navigation;
 
 namespace Orchard.Blogs {
@@ -8,24 +14,18 @@ namespace Orchard.Blogs {
         private readonly IBlogService _blogService;
         private readonly IAuthorizationService _authorizationService;
         private readonly IWorkContextAccessor _workContextAccessor;
-
         public BlogPostsLocalNavigationProvider(
             IBlogService blogService,
             IAuthorizationService authorizationService,
             IWorkContextAccessor workContextAccessor) {
-
             T = NullLocalizer.Instance;
             _blogService = blogService;
             _authorizationService = authorizationService;
             _workContextAccessor = workContextAccessor;
         }
-
         public Localizer T { get; set; }
-
         public string MenuName {
             get { return "blogposts-navigation"; }
-        }
-
         public void GetNavigation(NavigationBuilder builder) {
             var blogId = 0;
             int.TryParse(_workContextAccessor.GetContext().HttpContext.Request.RequestContext.RouteData.Values["blogId"]?.ToString(), out blogId);
@@ -35,6 +35,5 @@ namespace Orchard.Blogs {
                         .LocalNav()
                         .Permission(Permissions.MetaListOwnBlogs));
             }
-        }
     }
 }

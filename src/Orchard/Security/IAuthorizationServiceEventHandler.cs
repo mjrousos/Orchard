@@ -1,4 +1,11 @@
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.Events;
 using Orchard.Security.Permissions;
 
@@ -8,7 +15,6 @@ namespace Orchard.Security {
         void Adjust(CheckAccessContext context);
         void Complete(CheckAccessContext context);
     }
-
     public class CheckAccessContext {
         public Permission Permission { get; set; }
         public IUser User { get; set; }
@@ -16,9 +22,7 @@ namespace Orchard.Security {
         
         // true if the permission has been granted to the user.
         public bool Granted { get; set; }
-        
         // if context.Permission was modified during an Adjust(context) in an event handler, Adjusted should be set to true.
         // It means that the permission check will be done again by the framework.
         public bool Adjusted { get; set; }
-    }
 }

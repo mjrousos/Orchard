@@ -1,9 +1,15 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Environment.Extensions;
-using Orchard.Localization;
 using Orchard.Localization.Models;
 using Orchard.Localization.Services;
 using Orchard.MediaLibrary.Fields;
@@ -17,7 +23,6 @@ namespace Orchard.MediaLibrary.Handlers {
         private readonly IContentManager _contentManager;
         private readonly ILocalizationService _localizationServices;
         private readonly IOrchardServices _orchardServices;
-
         public MediaLibraryPickerFieldLocalizationExtensionHandler(
             IOrchardServices orchardServices,
             IContentManager contentManager,
@@ -27,9 +32,7 @@ namespace Orchard.MediaLibrary.Handlers {
             _localizationServices = localizationServices;
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         protected override void UpdateEditorShape(UpdateEditorContext context) {
             //Here we implement the logic based on the settings introduced in MediaLibraryPickerFieldLocalizationSettings
             //These settings should only be active if the ContentItem that is being updated has a LocalizationPart
@@ -40,17 +43,14 @@ namespace Orchard.MediaLibrary.Handlers {
                 foreach (var field in fields) {
                     var fieldSettings = field.PartFieldDefinition.Settings.GetModel<MediaLibraryPickerFieldSettings>();
                     var settings = field.PartFieldDefinition.Settings.GetModel<MediaLibraryPickerFieldLocalizationSettings>();
-
                     if (settings.TryToLocalizeMedia) {
                         //try to replace items in the field with their translation
                         var itemsInField = _contentManager.GetMany<ContentItem>(field.Ids, VersionOptions.Latest, QueryHints.Empty);
                         var mediaIds = new List<int>();
-
                         // Flag to check if media have been removed from the field.
                         // This happens when the field is set to remove items without localization and one or more media items cannot be localized.
                         // This flag is used to display a model error when the field is required and every media item has been removed from it.
                         var mediaRemoved = false;
-
                         foreach (var item in itemsInField) {
                             // negatives id whoud be localized
                             var mediaItem = _contentManager.Get(item.Id, VersionOptions.Latest);
@@ -100,10 +100,7 @@ namespace Orchard.MediaLibrary.Handlers {
                                                     mediaItem.As<MediaPart>().FileName));
                                             } 
                                             else {
-                                                _orchardServices.Notifier.Warning(T(
                                                     "{0}: the media item {1} has been removed from the field because its culture differs from content's culture",
-                                                    field.DisplayName,
-                                                    mediaItem.As<MediaPart>().FileName));
                                                 mediaRemoved = true;
                                             }
                                         }
@@ -112,26 +109,18 @@ namespace Orchard.MediaLibrary.Handlers {
                             } 
                             else if (mediaItem != null && !mediaIsLocalizable) {
                                 if (!settings.RemoveItemsWithNoLocalizationPart) {
-                                    mediaIds.Add(mediaItem.Id);
-                                } 
-                                else {
                                     _orchardServices.Notifier.Warning(T(
                                         "{0}: the media item {1} has been removed from the field because culture neutral",
                                         field.DisplayName,
                                         mediaItem.As<MediaPart>().FileName));
                                     mediaRemoved = true;
-                                }
                             }
                         }
-
                         field.Ids = mediaIds.Distinct().ToArray();
-
                         if (field.Ids.Length == 0 && fieldSettings.Required && mediaRemoved) {
                             context.Updater.AddModelError("Id", T("The {0} field is required.", field.DisplayName));
-                        }
                     }
                 }
             }
-        }
     }
 }

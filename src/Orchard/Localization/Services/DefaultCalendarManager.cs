@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -10,11 +18,9 @@ using Orchard.Localization.Records;
 namespace Orchard.Localization.Services {
 	public class DefaultCalendarManager : ICalendarManager {
 		private readonly IEnumerable<ICalendarSelector> _calendarSelectors;
-
 		public DefaultCalendarManager(IEnumerable<ICalendarSelector> calendarSelectors) {
 			_calendarSelectors = calendarSelectors;
 		}
-
 		public IEnumerable<string> ListCalendars() {
 			// Return all the calendar implementations in System.Globalization.
 			// Could be done more dynamically using reflection, but that doesn't seem worth the performance hit.
@@ -34,26 +40,19 @@ namespace Orchard.Localization.Services {
 				"ThaiBuddhistCalendar",
 				"UmAlQuraCalendar"
 			};
-		}
-
 		public string GetCurrentCalendar(HttpContextBase requestContext) {
 			var requestCalendar = _calendarSelectors
 				.Select(x => x.GetCalendar(requestContext))
 				.Where(x => x != null)
 				.OrderByDescending(x => x.Priority);
-
 			if (!requestCalendar.Any())
 				return String.Empty;
-
 			foreach (var calendar in requestCalendar) {
 				if (!String.IsNullOrEmpty(calendar.CalendarName)) {
 					return calendar.CalendarName;
 				}
 			}
-
 			return String.Empty;
-		}
-
 		public Calendar GetCalendarByName(string calendarName) {
 			switch (calendarName) {
 				case "ChineseLunisolarCalendar":
@@ -87,7 +86,5 @@ namespace Orchard.Localization.Services {
 				default:
 					throw new ArgumentException(String.Format("The calendar name '{0}' is not a recognized System.Globalization calendar name.", calendarName), "calendarName");
 				
-			}
-		}
 	}
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.ContentManagement.MetaData.Models;
 
@@ -16,16 +24,12 @@ namespace Orchard.Core.Containers.ViewModels {
         public bool EnablePositioning { get; set; }
         public bool OverrideEnablePositioning { get; set; }
     }
-
     public enum SortBy {
         Modified,
         Published,
         Created,
         DisplayText
-    }
-
     public enum SortDirection {
         Ascending,
         Descending
-    }
 }

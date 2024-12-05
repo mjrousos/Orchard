@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 
 namespace Orchard.Caching {
@@ -8,7 +16,6 @@ namespace Orchard.Caching {
     public class DefaultCacheManager : ICacheManager {
         private readonly Type _component;
         private readonly ICacheHolder _cacheHolder;
-
         /// <summary>
         /// Constructs a new cache manager for a given component type and with a specific cache holder implementation.
         /// </summary>
@@ -18,19 +25,13 @@ namespace Orchard.Caching {
             _component = component;
             _cacheHolder = cacheHolder;
         }
-
-        /// <summary>
         /// Gets a cache entry from the cache holder.
-        /// </summary>
         /// <typeparam name="TKey">The type of the key to be used to fetch the cache entry.</typeparam>
         /// <typeparam name="TResult">The type of the entry to be obtained from the cache.</typeparam>
         /// <returns>The entry from the cache.</returns>
         public ICache<TKey, TResult> GetCache<TKey, TResult>() {
             return _cacheHolder.GetCache<TKey, TResult>(_component);
-        }
-
         public TResult Get<TKey, TResult>(TKey key, Func<AcquireContext<TKey>, TResult> acquire) {
             return GetCache<TKey, TResult>().Get(key, acquire);
-        }
     }
 }

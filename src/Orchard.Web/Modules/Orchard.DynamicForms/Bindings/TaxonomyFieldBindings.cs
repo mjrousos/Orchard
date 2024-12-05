@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Linq;
-using Orchard.ContentManagement;
 using Orchard.DynamicForms.Services;
 using Orchard.DynamicForms.Services.Models;
 using Orchard.Environment.Extensions;
@@ -15,7 +22,6 @@ namespace Orchard.DynamicForms.Bindings {
         public TaxonomyFieldBindings(ITaxonomyService taxonomyService) {
             _taxonomyService = taxonomyService;
         }
-
         public void Describe(BindingDescribeContext context) {
             context.For<TaxonomyField>()
                 .Binding("Terms", (contentItem, field, s) => {
@@ -24,13 +30,9 @@ namespace Orchard.DynamicForms.Bindings {
                         .Select(XmlHelper.Parse<int?>)
                         .Select(t => GetTerm(t.GetValueOrDefault()))
                         .Where(t => t != null).ToList();
-
                     _taxonomyService.UpdateTerms(contentItem, selectedTerms, field.Name);
                 });
-        }
-
         private TermPart GetTerm(int termId) {
             return _taxonomyService.GetTerm(termId);
-        }
     }
 }

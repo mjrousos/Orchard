@@ -1,9 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Text.RegularExpressions;
 using Orchard.DynamicForms.Helpers;
 using Orchard.DynamicForms.Services;
 using Orchard.DynamicForms.Services.Models;
-using Orchard.Localization;
 
 namespace Orchard.DynamicForms.ValidationRules {
     public class UrlAddress : ValidationRule {
@@ -11,7 +18,6 @@ namespace Orchard.DynamicForms.ValidationRules {
             RegexOptions = RegexOptions.Singleline | RegexOptions.IgnoreCase;
             Pattern = @"^http(s)?://([\w-]+.)+[\w-]+(/[\w- ./?%&=])?$";
         }
-
         public string Pattern { get; set; }
         public RegexOptions RegexOptions { get; set; }
         
@@ -20,17 +26,12 @@ namespace Orchard.DynamicForms.ValidationRules {
                 var message = GetValidationMessage(context);
                 context.ModelState.AddModelError(context.FieldName, message.Text);
             }
-        }
-
         public override void RegisterClientAttributes(RegisterClientValidationAttributesContext context) {
             context.ClientAttributes["data-val-regex"] = GetValidationMessage(context).Text;
             context.ClientAttributes["data-val-regex-pattern"] = Pattern;
-        }
-
         private LocalizedString GetValidationMessage(ValidationContext context) {
             return String.IsNullOrWhiteSpace(ErrorMessage)
                 ? T("{0} is not a valid URL.", context.FieldName)
                 : T(ErrorMessage);
-        }
     }
 }

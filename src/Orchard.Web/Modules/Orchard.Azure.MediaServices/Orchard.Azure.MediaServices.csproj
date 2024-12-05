@@ -51,6 +51,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\..\..\packages\Antlr3.Runtime.3.5.1\lib\net40-client\Antlr3.Runtime.dll</HintPath>
     </Reference>
@@ -169,6 +170,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Content\expressInstall.swf" />
     <Content Include="Content\MSAdaptiveStreamingPlugin.swf" />
     <Content Include="Content\StrobeMediaPlayback.swf" />
@@ -287,6 +289,7 @@
     <Content Include="Assets\TypeScript\Typings\underscore.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <ProjectReference Include="..\..\..\Orchard\Orchard.Framework.csproj">
       <Project>{2D1D92BB-4555-4CBE-8D0E-63563D6CE4C6}</Project>
       <Name>Orchard.Framework</Name>
@@ -307,6 +310,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Compile Include="Controllers\AssetController.cs" />
     <Compile Include="Helpers\AssetExtensions.cs" />
     <Compile Include="Helpers\BooleanExtensions.cs" />
@@ -403,155 +407,204 @@
     <Content Include="Views\FrameBuster.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\CloudVideoEditor.Proxied.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Settings\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-admin-settings.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Media\Import.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\CloudVideoEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Media\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Media-CloudVideo.Thumbnail.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Parts\CloudVideo.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Parts\CloudVideo.Metadata.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Parts\CloudVideo.Summary.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Parts\CloudVideo.SummaryAdmin.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\TypeScript\Typings\jquery.d.ts" />
     <Content Include="Assets\TypeScript\Typings\jqueryui.d.ts" />
     <Content Include="Assets\TypeScript\Typings\knockout.d.ts" />
     <Content Include="Assets\TypeScript\cloudmedia-admin-settings.ts" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\CloudVideo.Edit.Assets.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\CloudVideo.Edit.Jobs.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Job\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-admin-job.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\TaskSettingsEditor.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\TaskSettings\Thumbnail.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\TaskSettings\Encrypt.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-tabs.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Images\Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Images\Thumbnail-Placeholder.psd" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\GeneralSettingsViewModel.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\EncodingSettingsViewModel.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\EncryptionSettingsViewModel.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\SubtitleLanguagesSettingsViewModel.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\CloudVideo.Edit.UnpublishButton.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-progress.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-edit-assets.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-edit-jobs.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-admin-selecttask.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\CloudVideoEditor.Direct.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\Parts\CloudVideo.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Content\Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Asset\Edit.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\Assets\Video.Files.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-admin-asset.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\CloudVideoPlayer.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\Parts\CloudVideo.Raw.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\Less\cloudmedia-videoplayer.less" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\Asset.Edit.General.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\Asset.Edit.Locators.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\Assets\Video.Preview.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Views\EditorTemplates\Assets\Thumbnail.Preview.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Content\Strobe Media Playback Notice.docx" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <None Include="Assets\JavaScript\Lib\MPEG Dash Notice.docx" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Assets\TypeScript\Typings\moment-node.d.ts" />
     <Content Include="Assets\TypeScript\Typings\URIjs.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Scripts\Lib\MPEG Dash Notice.docx" />
   </ItemGroup>
   <PropertyGroup>

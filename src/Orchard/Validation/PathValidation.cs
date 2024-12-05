@@ -1,13 +1,19 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.IO;
-using Orchard.Localization;
 
 namespace Orchard.Validation {
     /// <summary>
     /// Provides methods to validate paths.
     /// </summary>
     public static class PathValidation {
-
         /// <summary>
         /// Determines if a path lies within the base path boundaries.
         /// If not, an exception is thrown.
@@ -18,7 +24,6 @@ namespace Orchard.Validation {
         /// <exception cref="OrchardException">If the path is invalid.</exception>
         public static string ValidatePath(string basePath, string mappedPath) {
             bool valid = false;
-
             try {
                 // Check that we are indeed within the storage directory boundaries
                 valid = Path.GetFullPath(mappedPath).StartsWith(Path.GetFullPath(basePath), StringComparison.OrdinalIgnoreCase);
@@ -26,11 +31,8 @@ namespace Orchard.Validation {
                 // Make sure that if invalid for medium trust we give a proper exception
                 valid = false;
             }
-
             if (!valid) {
                 throw new OrchardException(new LocalizedString("Invalid Path"));
-            }
-
             return mappedPath;
         }
     }

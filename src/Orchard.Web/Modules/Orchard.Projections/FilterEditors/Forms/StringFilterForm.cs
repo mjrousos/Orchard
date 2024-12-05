@@ -1,23 +1,24 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
-using System.Web.Mvc;
-using Orchard.ContentManagement;
-using Orchard.DisplayManagement;
 using Orchard.Forms.Services;
-using Orchard.Localization;
 
 namespace Orchard.Projections.FilterEditors.Forms {
     public class StringFilterForm : IFormProvider {
         public const string FormName = "StringFilter";
-
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public StringFilterForm(IShapeFactory shapeFactory) {
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             object form(IShapeFactory shape) {
                 var f = Shape.Form(
@@ -33,7 +34,6 @@ namespace Orchard.Projections.FilterEditors.Forms {
                         Title: T("Value"),
                         Classes: new[] { "text medium", "tokenized" },
                         Description: T("Enter the value the string should be.")
-                    ),
                     _IgnoreIfEmptyValue: Shape.Checkbox(
                         Id: "IgnoreFilterIfValueIsEmpty",
                         Name: "IgnoreFilterIfValueIsEmpty",
@@ -41,7 +41,6 @@ namespace Orchard.Projections.FilterEditors.Forms {
                         Description: T("When enabled, the filter will not be applied if the provided value is or evaluates to empty."),
                         Value: "true"
                     ));
-
                 f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Equals), Text = T("Is equal to").Text });
                 f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEquals), Text = T("Is not equal to").Text });
                 f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Contains), Text = T("Contains").Text });
@@ -52,23 +51,16 @@ namespace Orchard.Projections.FilterEditors.Forms {
                 f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.Ends), Text = T("Ends with").Text });
                 f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotEnds), Text = T("Does not end with").Text });
                 f._Operator.Add(new SelectListItem { Value = Convert.ToString(StringOperator.NotContains), Text = T("Does not contain").Text });
-
                 return f;
             }
-
             context.Form(FormName, (Func<IShapeFactory, object>)form);
-
-        }
-
         public static Action<IHqlExpressionFactory> GetFilterPredicate(dynamic formState, string property) {
             var op = (StringOperator)Enum.Parse(typeof(StringOperator), Convert.ToString(formState.Operator));
             object value = Convert.ToString(formState.Value);
-
             if (bool.TryParse(formState.IgnoreFilterIfValueIsEmpty?.ToString() ?? "", out bool ignoreIfEmpty)
                 && ignoreIfEmpty
                 && string.IsNullOrWhiteSpace(value as string))
                 return (ex) => { };
-
             switch (op) {
                 case StringOperator.Equals:
                     return x => x.Eq(property, value);
@@ -98,40 +90,19 @@ namespace Orchard.Projections.FilterEditors.Forms {
                     return y => y.Not(x => x.Like(property, Convert.ToString(value), HqlMatchMode.Anywhere));
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-        }
-
         public static LocalizedString DisplayFilter(string fieldName, dynamic formState, Localizer T) {
-            var op = (StringOperator)Enum.Parse(typeof(StringOperator), Convert.ToString(formState.Operator));
             string value = Convert.ToString(formState.Value);
-
-            switch (op) {
-                case StringOperator.Equals:
                     return T("{0} is equal to '{1}'", fieldName, value);
-                case StringOperator.NotEquals:
                     return T("{0} is not equal to '{1}'", fieldName, value);
-                case StringOperator.Contains:
                     return T("{0} contains '{1}'", fieldName, value);
-                case StringOperator.ContainsAny:
                     return T("{0} contains any of '{1}'", fieldName, new LocalizedString(String.Join("', '", value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))));
-                case StringOperator.ContainsAll:
                     return T("{0} contains all '{1}'", fieldName, new LocalizedString(String.Join("', '", value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries))));
-                case StringOperator.Starts:
                     return T("{0} starts with '{1}'", fieldName, value);
-                case StringOperator.NotStarts:
                     return T("{0} does not start with '{1}'", fieldName, value);
-                case StringOperator.Ends:
                     return T("{0} ends with '{1}'", fieldName, value);
-                case StringOperator.NotEnds:
                     return T("{0} does not end with '{1}'", fieldName, value);
-                case StringOperator.NotContains:
                     return T("{0} does not contain '{1}'", fieldName, value);
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
     }
-
     public enum StringOperator {
         Equals,
         NotEquals,
@@ -143,5 +114,4 @@ namespace Orchard.Projections.FilterEditors.Forms {
         Ends,
         NotEnds,
         NotContains
-    }
 }

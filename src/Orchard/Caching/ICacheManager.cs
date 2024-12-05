@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Concurrent;
 
@@ -6,11 +14,8 @@ namespace Orchard.Caching {
         TResult Get<TKey, TResult>(TKey key, Func<AcquireContext<TKey>, TResult> acquire);
         ICache<TKey, TResult> GetCache<TKey, TResult>();
     }
-
     public static class CacheManagerExtensions {
-
         private static readonly ConcurrentDictionary<object, object> _locks = new ConcurrentDictionary<object, object>();
-
         public static TResult Get<TKey, TResult>(this ICacheManager cacheManager, TKey key, bool preventConcurrentCalls, Func<AcquireContext<TKey>, TResult> acquire) {
             if (preventConcurrentCalls) {
                 var lockKey = _locks.GetOrAdd(key, _ => new object());
@@ -20,7 +25,5 @@ namespace Orchard.Caching {
             }
             else {
                 return cacheManager.Get(key, acquire);
-            }
         }
-    }
 }

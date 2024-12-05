@@ -1,36 +1,35 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Data.Migration.Schema;
 
 namespace Orchard.Data.Migration.Interpreters {
     public abstract class AbstractDataMigrationInterpreter {
-
         public void Visit(ISchemaBuilderCommand command) {
             var schemaCommand = command as SchemaCommand;
             if (schemaCommand == null) {
                 return;
             }
-
             switch ( schemaCommand.Type ) {
                 case SchemaCommandType.CreateTable:
                     Visit((CreateTableCommand)schemaCommand);
                     break;
                 case SchemaCommandType.AlterTable:
                     Visit((AlterTableCommand)schemaCommand);
-                    break;
                 case SchemaCommandType.DropTable:
                     Visit((DropTableCommand)schemaCommand);
-                    break;
                 case SchemaCommandType.SqlStatement:
                     Visit((SqlStatementCommand)schemaCommand);
-                    break;
                 case SchemaCommandType.CreateForeignKey:
                     Visit((CreateForeignKeyCommand)schemaCommand);
-                    break;
                 case SchemaCommandType.DropForeignKey:
                     Visit((DropForeignKeyCommand)schemaCommand);
-                    break;
-            }
         }
-
         public abstract void Visit(CreateTableCommand command);
         public abstract void Visit(AlterTableCommand command);
         public abstract void Visit(DropTableCommand command);

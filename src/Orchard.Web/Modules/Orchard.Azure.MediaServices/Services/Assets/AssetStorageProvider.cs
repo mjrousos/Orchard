@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Xml;
 using System.Xml.Linq;
 using Orchard.Azure.MediaServices.Models;
@@ -13,22 +21,15 @@ namespace Orchard.Azure.MediaServices.Services.Assets {
                 (name, valueType) => Get(infoset.Element, name),
                 (name, valueType, value) => Set(infoset.Element, name, value));
         }
-
         private static string Get(XElement element, string name) {
             if (string.IsNullOrEmpty(name)) {
                 return element.Value;
             }
             var valueAttribute = element.Attribute(XmlConvert.EncodeLocalName(name));
             return valueAttribute == null ? null : valueAttribute.Value;
-        }
-
         private static void Set(XElement element, string name, string value) {
-            if (string.IsNullOrEmpty(name)) {
                 element.Value = value;
-            }
             else {
                 element.SetAttributeValue(XmlConvert.EncodeLocalName(name), value);
-            }
-        }
     }
 }

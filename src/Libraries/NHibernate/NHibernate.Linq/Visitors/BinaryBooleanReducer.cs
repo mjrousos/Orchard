@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Linq.Expressions;
 
 namespace NHibernate.Linq.Visitors
@@ -11,12 +19,10 @@ namespace NHibernate.Linq.Visitors
 		//   timesheet.Entries.Any() == true
 		//to this:
 		//   timesheet.Entries.Any()
-
 		private Expression ProcessBinaryExpression(Expression exprToCompare, Expression exprToReturn, ExpressionType nodeType, Expression original)
 		{
 			BooleanConstantFinder visitor = new BooleanConstantFinder();
 			visitor.Visit(exprToCompare);
-
 			if (visitor.Constant.HasValue)
 			{
 				switch (nodeType)
@@ -38,37 +44,21 @@ namespace NHibernate.Linq.Visitors
 			else
 				return original;
 		}
-
 		protected override Expression VisitBinary(BinaryExpression expr)
-		{
 			Expression e = ProcessBinaryExpression(expr.Left, expr.Right, expr.NodeType, expr);
 			if (e != expr)
 				return e;
 			e = ProcessBinaryExpression(expr.Right, expr.Left, expr.NodeType, expr);
-			if (e != expr)
-				return e;
 			return base.VisitBinary(expr);
-
-		}
-
 		class BooleanConstantFinder : ExpressionVisitor
-		{
 			private bool _isNestedBinaryExpression;
-
 			public bool? Constant { get; private set; }
-
 			protected override Expression VisitConstant(ConstantExpression c)
-			{
 				if (c.Type == typeof(bool) && !_isNestedBinaryExpression)
 					Constant = (bool)c.Value;
 				return c;
-			}
-
 			protected override Expression VisitBinary(BinaryExpression b)
-			{
 				_isNestedBinaryExpression = true;
 				return b;
-			}
-		}
 	}
 }

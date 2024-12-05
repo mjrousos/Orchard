@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 
 namespace NHibernate.Linq.Expressions
@@ -14,24 +22,12 @@ namespace NHibernate.Linq.Expressions
 		public SqlFunctionAttribute()
 		{
 		}
-
-		/// <summary>
-		/// Initializes a new instance of the <see cref="T:NHibernate.Linq.Expressions.SqlFunctionAttribute"/> class.
-		/// </summary>
 		/// <param name="owner">The name of the schema that owns the SQL function.</param>
 		public SqlFunctionAttribute(string owner)
-		{
 			Owner = owner;
-		}
-
-		/// <summary>
 		/// Gets or sets the name of the schema that owns the SQL function.
-		/// </summary>
 		public string Owner { get; set; }
-
-		/// <summary>
 		/// Gets or sets the position of the function parameter that accepts the property name.
-		/// </summary>
 		public int PropertyPosition { get; set; }
 	}
 }

@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using Orchard.Search.Helpers;
 
 namespace Orchard.Search.Models {
@@ -12,22 +19,15 @@ namespace Orchard.Search.Models {
             set {
                 var data = SearchSettingsHelper.SerializeSearchFields(value);
                 Store("SearchFields", data);
-            }
         }
-
         public bool FilterCulture {
             get { return this.Retrieve(x => x.FilterCulture); }
             set { this.Store(x => x.FilterCulture, value); }
-        }
-
         public string SearchIndex {
             get { return this.Retrieve(x => x.SearchIndex); }
             set { this.Store(x => x.SearchIndex, value); }
-        }
-
         public string DisplayType {
             get { return this.Retrieve(x => x.DisplayType, "Summary"); }
             set { this.Store(x => x.DisplayType, value); }
-        }
     }
 }

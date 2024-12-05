@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 
@@ -6,7 +14,6 @@ namespace Orchard.Packaging.Models {
         public PackagingEntry() {
             Notifications = new List<string>();
         }
-
         public PackagingSource Source { get; set; }
         public string Title { get; set; }
         public string PackageId { get; set; }
@@ -27,11 +34,8 @@ namespace Orchard.Packaging.Models {
         /// List of package notifications.
         /// </summary>
         public List<string> Notifications { get; set; }
-
-        /// <summary>
         /// Boolean value indicating if any version of the same
         /// module has been previously installed.
-        /// </summary>
         public bool Installed { get; set; }
     }
 }

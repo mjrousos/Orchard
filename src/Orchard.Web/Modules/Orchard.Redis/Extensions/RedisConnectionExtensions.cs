@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,31 +18,21 @@ namespace Orchard.Redis.Extensions {
             var database = connection.GetDatabase();
             database.KeyDelete(keys.Select(key => (RedisKey)key).ToArray());
         }
-
         public static int KeyCount(this IConnectionMultiplexer connection, string prefix) {
             return GetKeys(connection, prefix).Count();
-        }
-
         // CYCLES EACH ENDPOINT FOR A CONNECTION SO KEYS ARE FETECHED IN A REDIS CLUSTER CONFIGURATION
         // STACKEXCHANGECLIENT .KEYS WILL PERFORM SCAN ON REDIS SERVERS THAT SUPPORT IT
         public static IEnumerable<string> GetKeys(this IConnectionMultiplexer connection, string prefix) {
             if (connection == null) {
                 throw new ArgumentException("Connection cannot be null", "connection");
             }
-
             if (string.IsNullOrWhiteSpace(prefix)) {
                 throw new ArgumentException("Prefix cannot be empty", "database");
-            }
-
             var keys = new List<string>();
             var databaseId = connection.GetDatabase().Database;
-
             foreach (var endPoint in connection.GetEndPoints()) {
                 var server = connection.GetServer(endPoint);
                 keys.AddRange(server.Keys(pattern: prefix, database: databaseId).Select(x => x.ToString()));
-            }
-
             return keys.Distinct();
-        }
     }
 }

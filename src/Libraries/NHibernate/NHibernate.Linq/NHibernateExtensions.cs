@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections;
 using System.Linq;
@@ -21,20 +29,13 @@ namespace NHibernate.Linq
 			QueryOptions options = new QueryOptions();
 			return new Query<T>(new NHibernateQueryProvider(session, options), options);
 		}
-
 		public static INHibernateQueryable<T> Linq<T>(this ISession session,string entityName)
-		{
-			QueryOptions options = new QueryOptions();
 			return new Query<T>(new NHibernateQueryProvider(session, options,entityName), options);
-		}
-
 		public static void List<T>(this ISession session, Expression expr, IList list)
-		{
 			var options = new QueryOptions();
 			var queryProvider = new NHibernateQueryProvider(session, options);
 			IQueryable<T> queryable = new Query<T>(queryProvider, options);
 			queryable = queryable.Where((Expression<Func<T, bool>>)expr);
-
 			var result = queryProvider.TranslateExpression(queryable.Expression);
 			var criteria = result as ICriteria;
 			if (criteria != null)
@@ -42,7 +43,6 @@ namespace NHibernate.Linq
 				criteria.List(list);
 			}
 			else
-			{
 				var items = result as IEnumerable;
 				if (items != null)
 				{
@@ -51,7 +51,5 @@ namespace NHibernate.Linq
 						list.Add(item);
 					}
 				}
-			}
-		}
 	}
 }

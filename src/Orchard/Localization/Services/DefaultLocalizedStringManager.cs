@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -19,13 +27,11 @@ namespace Orchard.Localization.Services {
         private readonly ShellSettings _shellSettings;
         private readonly ISignals _signals;
         private readonly ShellDescriptor _shellDescriptor;
-
         const string CoreLocalizationFilePathFormat = "~/Core/App_Data/Localization/{0}/orchard.core.po";
         const string ModulesLocalizationFilePathFormat = "{0}/App_Data/Localization/{1}/orchard.module.po";
         const string ThemesLocalizationFilePathFormat = "{0}/App_Data/Localization/{1}/orchard.theme.po";
         const string RootLocalizationFilePathFormat = "~/App_Data/Localization/{0}/orchard.root.po";
         const string TenantLocalizationFilePathFormat = "~/App_Data/Sites/{0}/Localization/{1}/orchard.po";
-
         public DefaultLocalizedStringManager(
             IWebSiteFolder webSiteFolder,
             IExtensionManager extensionManager,
@@ -41,13 +47,10 @@ namespace Orchard.Localization.Services {
             _shellSettings = shellSettings;
             _signals = signals;
             _shellDescriptor = shellDescriptor;
-
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
         public bool DisableMonitoring { get; set; }
-
         public FormatForScope GetLocalizedString(IEnumerable<string> scopes, string text, string cultureName) {
             var result = InnerGetLocalizedString(scopes, text, cultureName);
             if (result == null) {
@@ -72,8 +75,6 @@ namespace Orchard.Localization.Services {
                 return new FormatForScope(text, scopes.FirstOrDefault());
             }
             return result;
-        }
-
         protected FormatForScope InnerGetLocalizedString(IEnumerable<string> scopes, string text, string cultureName) {
             var culture = LoadCulture(cultureName);
             text = text ?? string.Empty; // prevent NREs with this string
@@ -82,21 +83,13 @@ namespace Orchard.Localization.Services {
                 if (culture.Translations.ContainsKey(scopedKey)) {
                     return new FormatForScope(culture.Translations[scopedKey], scope);
                 }
-            }
             string genericKey = ("|" + text).ToLowerInvariant();
             if (culture.Translations.ContainsKey(genericKey)) {
                 return new FormatForScope(culture.Translations[genericKey], null);
-            }
-
-            foreach (var scope in scopes) {
                 string parent_text = GetParentTranslation(scope, text, cultureName);
                 if (!parent_text.Equals(text)) {
                     return new FormatForScope(parent_text, scope);
-                }
-            }
             return null;
-        }
-
         // This will translate a string into a string in the target cultureName.
         // The scope portion is optional, it amounts to the location of the file containing 
         // the string in case it lives in a view, or the namespace name if the string lives in a binary.
@@ -105,7 +98,6 @@ namespace Orchard.Localization.Services {
         // In case it's not found anywhere, the text is returned as is.
         private string GetParentTranslation(string scope, string text, string cultureName) {
             string scopedKey = (scope + "|" + text).ToLowerInvariant();
-            string genericKey = ("|" + text).ToLowerInvariant();
             try {
                 CultureInfo cultureInfo = CultureInfo.GetCultureInfo(cultureName);
                 CultureInfo parentCultureInfo = cultureInfo.Parent;
@@ -116,15 +108,9 @@ namespace Orchard.Localization.Services {
                     }
                     if (culture.Translations.ContainsKey(genericKey)) {
                         return culture.Translations[genericKey];
-                    }
                     return text;
-                }
-            }
             catch (CultureNotFoundException) { }
-
             return text;
-        }
-
         // Loads the culture dictionary in memory and caches it.
         // Cache entry will be invalidated any time the directories hosting 
         // the .po files are modified.
@@ -136,8 +122,6 @@ namespace Orchard.Localization.Services {
                     Translations = LoadTranslationsForCulture(culture, ctx)
                 };
             });
-        }
-
         // Merging occurs from multiple locations:
         // In reverse priority order: 
         // "~/Core/App_Data/Localization/<culture_name>/orchard.core.po";
@@ -147,7 +131,6 @@ namespace Orchard.Localization.Services {
         // "~/App_Data/Sites/<tenant_name>/Localization/<culture_name>/orchard.po";
         // The dictionary entries from po files that live in higher priority locations will
         // override the ones from lower priority locations during loading of dictionaries.
-
         // TODO: Add culture name in the po file name to facilitate usage.
         private IDictionary<string, string> LoadTranslationsForCulture(string culture, AcquireContext<string> context) {
             IDictionary<string, string> translations = new Dictionary<string, string>();
@@ -158,66 +141,34 @@ namespace Orchard.Localization.Services {
                 if (!DisableMonitoring) {
                     Logger.Debug("Monitoring virtual path \"{0}\"", corePath);
                     context.Monitor(_webSiteFolder.WhenPathChanges(corePath));
-                }
-            }
-
             foreach (var module in _extensionManager.AvailableExtensions()) {
                 if (DefaultExtensionTypes.IsModule(module.ExtensionType)) {
                     string modulePath = string.Format(ModulesLocalizationFilePathFormat, module.VirtualPath, culture);
                     text = _webSiteFolder.ReadFile(modulePath);
                     if (text != null) {
                         _localizationStreamParser.ParseLocalizationStream(text, translations, true);
-
                         if (!DisableMonitoring) {
                             Logger.Debug("Monitoring virtual path \"{0}\"", modulePath);
                             context.Monitor(_webSiteFolder.WhenPathChanges(modulePath));
                         }
-                    }
-                }
-            }
-
             foreach (var theme in _extensionManager.AvailableExtensions()) {
                 if (DefaultExtensionTypes.IsTheme(theme.ExtensionType) && _shellDescriptor.Features.Any(x => x.Name == theme.Id)) {
-
                     string themePath = string.Format(ThemesLocalizationFilePathFormat, theme.VirtualPath, culture);
                     text = _webSiteFolder.ReadFile(themePath);
-                    if (text != null) {
-                        _localizationStreamParser.ParseLocalizationStream(text, translations, true);
-
-                        if (!DisableMonitoring) {
                             Logger.Debug("Monitoring virtual path \"{0}\"", themePath);
                             context.Monitor(_webSiteFolder.WhenPathChanges(themePath));
-                        }
-                    }
-                }
-            }
-
             string rootPath = string.Format(RootLocalizationFilePathFormat, culture);
             text = _webSiteFolder.ReadFile(rootPath);
-            if (text != null) {
                 _localizationStreamParser.ParseLocalizationStream(text, translations, true);
-                if (!DisableMonitoring) {
                     Logger.Debug("Monitoring virtual path \"{0}\"", rootPath);
                     context.Monitor(_webSiteFolder.WhenPathChanges(rootPath));
-                }
-            }
-
             string tenantPath = string.Format(TenantLocalizationFilePathFormat, _shellSettings.Name, culture);
             text = _webSiteFolder.ReadFile(tenantPath);
-            if (text != null) {
-                _localizationStreamParser.ParseLocalizationStream(text, translations, true);
-                if (!DisableMonitoring) {
                     Logger.Debug("Monitoring virtual path \"{0}\"", tenantPath);
                     context.Monitor(_webSiteFolder.WhenPathChanges(tenantPath));
-                }
-            }
-
             return translations;
-        }
-
         class CultureDictionary {
             public string CultureName { get; set; }
             public IDictionary<string, string> Translations { get; set; }
-        }
     }
 }

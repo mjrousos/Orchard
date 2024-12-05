@@ -1,10 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement.Drivers;
 using Orchard.ContentManagement.Handlers;
 using Orchard.MediaLibrary.Models;
 
 namespace Orchard.MediaLibrary.Drivers {
     public class VectorImagePartDriver : ContentPartDriver<VectorImagePart> {
-
         protected override DriverResult Display(VectorImagePart part, string displayType, dynamic shapeHelper) {
             return Combined(
                 ContentShape("Parts_VectorImage_Metadata", () => shapeHelper.Parts_VectorImage_Metadata()),
@@ -13,9 +20,7 @@ namespace Orchard.MediaLibrary.Drivers {
                 ContentShape("Parts_VectorImage_SummaryAdmin", () => shapeHelper.Parts_VectorImage_SummaryAdmin())
             );
         }
-
         protected override void Cloning(VectorImagePart originalPart, VectorImagePart clonePart, CloneContentContext context) {
             // nothing todo at the moment cause the part is only defined
-        }
     }
 }

@@ -1,11 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Handlers;
 using Orchard.Environment.Extensions;
-using Orchard.Localization;
 using Orchard.Localization.Models;
 using Orchard.Localization.Services;
 using Orchard.Taxonomies.Models;
@@ -19,7 +25,6 @@ namespace Orchard.Taxonomies.Handlers {
         private readonly INotifier _notifier;
         private readonly ITaxonomyService _taxonomyService;
         private readonly ITaxonomyExtensionsService _taxonomyExtensionsService;
-
         public LocalizedTaxonomyPartHandler(
             ILocalizationService localizationService,
             INotifier notifier,
@@ -29,14 +34,10 @@ namespace Orchard.Taxonomies.Handlers {
             _notifier = notifier;
             _taxonomyService = taxonomyService;
             _taxonomyExtensionsService = taxonomyExtensionsService;
-
             T = NullLocalizer.Instance;
-
             OnPublishing<TaxonomyPart>((context, part) => ImportLocalizedTerms(context, part));
         }
-
         public Localizer T { get; set; }
-
         private void ImportLocalizedTerms(PublishContentContext context, TaxonomyPart part) {
             // When saving a Taxonomy translation I automatically move to the taxonomy any term
             // in the corresponding language associated to the other translations
@@ -82,9 +83,7 @@ namespace Orchard.Taxonomies.Handlers {
                     }
                 }
             }
-
             if (termsMoved)
                 _notifier.Add(NotifyType.Information, T("Terms in the chosen language have been automatically moved from the other translations."));
-        }
     }
 }

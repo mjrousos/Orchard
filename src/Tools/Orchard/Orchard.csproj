@@ -60,6 +60,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -75,6 +76,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Compile Include="HostContext\CommandHostContext.cs" />
     <Compile Include="HostContext\CommandHostContextProvider.cs" />
     <Compile Include="HostContext\ICommandHostContextProvider.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="ResponseFiles\ResponseFileReader.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
       <Visible>False</Visible>
       <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
@@ -112,6 +115,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>

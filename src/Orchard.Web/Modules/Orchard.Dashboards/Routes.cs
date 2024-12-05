@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using System.Web.Routing;
 using Orchard.Mvc.Routes;
 
@@ -17,14 +24,9 @@ namespace Orchard.Dashboards {
                             {"action", "Display"}
                         },
                         new RouteValueDictionary(),
-                        new RouteValueDictionary {
                             {"area", "Orchard.Dashboards"}
-                        },
                         new MvcRouteHandler())
                 },
-
-                new RouteDescriptor {
-                    Route = new Route(
                     "Admin/Dashboards/Settings",
                     new RouteValueDictionary {
                         {"area", "Orchard.Dashboards"},
@@ -32,28 +34,13 @@ namespace Orchard.Dashboards {
                         {"action", "Index"}
                     },
                     new RouteValueDictionary(),
-                    new RouteValueDictionary {
                         {"area", "Orchard.Dashboards"}
-                    },
                     new MvcRouteHandler())
-                },
-
-                new RouteDescriptor {
-                    Route = new Route(
                     "Admin/Dashboards/List",
-                    new RouteValueDictionary {
-                        {"area", "Orchard.Dashboards"},
                         {"controller", "Dashboard"},
                         {"action", "List"}
-                    },
-                    new RouteValueDictionary(),
-                    new RouteValueDictionary {
-                        {"area", "Orchard.Dashboards"}
-                    },
-                    new MvcRouteHandler())
                 }
             };
-
             foreach (var routeDescriptor in routeDescriptors)
                 routes.Add(routeDescriptor);
         }

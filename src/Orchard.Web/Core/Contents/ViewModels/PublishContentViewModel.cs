@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 
 namespace Orchard.Core.Contents.ViewModels {
@@ -5,13 +13,9 @@ namespace Orchard.Core.Contents.ViewModels {
         public PublishContentViewModel(ContentItem contentItem) {
             ContentItem = contentItem;
         }
-
         public ContentItem ContentItem { get; private set; }
-
         public bool IsPublished {
             get { return ContentItem.VersionRecord != null && ContentItem.VersionRecord.Published; }
-        }
-
         public bool HasDraft {
             get {
                 return (
@@ -19,10 +23,7 @@ namespace Orchard.Core.Contents.ViewModels {
                     && ((ContentItem.VersionRecord.Published == false)
                         || (ContentItem.VersionRecord.Published && ContentItem.VersionRecord.Latest == false)));
             }
-        }
-
         public bool HasPublished {
             get { return IsPublished || ContentItem.ContentManager.Get(ContentItem.Id, VersionOptions.Published) != null; }
-        }
     }
 }

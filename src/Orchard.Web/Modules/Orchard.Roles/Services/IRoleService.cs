@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 using Orchard.Roles.Models;
 using Orchard.Security.Permissions;
@@ -13,10 +21,7 @@ namespace Orchard.Roles.Services {
         void DeleteRole(int id);
         IDictionary<string, IEnumerable<Permission>> GetInstalledPermissions();
         IEnumerable<string> GetPermissionsForRole(int id);
-
         IEnumerable<string> GetPermissionsForRoleByName(string name);
-
-
         /// <summary>
         /// Verify if the role name is unique
         /// </summary>

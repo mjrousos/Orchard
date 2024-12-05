@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using Orchard.Commands;
@@ -15,7 +23,6 @@ namespace Orchard.Themes.Commands {
         private readonly IExtensionManager _extensionManager;
         private readonly ShellDescriptor _shellDescriptor;
         private readonly IThemeService _themeService;
-
         public ThemeCommands(IDataMigrationManager dataMigrationManager,
                              ISiteThemeService siteThemeService,
                              IExtensionManager extensionManager,
@@ -27,17 +34,14 @@ namespace Orchard.Themes.Commands {
             _shellDescriptor = shellDescriptor;
             _themeService = themeService;
         }
-
         [OrchardSwitch]
         public bool Summary { get; set; }
-
         [CommandName("theme list")]
         [CommandHelp("theme list [/Summary:true|false]" + "\r\n\tDisplay list of available themes")]
         [OrchardSwitches("Summary")]
         public void List() {
             var currentTheme = _siteThemeService.GetSiteTheme();
             var featuresThatNeedUpdate = _dataMigrationManager.GetFeaturesThatNeedUpdate();
-
             var themes = _extensionManager.AvailableExtensions()
                 .Where(d => DefaultExtensionTypes.IsTheme(d.ExtensionType))
                 .Where(d => d.Tags!= null && d.Tags.Split(',').Any(t => t.Trim().Equals("hidden", StringComparison.OrdinalIgnoreCase)) == false)
@@ -47,7 +51,6 @@ namespace Orchard.Themes.Commands {
                     Enabled = _shellDescriptor.Features.Any(sf => sf.Name == d.Id)
                 })
                 .ToArray();
-
             if (Summary) {
                 foreach (var theme in themes) {
                     Context.Output.WriteLine(T("{0}", theme.Name));
@@ -61,15 +64,10 @@ namespace Orchard.Themes.Commands {
                     NeedsUpdate = featuresThatNeedUpdate.Contains(currentTheme.Id),
                     Enabled = _shellDescriptor.Features.Any(sf => sf.Name == currentTheme.Id)
                 });
-
                 Context.Output.WriteLine(T("List of available themes"));
-                Context.Output.WriteLine(T("--------------------------"));
                 themes.Where(t => t.Name.Trim().Equals(currentTheme.Name.Trim(), StringComparison.OrdinalIgnoreCase) == false)
                     .ToList()
                     .ForEach(WriteThemeLines);
-            }
-        }
-
         private void WriteThemeLines(ThemeEntry theme) {
             Context.Output.WriteLine(T("  Name: {0}", theme.Name));
             Context.Output.WriteLine(T("    State:         {0}", theme.Enabled ? T("Enabled") : T("Disabled")));
@@ -80,8 +78,6 @@ namespace Orchard.Themes.Commands {
             Context.Output.WriteLine(T("    Website:       {0}", theme.Descriptor.WebSite));
             Context.Output.WriteLine(T("    Zones:         {0}", string.Join(", ", theme.Descriptor.Zones)));
             Context.Output.WriteLine();
-        }
-
         [CommandName("theme activate")]
         [CommandHelp("theme activate <theme-name>" + "\r\n\tEnable and activates a theme")]
         public void Activate(string themeName) {
@@ -89,17 +85,11 @@ namespace Orchard.Themes.Commands {
             if (theme == null) {
                 Context.Output.WriteLine(T("Could not find theme {0}", themeName));
                 return;
-            }
-
             if (!_shellDescriptor.Features.Any(sf => sf.Name == theme.Id)) {
                 Context.Output.WriteLine(T("Enabling theme \"{0}\"...", themeName));
                 _themeService.EnableThemeFeatures(theme.Id);
-            }
-
             Context.Output.WriteLine(T("Activating theme \"{0}\"...", themeName));
             _siteThemeService.SetSiteTheme(theme.Id);
-
             Context.Output.WriteLine(T("Theme \"{0}\" activated", themeName));
-        }
     }
 }

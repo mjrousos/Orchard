@@ -1,5 +1,12 @@
-﻿using Orchard.ContentManagement.Handlers;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.ContentManagement.Handlers;
 using Orchard.Tasks.Indexing;
 
 namespace Orchard.Indexing.Handlers {
@@ -9,10 +16,8 @@ namespace Orchard.Indexing.Handlers {
     /// </summary>
     public class CreateIndexingTaskHandler : ContentHandler {
         private readonly IIndexingTaskManager _indexingTaskManager;
-
         public CreateIndexingTaskHandler(IIndexingTaskManager indexingTaskManager) {
             _indexingTaskManager = indexingTaskManager;
-
             OnCreated<ContentPart>(CreateIndexingTask);
             OnUpdated<ContentPart>(CreateIndexingTask);
             OnPublished<ContentPart>(CreateIndexingTask);
@@ -22,11 +27,8 @@ namespace Orchard.Indexing.Handlers {
             OnRemoved<ContentPart>(RemoveIndexingTask);
             OnDestroyed<ContentPart>(RemoveIndexingTask);
         }
-
         void CreateIndexingTask(ContentContextBase context, ContentPart part) {
             _indexingTaskManager.CreateUpdateIndexTask(context.ContentItem);
-        }
-
         void CreateIndexingTask(PublishContentContext context, ContentPart part) {
             // "Unpublish" case: Same as "remove"
             if (context.PublishingItemVersionRecord == null) {
@@ -34,11 +36,7 @@ namespace Orchard.Indexing.Handlers {
                 return;
             }
             // "Publish" case: update index
-            _indexingTaskManager.CreateUpdateIndexTask(context.ContentItem);
-        }
-
         void RemoveIndexingTask(ContentContextBase context, ContentPart part) {
             _indexingTaskManager.CreateDeleteIndexTask(context.ContentItem);
-        }
     }
 }

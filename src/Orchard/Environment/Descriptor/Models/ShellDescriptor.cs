@@ -1,8 +1,15 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace Orchard.Environment.Descriptor.Models {
-
     /// <summary>
     /// Contains a snapshot of a tenant's enabled features.
     /// The information is drawn out of the shell via IShellDescriptorManager
@@ -14,20 +21,14 @@ namespace Orchard.Environment.Descriptor.Models {
             Features = Enumerable.Empty<ShellFeature>();
             Parameters = Enumerable.Empty<ShellParameter>();
         }
-
         public int SerialNumber { get; set; }
         public IEnumerable<ShellFeature> Features { get; set; }
         public IEnumerable<ShellParameter> Parameters { get; set; }
     }
-
     public class ShellFeature {
         public string Name { get; set; }
-    }
-
     public class ShellParameter {
         public string Component { get; set; }
-        public string Name { get; set; }
         public string Value { get; set; }
-    }
     
 }

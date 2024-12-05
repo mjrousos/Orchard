@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Linq.Expressions;
@@ -7,9 +15,7 @@ namespace Orchard.Utility {
     public class ReflectionHelper<T> {
         private static readonly ConcurrentDictionary<string, Delegate> _getterCache =
             new ConcurrentDictionary<string, Delegate>();
-
         public delegate TProperty PropertyGetterDelegate<out TProperty>(T target);
-
         /// <summary>
         /// Gets property info out of a Lambda.
         /// </summary>
@@ -24,23 +30,17 @@ namespace Orchard.Utility {
             var propertyInfo = memberExpression.Member as PropertyInfo;
             if (propertyInfo == null) {
                 throw new InvalidOperationException("Expression is not for a property.");
-            }
             return propertyInfo;
         }
-
-        /// <summary>
         /// Gets a delegate from a property expression.
-        /// </summary>
         /// <typeparam name="TProperty">The type of the property.</typeparam>
         /// <param name="targetExpression">The property expression.</param>
         /// <returns>The delegate.</returns>
         public static PropertyGetterDelegate<TProperty> GetGetter<TProperty>(
             Expression<Func<T, TProperty>> targetExpression) {
-
             var propertyInfo = GetPropertyInfo(targetExpression);
             return (PropertyGetterDelegate<TProperty>)_getterCache
                 .GetOrAdd(propertyInfo.Name,
                     s => Delegate.CreateDelegate(typeof(PropertyGetterDelegate<TProperty>), propertyInfo.GetGetMethod()));
-        }
     }
 }

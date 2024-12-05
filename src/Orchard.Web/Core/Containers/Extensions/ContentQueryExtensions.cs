@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
-using Orchard.ContentManagement;
 using Orchard.Core.Common.Models;
 using Orchard.Core.Containers.Models;
 using Orchard.Core.Title.Models;
@@ -17,48 +24,31 @@ namespace Orchard.Core.Containers.Extensions {
                                 : query.OrderBy<ContainablePartRecord>(record => record.Position);
                     break;
                 case "TitlePart.Title":
-                    query = descendingOrder
                                 ? query.OrderByDescending<TitlePartRecord>(record => record.Title)
                                 : query.OrderBy<TitlePartRecord>(record => record.Title);
-                    break;
                 case "CustomPropertiesPart.CustomOne":
-                    query = descendingOrder
                                 ? query.OrderByDescending<CustomPropertiesPartRecord>(record => record.CustomOne)
                                 : query.OrderBy<CustomPropertiesPartRecord>(record => record.CustomOne);
-                    break;
                 case "CustomPropertiesPart.CustomTwo":
-                    query = descendingOrder
                                 ? query.OrderByDescending<CustomPropertiesPartRecord>(record => record.CustomTwo)
                                 : query.OrderBy<CustomPropertiesPartRecord>(record => record.CustomTwo);
-                    break;
                 case "CustomPropertiesPart.CustomThree":
-                    query = descendingOrder
                                 ? query.OrderByDescending<CustomPropertiesPartRecord>(record => record.CustomThree)
                                 : query.OrderBy<CustomPropertiesPartRecord>(record => record.CustomThree);
-                    break;
                 case "CommonPart.CreatedUtc":
-                    query = descendingOrder
                                 ? query.OrderByDescending<CommonPartRecord>(record => record.CreatedUtc)
                                 : query.OrderBy<CommonPartRecord>(record => record.CreatedUtc);
-                    break;
                 default: // "CommonPart.PublishedUtc"
-                    query = descendingOrder
                                 ? query.OrderByDescending<CommonPartRecord>(record => record.PublishedUtc)
                                 : query.OrderBy<CommonPartRecord>(record => record.PublishedUtc);
-                    break;
             }
-
             return query;
         }
-
         public static IContentQuery<ContentItem> Where(this IContentQuery<ContentItem> query, string partAndProperty, string comparisonOperator, string comparisonValue) {
             var filterKey = string.Format("{0}|{1}", partAndProperty, comparisonOperator);
             if (!_filters.ContainsKey(filterKey))
                 return query;
-
             return _filters[filterKey](query, comparisonValue);
-        }
-
         // convoluted: yes; quick and works for now: yes; technical debt: not much
         private static readonly Dictionary<string, Func<IContentQuery<ContentItem>, string, IContentQuery<ContentItem>>> _filters = new Dictionary<string, Func<IContentQuery<ContentItem>, string, IContentQuery<ContentItem>>> {
             {"TitlePart.Title|<", new Func<IContentQuery<ContentItem>, string, IContentQuery<ContentItem>>((q, s) => q.Where<TitlePartRecord>(r => true /* CompareTo is not implemented - r.Title.CompareTo(s) == -1*/))},

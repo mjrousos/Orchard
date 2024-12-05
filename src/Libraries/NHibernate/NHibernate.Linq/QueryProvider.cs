@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,29 +19,18 @@ namespace NHibernate.Linq
 	public abstract class QueryProvider : IQueryProvider
 	{
 		protected QueryOptions queryOptions;
-
 		IQueryable<T> IQueryProvider.CreateQuery<T>(Expression expression)
 		{
 			return new Query<T>(this, expression, queryOptions);
 		}
-
 		IQueryable IQueryProvider.CreateQuery(Expression expression)
-		{
 			QueryOptions options = new QueryOptions();
 			System.Type elementType = TypeSystem.GetElementType(expression.Type);
 			return (IQueryable)Activator.CreateInstance(typeof(Query<>).MakeGenericType(elementType), new object[] { this, expression, options });
-		}
-
 		T IQueryProvider.Execute<T>(Expression expression)
-		{
 			return (T)this.Execute(expression);
-		}
-
 		object IQueryProvider.Execute(Expression expression)
-		{
 			return this.Execute(expression);
-		}
-
 		public abstract object Execute(Expression expression);
 	}
 }

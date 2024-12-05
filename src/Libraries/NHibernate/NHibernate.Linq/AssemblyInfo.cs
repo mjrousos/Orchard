@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -11,8 +19,6 @@ using System.Security;
 //     Changes to this file may cause incorrect behavior and will be lost if
 //     the code is regenerated.
 // </auto-generated>
-//------------------------------------------------------------------------------
-
 [assembly: CLSCompliantAttribute(true)]
 [assembly: AssemblyTitleAttribute("NHibernate.Linq")]
 [assembly: AssemblyDescriptionAttribute("A linq provider for NHibernate")]
@@ -24,4 +30,3 @@ using System.Security;
 [assembly: AssemblyFileVersionAttribute("1.0.0.4000")]
 [assembly: AssemblyDelaySignAttribute(false)]
 [assembly: AllowPartiallyTrustedCallersAttribute()]
-

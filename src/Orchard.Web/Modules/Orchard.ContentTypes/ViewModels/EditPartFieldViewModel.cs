@@ -1,14 +1,20 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.ContentManagement.MetaData.Models;
 using Orchard.ContentManagement.ViewModels;
 
 namespace Orchard.ContentTypes.ViewModels {
     public class EditPartFieldViewModel {
-
         public EditPartFieldViewModel() {
             Settings = new SettingsDictionary();
         }
-
         public EditPartFieldViewModel(int index, ContentPartFieldDefinition field) {
             Index = index;
             Name = field.Name;
@@ -16,12 +22,9 @@ namespace Orchard.ContentTypes.ViewModels {
             FieldDefinition = new EditFieldViewModel(field.FieldDefinition);
             Settings = field.Settings;
             _Definition = field;
-        }
-
         public int Index { get; set; }
         public string Prefix { get { return "Fields[" + Name + "]"; } }
         public EditPartViewModel Part { get; set; }
-
         public string Name { get; set; }
         public string DisplayName { get; set; }
         public IEnumerable<TemplateViewModel> Templates { get; set; }

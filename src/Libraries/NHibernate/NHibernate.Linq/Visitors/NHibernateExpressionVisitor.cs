@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using NHibernate.Linq.Expressions;
@@ -13,7 +21,6 @@ namespace NHibernate.Linq.Visitors
 		public override Expression Visit(Expression exp)
 		{
 			if (exp == null) return null;
-
 			switch ((NHibernateExpressionType)exp.NodeType)
 			{
 				case NHibernateExpressionType.QuerySource:
@@ -29,40 +36,16 @@ namespace NHibernate.Linq.Visitors
 					return base.Visit(exp);
 			}
 		}
-
 		protected virtual Expression VisitQuerySource(QuerySourceExpression expr)
-		{
 			return expr;
-		}
-
 		protected virtual Expression VisitEntity(EntityExpression expr)
-		{
 			Expression e = Visit(expr.Expression);
 			if (e != expr.Expression)
-			{
 				return new EntityExpression(expr.AssociationPath, expr.Alias, expr.Type, expr.MetaData, e);
-			}
-			return expr;
-		}
-
 		protected virtual Expression VisitPropertyAccess(PropertyAccessExpression expr)
-		{
 			EntityExpression e = (EntityExpression)Visit(expr.Expression);
-			if (e != expr.Expression)
-			{
 				return new PropertyAccessExpression(expr.Name, expr.Type, expr.NHibernateType, e);
-			}
-			return expr;
-		}
-
 		protected virtual Expression VisitCollectionAccess(CollectionAccessExpression expr)
-		{
-			EntityExpression e = (EntityExpression)Visit(expr.Expression);
-			if (e != expr.Expression)
-			{
 				return new CollectionAccessExpression(expr.Name, expr.Type, expr.NHibernateType, e, expr.ElementExpression);
-			}
-			return expr;
-		}
 	}
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Mvc;
 using Orchard.Mvc.Extensions;
@@ -8,24 +16,19 @@ namespace Orchard.Themes
     {
         private readonly IThemeManager _themeManager;
         private readonly IHttpContextAccessor _httpContextAccessor;
-
         public CurrentThemeWorkContext(IThemeManager themeManager, IHttpContextAccessor httpContextAccessor)
         {
             _themeManager = themeManager;
             _httpContextAccessor = httpContextAccessor;
         }
-
         public Func<WorkContext, T> Get<T>(string name)
-        {
             if (name == "CurrentTheme") {
                 var context = _httpContextAccessor.Current();
                 var currentTheme = context != null && context.Request != null
                     ? _themeManager.GetRequestTheme(context.Request.RequestContext)
                     : null;
-
                 return ctx => (T)(object)currentTheme;
             }
             return null;
-        }
     }
 }

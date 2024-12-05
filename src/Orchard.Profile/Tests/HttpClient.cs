@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.IO;
 using System.Net;
 using TechTalk.SpecFlow;
@@ -9,38 +17,27 @@ namespace Orchard.Profile.Tests {
         private HttpWebRequest _request;
         private HttpWebResponse _response;
         private string _text;
-
         [Given(@"I am logged in")]
         public void GivenIAmLoggedIn() {
             DoRequest("/Users/Account/LogOn");
-
             const string requestVerificationTokenName = "__RequestVerificationToken";
             const string valueMarker = "value=\"";
-
             var tokenIndex = _text.IndexOf(requestVerificationTokenName);
             var valueIndex = _text.IndexOf(valueMarker, tokenIndex);
             var valueStart = valueIndex + valueMarker.Length;
             var valueEnd = _text.IndexOf("\"", valueStart);
             var requestVerificationTokenValue = _text.Substring(valueStart, valueEnd - valueStart);
-
             DoRequest("/Users/Account/LogOn", "userNameOrEmail=admin&password=profiling-secret&rememberMe=false&" + requestVerificationTokenName + "=" + requestVerificationTokenValue);
         }
-
         [When(@"I go to ""(.*)""")]
         public void WhenIGoTo(string url) {
             DoRequest(url);
-        }
-
         [When(@"I go to ""(.*)"" (.*) times")]
         public void WhenIGoTo(string url, int times) {
             for (int i = 0; i != times; ++i)
                 DoRequest(url);
-        }
-
         private void DoRequest(string url) {
             DoRequest(url, null);
-        }
-
         private void DoRequest(string url, string postData) {
             _request = (HttpWebRequest)WebRequest.Create("http://localhost" + url);
             _request.CookieContainer = _cookieContainer;
@@ -55,16 +52,10 @@ namespace Orchard.Profile.Tests {
             }
             try {
                 _response = (HttpWebResponse)_request.GetResponse();
-            }
             catch (WebException ex) {
                 _response = (HttpWebResponse)ex.Response;
-            }
-
             using (var stream = _response.GetResponseStream()) {
                 using (var reader = new StreamReader(stream)) {
                     _text = reader.ReadToEnd();
-                }
-            }
-        }
     }
 }

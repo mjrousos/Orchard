@@ -1,21 +1,24 @@
-﻿using System;
-using System.Web.Mvc;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 using Orchard.Environment.Extensions;
 using Orchard.Forms.Services;
-using Orchard.Localization;
 
 namespace Orchard.Workflows.Forms {
     [OrchardFeature("Orchard.Workflows.Timer")]
     public class TimerForms : IFormProvider {
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public TimerForms(IShapeFactory shapeFactory) {
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             context.Form("ActivityTimer",
                 shape => {
@@ -39,26 +42,16 @@ namespace Orchard.Workflows.Forms {
                             Title: T("Date"),
                             Description: T("Optional. Starting date/time to calculate difference from. Leave blank to use current date/time."),
                             Classes: new[] {"text medium tokenized"}));
-
                     return form;
                 }
             );
-        }
     }
-
     public class ScheduleFormsValidator : FormHandler {
-        public Localizer T { get; set; }
-
         public override void Validating(ValidatingContext context) {
             if (context.FormName == "ActivityTimer") {
                 if (context.ValueProvider.GetValue("Amount").AttemptedValue == String.Empty) {
                     context.ModelState.AddModelError("Amount", T("You must provide an Amount").Text);
-                }
-
                 if (context.ValueProvider.GetValue("Unity").AttemptedValue == String.Empty) {
                     context.ModelState.AddModelError("Unity", T("You must provide a Type").Text);
-                }
             }
-        }
-    }
 }

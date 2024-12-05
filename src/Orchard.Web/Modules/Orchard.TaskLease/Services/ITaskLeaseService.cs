@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 
 namespace Orchard.TaskLease.Services {
-
     /// <summary>
     /// Describes a service to save and acquire task leases. A task lease can't be acquired by two different machines,
     /// for a specific amount of time. Optionnally a State can be saved along with the lease.
@@ -14,15 +21,8 @@ namespace Orchard.TaskLease.Services {
         /// </summary>
         /// <returns>The state of the lease if it was acquired, otherwise <c>null</c>.</returns>
         string Acquire(string taskName, DateTime expiredUtc);
-
-        /// <summary>
         /// Updates a lease for the current machine if it exists
-        /// </summary>
         void Update(string taskName, string state);
-
-        /// <summary>
-        /// Updates a lease for the current machine if it exists
-        /// </summary>
         void Update(string taskName, string state, DateTime expiredUtc);
     }
 }

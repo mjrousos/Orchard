@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 
 namespace NHibernate.Linq.Util
@@ -13,15 +21,11 @@ namespace NHibernate.Linq.Util
 			if (ienum == null) return seqType;
 			return ienum.GetGenericArguments()[0];
 		}
-
 		private static System.Type FindIEnumerable(System.Type seqType)
-		{
 			if (seqType == null || seqType == typeof(string))
 				return null;
-
 			if (seqType.IsArray)
 				return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
-
 			if (seqType.IsGenericType)
 			{
 				foreach (System.Type arg in seqType.GetGenericArguments())
@@ -33,22 +37,13 @@ namespace NHibernate.Linq.Util
 					}
 				}
 			}
-
 			System.Type[] ifaces = seqType.GetInterfaces();
 			if (ifaces != null && ifaces.Length > 0)
-			{
 				foreach (System.Type iface in ifaces)
-				{
 					System.Type ienum = FindIEnumerable(iface);
 					if (ienum != null) return ienum;
-				}
-			}
-
 			if (seqType.BaseType != null && seqType.BaseType != typeof(object))
-			{
 				return FindIEnumerable(seqType.BaseType);
-			}
 			return null;
-		}
 	}
 }

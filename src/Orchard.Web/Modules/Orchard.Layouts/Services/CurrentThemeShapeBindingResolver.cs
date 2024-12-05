@@ -1,5 +1,12 @@
-using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using Orchard.DisplayManagement.Descriptors;
 using Orchard.Environment.Extensions;
 using Orchard.Layouts.Providers;
@@ -13,32 +20,22 @@ namespace Orchard.Layouts.Services {
     public class CurrentThemeShapeBindingResolver : ICurrentThemeShapeBindingResolver, IShapeBindingResolver, IDisposable {
         private readonly ISiteThemeService _siteThemeService;
         private readonly IShapeTableLocator _shapeTableLocator;
-
         public CurrentThemeShapeBindingResolver(ISiteThemeService siteThemeService, IShapeTableLocator shapeTableLocator) {
             _siteThemeService = siteThemeService;
             _shapeTableLocator = shapeTableLocator;
         }
-
         public bool Enabled { get; private set; }
-
         public bool TryGetDescriptorBinding(string shapeType, out ShapeBinding shapeBinding) {
             shapeBinding = null;
-
             if (!Enabled)
                 return false;
-
             var currentThemeName = _siteThemeService.GetCurrentThemeName();
             var shapeTable = _shapeTableLocator.Lookup(currentThemeName);
             return shapeTable.Bindings.TryGetValue(shapeType, out shapeBinding);
-        }
-
         public IDisposable Enable() {
             Enabled = true;
             return this;
-        }
-
         public void Dispose() {
             Enabled = false;
-        }
     }
 }

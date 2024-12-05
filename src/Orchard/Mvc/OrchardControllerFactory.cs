@@ -1,5 +1,12 @@
-using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System;
 using System.Web.Routing;
 using Autofac;
 using Autofac.Core;
@@ -28,52 +35,34 @@ namespace Orchard.Mvc {
                     return true;
                 }
             }
-
             instance = default(T);
             return false;
         }
-
-        /// <summary>
         /// Returns the controller type based on the name of both the controller and area.
-        /// </summary>
         /// <param name="requestContext">The request context from where to fetch the route data containing the area.</param>
         /// <param name="controllerName">The controller name.</param>
         /// <returns>The controller type.</returns>
         /// <example>ControllerName: Item, Area: Containers would return the type for the ItemController class.</example>
         protected override Type GetControllerType(RequestContext requestContext, string controllerName) {
             var routeData = requestContext.RouteData;
-
             // Determine the area name for the request, and fall back to stock orchard controllers
             var areaName = routeData.GetAreaName();
-
             // Service name pattern matches the identification strategy
             var serviceKey = (areaName + "/" + controllerName).ToLowerInvariant();
-
             // Now that the request container is known - try to resolve the controller information
             Meta<Lazy<IController>> info;
             var workContext = requestContext.GetWorkContext();
             if (TryResolve(workContext, serviceKey, out info)) {
                 return (Type) info.Metadata["ControllerType"];
-            }
-
             return null;
-        }
-
-        /// <summary>
         /// Returns an instance of the controller.
-        /// </summary>
-        /// <param name="requestContext">The request context from where to fetch the route data containing the area.</param>
         /// <param name="controllerType">The controller type.</param>
         /// <returns>An instance of the controller if it's type is registered; null if otherwise.</returns>
         protected override IController GetControllerInstance(RequestContext requestContext, Type controllerType) {
             IController controller;
-            var workContext = requestContext.GetWorkContext();
             if (TryResolve(workContext, controllerType, out controller)) {
                 return controller;
-            }
-
             // fail as appropriate for MVC's expectations
             return base.GetControllerInstance(requestContext, controllerType);
-        }
     }
 }

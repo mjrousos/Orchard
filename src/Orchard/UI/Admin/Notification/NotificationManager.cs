@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,15 +16,11 @@ using Orchard.Exceptions;
 namespace Orchard.UI.Admin.Notification {
     public class NotificationManager : INotificationManager {
         private readonly IEnumerable<INotificationProvider> _notificationProviders;
-
         public NotificationManager(IEnumerable<INotificationProvider> notificationProviders) {
             _notificationProviders = notificationProviders;
-
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public IEnumerable<NotifyEntry> GetNotifications() {
             return _notificationProviders
                 .SelectMany(n => {
@@ -29,8 +33,6 @@ namespace Orchard.UI.Admin.Notification {
                         } 
                         Logger.Error("An unhandled exception was thrown while generating a notification: " + n.GetType(), ex);
                         return Enumerable.Empty<NotifyEntry>();
-                    }
                 }).ToList();
-        }
     }
 }

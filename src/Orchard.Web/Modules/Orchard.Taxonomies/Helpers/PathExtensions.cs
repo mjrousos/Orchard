@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
-using Orchard.ContentManagement;
 using Orchard.Taxonomies.Models;
 using Orchard.Taxonomies.ViewModels;
 
@@ -9,11 +16,7 @@ namespace Orchard.Taxonomies.Helpers {
         public static int GetLevels(this TermPart term) {
             return String.IsNullOrEmpty(term.Path) ? 0 : term.Path.Count(c => c == '/') - 1;
         }
-
         public static int GetLevels(this TermEntry term) {
-            return String.IsNullOrEmpty(term.Path) ? 0 : term.Path.Count(c => c == '/') - 1;
-        }
-
         public static TermEntry CreateTermEntry(this TermPart term) {
             return new TermEntry {
                 Id = term.Id,
@@ -26,6 +29,5 @@ namespace Orchard.Taxonomies.Helpers {
                 ContentItem = term.ContentItem,
                 HasDraft = term.ContentItem.HasDraft()
             };
-        }
     }
 }

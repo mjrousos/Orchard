@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Orchard.ContentManagement.MetaData;
@@ -6,7 +14,6 @@ using Orchard.Core.Contents.Settings;
 using Orchard.Data.Migration;
 using Orchard.Roles.Models;
 using Orchard.Roles.Services;
-using Orchard.Security;
 using Orchard.Roles.Constants;
 using ContentsPermissions = Orchard.Core.Contents.Permissions;
 
@@ -15,7 +22,6 @@ namespace Orchard.Roles {
         private readonly IAuthorizationService _authorizationService;
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IRoleService _roleService;
-
         public RolesDataMigration(IRoleService roleService,
             IAuthorizationService authorizationService,
             IContentDefinitionManager contentDefinitionManager) {
@@ -23,7 +29,6 @@ namespace Orchard.Roles {
             _contentDefinitionManager = contentDefinitionManager;
             _roleService = roleService;
         }
-
         public int Create() {
             SchemaBuilder.CreateTable("PermissionRecord",
                 table => table
@@ -32,61 +37,35 @@ namespace Orchard.Roles {
                     .Column<string>("FeatureName")
                     .Column<string>("Description")
                 );
-
             SchemaBuilder.CreateTable("RoleRecord",
-                table => table
-                    .Column<int>("Id", column => column.PrimaryKey().Identity())
-                    .Column<string>("Name")
-                );
-
             SchemaBuilder.CreateTable("RolesPermissionsRecord",
-                table => table
-                    .Column<int>("Id", column => column.PrimaryKey().Identity())
                     .Column<int>("Role_id")
                     .Column<int>("Permission_id")
                     .Column<int>("RoleRecord_Id")
-                );
-
             SchemaBuilder.CreateTable("UserRolesPartRecord",
-                table => table
-                    .Column<int>("Id", column => column.PrimaryKey().Identity())
                     .Column<int>("UserId")
-                    .Column<int>("Role_id")
-                );
-
             return 2;
-        }
-
         public int UpdateFrom1() {
-
             // creates default permissions for Orchard v1.4 instances and earlier
             _roleService.CreatePermissionForRole(SystemRoles.Anonymous, ContentsPermissions.ViewContent.Name);
             _roleService.CreatePermissionForRole(SystemRoles.Authenticated, ContentsPermissions.ViewContent.Name);
-
-            return 2;
-        }
         public int UpdateFrom2() {
             //Assigns the "Create Permission" to all roles able to create contents
             var contentEditPermissions = new[]  {
                 ContentsPermissions.EditContent,
                 ContentsPermissions.EditOwnContent
             };
-
             var dynamicPermissions = new DynamicPermissions(_contentDefinitionManager);
             var securableTypes = _contentDefinitionManager.ListTypeDefinitions()
                         .Where(ctd => ctd.Settings.GetModel<ContentTypeSettings>().Securable);
             var permissionTemplates = DynamicPermissions.PermissionTemplates;
             List<object> dynContentPermissions = new List<object>();
-
             foreach (var typeDefinition in securableTypes) {
                 dynContentPermissions.Add(new {
                     Permission = DynamicPermissions.CreateDynamicPermission(permissionTemplates[ContentsPermissions.EditContent.Name], typeDefinition),
                     CreatePermission = DynamicPermissions.CreateDynamicPermission(permissionTemplates[ContentsPermissions.CreateContent.Name], typeDefinition)
                 });
-                dynContentPermissions.Add(new {
                     Permission = DynamicPermissions.CreateDynamicPermission(permissionTemplates[ContentsPermissions.EditOwnContent.Name], typeDefinition),
-                    CreatePermission = DynamicPermissions.CreateDynamicPermission(permissionTemplates[ContentsPermissions.CreateContent.Name], typeDefinition)
-                });
             }
             var roles = _roleService.GetRoles();
             foreach (var role in roles) {
@@ -104,7 +83,6 @@ namespace Orchard.Roles {
                         updateRole = true;
                         break;
                     }
-                }
                 if (checkForDynamicPermissions) {
                     foreach (var dynContentPermission in dynContentPermissions) {
                         if (!existingPermissionsNames.Contains(((dynamic)dynContentPermission).CreatePermission.Name)) { // Skipping this permission cause it already has the Create content variation
@@ -113,15 +91,9 @@ namespace Orchard.Roles {
                                 updateRole = true;
                             }
                         }
-                    }
-                }
                 if (updateRole) {
                     var rolePermissionsNames = existingPermissionsNames;
                     _roleService.UpdateRole(role.Id, role.Name, rolePermissionsNames);
-                }
-
-            }
             return 3;
-        }
     }
 }

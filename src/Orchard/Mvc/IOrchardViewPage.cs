@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Web;
 using Orchard.DisplayManagement.Shapes;
-using Orchard.Localization;
 using Orchard.UI.Resources;
 
 namespace Orchard.Mvc {
@@ -18,7 +25,6 @@ namespace Orchard.Mvc {
         IHtmlString DisplayChildren(object shape);
         WorkContext WorkContext { get; }
         IDisposable Capture(Action<IHtmlString> callback);
-
         void RegisterLink(LinkEntry link);
         void SetMeta(string name, string content, string httpEquiv, string charset);
         void SetMeta(MetaEntry meta);

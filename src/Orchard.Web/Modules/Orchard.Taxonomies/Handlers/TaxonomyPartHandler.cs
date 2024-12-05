@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Linq;
 using System.Web.Routing;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Handlers;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Core.Title.Models;
@@ -19,12 +26,9 @@ namespace Orchard.Taxonomies.Handlers {
             ITaxonomyService taxonomyService,
             IContentDefinitionManager contentDefinitionManager,
             ILocalizationService localizationService = null) { //Localization feature may not be active
-
             string previousName = null;
-
             Filters.Add(StorageFilter.For(repository));
             OnPublished<TaxonomyPart>((context, part) => {
-
                 if (string.IsNullOrWhiteSpace(part.TermTypeName)) {
                     // is it a new taxonomy ?
                     taxonomyService.CreateTermContentType(part);
@@ -34,7 +38,6 @@ namespace Orchard.Taxonomies.Handlers {
                     foreach (var partDefinition in contentDefinitionManager.ListPartDefinitions()) {
                         foreach (var field in partDefinition.Fields) {
                             if (field.FieldDefinition.Name == typeof(TaxonomyField).Name) {
-
                                 if (field.Settings.GetModel<TaxonomyFieldSettings>().Taxonomy == previousName) {
                                     //could either be a name change, or we could be publishing a translation
                                     if (localizationService != null) { //Localization feature may not be active
@@ -58,31 +61,22 @@ namespace Orchard.Taxonomies.Handlers {
                             }
                         }
                     }
-                }
             });
-
             OnLoading<TaxonomyPart>((context, part) => part.TermsField.Loader(() => taxonomyService.GetTerms(part.Id)));
-
             OnUpdating<TitlePart>((context, part) => {
                 // if altering the title of a taxonomy, save the name
                 if (part.As<TaxonomyPart>() != null) {
                     previousName = part.Title;
-                }
-            });
         }
         protected override void GetItemMetadata(GetContentItemMetadataContext context) {
             var taxonomy = context.ContentItem.As<TaxonomyPart>();
-
             if (taxonomy == null)
                 return;
-
             context.Metadata.EditorRouteValues = new RouteValueDictionary {
                 {"Area", "Orchard.Taxonomies"},
                 {"Controller", "Admin"},
                 {"Action", "Edit"},
                 {"Id", taxonomy.Id}
             };
-
-        }
     }
 }

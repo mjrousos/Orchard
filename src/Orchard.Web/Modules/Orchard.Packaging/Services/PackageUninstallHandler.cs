@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,21 +24,15 @@ namespace Orchard.Packaging.Services {
         /// </summary>
         /// <param name="packageId">The textual ID of the package.</param>
         void QueuePackageUninstall(string packageId);
-
-        /// <summary>
         /// Uninstalls the given package from the system.
-        /// </summary>
-        /// <param name="packageId">The textual ID of the package.</param>
         void UninstallPackage(string packageId);
     }
-
     public class PackageUninstallHandler : IFeatureEventHandler, IPackageUninstallHandler {
         private readonly ShellSettings _shellSettings;
         private readonly IShellDescriptorManager _shellDescriptorManager;
         private readonly IProcessingEngine _processingEngine;
         private readonly IHostEnvironment _hostEnvironment;
         private readonly IPackageInstaller _packageInstaller;
-
         public PackageUninstallHandler(
             ShellSettings shellSettings,
             IShellDescriptorManager shellDescriptorManager,
@@ -43,42 +45,21 @@ namespace Orchard.Packaging.Services {
             _hostEnvironment = hostEnvironment;
             _packageInstaller = packageInstaller;
         }
-
         public void Installing(Feature feature) {
-        }
-
         public void Installed(Feature feature) {
-        }
-
         public void Enabling(Feature feature) {
-        }
-
         public void Enabled(Feature feature) {
-        }
-
         public void Disabling(Feature feature) {
-        }
-
         public void Disabled(Feature feature) {
-        }
-
         public void Uninstalling(Feature feature) {
-        }
-
         public void Uninstalled(Feature feature) {
             QueuePackageUninstall(PackageBuilder.BuildPackageId(feature.Descriptor.Extension.Id, feature.Descriptor.Extension.ExtensionType));
-        }
-
         public void QueuePackageUninstall(string packageId) {
             _processingEngine.AddTask(
                 _shellSettings,
                 _shellDescriptorManager.GetShellDescriptor(),
                 "IPackageUninstallHandler.UninstallPackage",
                 new Dictionary<string, object> { { "packageId", packageId } });
-        }
-
         public void UninstallPackage(string packageId) {
             _packageInstaller.Uninstall(packageId, _hostEnvironment.MapPath("~/"));
-        }
-    }
 }

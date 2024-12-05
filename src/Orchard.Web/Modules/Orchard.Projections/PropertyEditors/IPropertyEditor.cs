@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Reflection;
 
@@ -8,20 +16,13 @@ namespace Orchard.Projections.ModelBinding {
     /// the output of a value based on how the form is configured.
     /// </summary>
     public interface IPropertyEditor : IDependency {
-
         /// <summary>
         /// Whether this instance can handle a given storage type
         /// </summary>
         bool CanHandle(Type type);
-
-        /// <summary>
         /// The name of the form which will represent this editor
-        /// </summary>
         string FormName { get; }
-
-        /// <summary>
         /// Formats the value based on the Form state
-        /// </summary>
         dynamic Format(dynamic display, object value, dynamic formState);
     }
 }

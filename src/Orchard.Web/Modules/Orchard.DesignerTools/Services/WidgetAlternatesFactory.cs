@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.DisplayManagement.Implementation;
 using Orchard.Environment.Extensions;
-using Orchard.ContentManagement;
 using Orchard.Widgets.Models;
 
 namespace Orchard.DesignerTools.Services {
@@ -12,7 +19,6 @@ namespace Orchard.DesignerTools.Services {
                 if (displayedContext.ShapeMetadata.Type != "Widget") {
                     // look for ContentItem property
                     ContentItem contentItem = displayedContext.Shape.ContentItem;
-
                     // if not, check for ContentPart 
                     if (contentItem == null) {
                         ContentPart contentPart = displayedContext.Shape.ContentPart;
@@ -28,17 +34,14 @@ namespace Orchard.DesignerTools.Services {
                             var zoneName = widgetPart.Zone;
                             var shapeName = displayedContext.ShapeMetadata.Type;
                             var contentTypeName = contentItem.ContentType;
-
                             // Add 2 alternates for flexible widget shape naming:
                             // [ShapeName]-[ZoneName].cshtml: (e.g. "Parts.Blogs.RecentBlogPosts-myZoneName.cshtml")
                             // [ShapeName]-[ContentTypeName]-[ZoneName].cshtml: (e.g. "Parts.Common.Body-RecentBlogPosts-myZoneName.cshtml")
                             displayedContext.ShapeMetadata.Alternates.Add(shapeName + "__" + contentTypeName + "__" + zoneName);
                             displayedContext.ShapeMetadata.Alternates.Add(shapeName + "__" + zoneName);
-                        }
                     }
                 }
             });
-
         }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Xml.Serialization;
 using Orchard.ContentManagement.Records;
@@ -11,18 +19,12 @@ namespace Orchard.Projections.Models {
             SortCriteria = new List<SortCriterionRecord>();
             Layouts = new List<LayoutRecord>();
         }
-
         public virtual QueryVersionScopeOptions VersionScope { get; set; }
-
         [CascadeAllDeleteOrphan, Aggregate]
         [XmlArray("FilterGroupRecords")]
         public virtual IList<FilterGroupRecord> FilterGroups { get; set; }
-
-        [CascadeAllDeleteOrphan, Aggregate]
         [XmlArray("SortCriteria")]
         public virtual IList<SortCriterionRecord> SortCriteria { get; set; }
-
-        [CascadeAllDeleteOrphan, Aggregate]
         [XmlArray("Layouts")]
         public virtual IList<LayoutRecord> Layouts { get; set; }
     }

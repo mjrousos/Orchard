@@ -1,14 +1,19 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Web;
-using System.Web.Mvc;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
 using Orchard.ContentManagement.MetaData.Models;
 using Orchard.Core.Common.Fields;
 using Orchard.Core.Common.Models;
-using Orchard.Localization;
 using Orchard.ContentManagement.FieldStorage;
 using Orchard.Mvc.Extensions;
 
@@ -16,19 +21,15 @@ namespace Orchard.Tokens.Providers {
     public class ContentTokens : ITokenProvider {
         private readonly IContentManager _contentManager;
         private readonly UrlHelper _urlHelper;
-
         public ContentTokens(IContentManager contentManager, UrlHelper urlHelper) {
             _contentManager = contentManager;
             _urlHelper = urlHelper;
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         public void Describe(DescribeContext context) {
             context.For("ContentItem", T("Content Items"), T("The context to access specific content items."))
                 .Token("Id:*", T("Content Item by Id"), T("The content item with the specified id."));
-
             context.For("Content", T("Content Items"), T("Content Items"))
                 .Token("Id", T("Content Id"), T("Numeric primary key value of content."))
                 .Token("Author", T("Content Author"), T("Person in charge of the content."), "User")
@@ -40,39 +41,29 @@ namespace Orchard.Tokens.Providers {
                 .Token("EditUrl", T("Edit Url"), T("Url to edit the content."), "Url")
                 .Token("Container", T("Container"), T("The container Content Item."), "Content")
                 .Token("Body", T("Body"), T("The body text of the content item."), "Text");
-
             // Token descriptors for fields
             foreach (var typeDefinition in _contentManager.GetContentTypeDefinitions()) {
                 foreach (var typePart in typeDefinition.Parts) {
-
                     if (!typePart.PartDefinition.Fields.Any()) {
                         continue;
                     }
-
                     var partContext = context.For("Content");
                     foreach (var partField in typePart.PartDefinition.Fields) {
                         var field = partField;
                         var tokenName = "Fields." + typePart.PartDefinition.Name + "." + field.Name;
-
                         // the token is chained with the technical name
                         partContext.Token(tokenName, T("{0} {1}", typePart.PartDefinition.Name, field.Name), T("The content of the {0} field.", partField.DisplayName), field.Name);
-                    }
                 }
             }
-
             context.For("TextField", T("Text Field"), T("Tokens for Text Fields"))
                 .Token("Length", T("Length"), T("The length of the field."));
-
             context.For("Url", T("Url"), T("Tokens for Urls"))
                 .Token("Absolute", T("Absolute"), T("Absolute url."), "Text");
-
             context.For("TypeDefinition", T("Type Definition"), T("Tokens for Content Types"))
                 .Token("Name", T("Name"), T("Name of the content type."))
                 .Token("DisplayName", T("Display Name"), T("Display name of the content type."), "Text")
                 .Token("Parts", T("Parts"), T("List of the attached part names."))
                 .Token("Fields", T("Fields"), T("Fields for each of the attached parts. For example, Fields.Page.Approved."));
-        }
-
         public void Evaluate(EvaluateContext context) {
             context.For<IContentManager>("ContentItem", _contentManager)
                 .Token(
@@ -99,7 +90,6 @@ namespace Orchard.Tokens.Providers {
                     "Content",
                     (token, cm) => {
                         // token is Id:*
-
                         if (token != "") {
                             var id = token.Substring("Id:".Length);
                             return cm.Get(Convert.ToInt32(id));
@@ -125,7 +115,6 @@ namespace Orchard.Tokens.Providers {
                     .Chain("Container", "Content", Container)
                     .Token("Body", Body)
                     .Chain("Body", "Text", Body);
-
             if (context.Target == "Content") {
                 var forContent = context.For<IContent>("Content");
                 // is there a content available in the context ?
@@ -139,131 +128,68 @@ namespace Orchard.Tokens.Providers {
                                 tokenName,
                                 content => Convert.ToString(LookupField(content, part.PartDefinition.Name, field.Name).Storage.Get<object>()));
                             forContent.Chain(
-                                tokenName,
                                 partField.FieldDefinition.Name,
                                 content => LookupField(content, part.PartDefinition.Name, field.Name));
-                        }
-                    }
-                }
-            }
-
             context.For<string>("Url")
                    .Token("Absolute", url => _urlHelper.MakeAbsolute(url))
                    .Chain("Absolute", "Text", url => _urlHelper.MakeAbsolute(url))
                 ;
-
             context.For<TextField>("TextField")
                 .Token("Length", field => (field.Value ?? "").Length)
                 .Token("Text", field => field.Value ?? "")
                 .Chain("Text", "Text", field => field.Value ?? "")
-                ;
-
             context.For<ContentTypeDefinition>("TypeDefinition")
                 .Token("Name", def => def.Name)
                 .Token("DisplayName", def => def.DisplayName)
                 .Chain("DisplayName", "Text", def => def.DisplayName)
                 .Token("Parts", def => string.Join(", ", def.Parts.Select(x => x.PartDefinition.Name).ToArray()))
                 .Token("Fields", def => string.Join(", ", def.Parts.SelectMany(x => x.PartDefinition.Fields.Select(x2 => x2.FieldDefinition.Name + " " + x.PartDefinition.Name + "." + x2.Name)).ToArray()));
-        }
-
         private IHtmlString AuthorName(IContent content) {
             if (content == null) {
                 return new HtmlString(String.Empty); // Null content isn't "Anonymous"
-            }
-
             var commonPart = content.As<ICommonPart>();
             var author = commonPart != null ? commonPart.Owner : null;
             // todo: encoding should be done at a higher level automatically and should be configurable via an options param
             // so it can be disabled
             return author == null ? (IHtmlString)T("Anonymous") : new HtmlString(HttpUtility.HtmlEncode(author.UserName));
-        }
-
         private static ContentField LookupField(IContent content, string partName, string fieldName) {
             return content.ContentItem.Parts
                 .Where(part => part.PartDefinition.Name == partName)
                 .SelectMany(part => part.Fields.Where(field => field.Name == fieldName))
                 .SingleOrDefault();
-        }
-
         private IContent Container(IContent content) {
-            var commonPart = content.As<ICommonPart>();
             if (commonPart == null) {
                 return null;
-            }
-
             return commonPart.Container;
-        }
-
         private string DisplayText(IContent content) {
-            if (content == null) {
                 return String.Empty;
-            }
-
             return _contentManager.GetItemMetadata(content).DisplayText;
-        }
-
         private object Date(IContent content) {
             return content != null ? content.As<ICommonPart>().CreatedUtc : null;
-        }
-
         private string DisplayUrl(IContent content) {
-            if (content == null) {
-                return String.Empty;
-            }
-
             return _urlHelper.RouteUrl(_contentManager.GetItemMetadata(content).DisplayRouteValues);
-        }
-
         private string EditUrl(IContent content) {
-            if (content == null) {
-                return String.Empty;
-            }
-
             return _urlHelper.RouteUrl(_contentManager.GetItemMetadata(content).EditorRouteValues);
-        }
-
         private string Body(IContent content) {
-            if (content == null) {
-                return String.Empty;
-            }
-
             var bodyPart = content.As<BodyPart>();
             if (bodyPart == null) {
-                return String.Empty;
-            }
-
             return bodyPart.Text;
-        }
-
         //returns Id:* Token
         private static string ContentManagerGetToken(string token) {
             string tokenPrefix, result;
             int chainIndex, tokenLength;
-
             if (token.IndexOf(":") == -1) {
-                return null;
-            }
             tokenPrefix = token.Substring(0, token.IndexOf(":"));
-
             chainIndex = token.IndexOf(".");
             tokenLength = (tokenPrefix + ":").Length;
             if (!token.StartsWith((tokenPrefix + ":"), StringComparison.OrdinalIgnoreCase) || chainIndex <= tokenLength) {
-                return null;
-            }
             else if (chainIndex == 0) {// "." has not be found
                 result = token.Substring(tokenLength);
-            }
             else {
                 result = token.Substring(0, chainIndex);
-            }
-
             // return the resulting id if it is a number, otherwise an empty string
             if (int.TryParse(result.Substring(tokenPrefix.Length + 1), out var contentid)) {
                 return result;
-            }
-            else {
                 return "";
-            }
-        }
     }
 }

@@ -1,6 +1,12 @@
-﻿using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 using Orchard.Projections.Models;
 
 namespace Orchard.Projections.FieldTypeEditors {
@@ -13,36 +19,20 @@ namespace Orchard.Projections.FieldTypeEditors {
         /// Whether this instance can handle a given storage type
         /// </summary>
         bool CanHandle(Type storageType);
-
-        /// <summary>
         /// The name of the form which will represent this editor
-        /// </summary>
         string FormName { get; }
-
-        /// <summary>
         /// Generates a predicate based on the values which were provided
         /// by the user to the editor form
-        /// </summary>
         Action<IHqlExpressionFactory> GetFilterPredicate(dynamic formState);
-
-        /// <summary>
         /// Generates the textual representation of the filter
-        /// </summary>
         LocalizedString DisplayFilter(string fieldName, string storageName, dynamic formState);
-
-        /// <summary>
         /// Defines the relationship to the corresponding field indexing table for this editor
-        /// </summary>
         Action<IAliasFactory> GetFilterRelationship(string aliasName);
     }
-
-
     public static class FieldTypeEditorExtensions {
         public static QueryVersionScopeOptions GetQueryVersionScope(this IFieldTypeEditor editor, string value) {
             if (!Enum.TryParse(value, out QueryVersionScopeOptions versionScope))
                 versionScope = QueryVersionScopeOptions.Published;
-
             return versionScope;
         }
-    }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.AuditTrail.Helpers;
 using Orchard.AuditTrail.Shapes;
@@ -12,20 +20,15 @@ namespace Orchard.AuditTrail.Providers.ContentDefinition.Shapes {
         public ContentTypePartSettingsUpdatedEventShape(ISettingsFormatter settingsFormatter) {
             _settingsFormatter = settingsFormatter;
         }
-
         protected override string EventName {
             get { return ContentTypeAuditTrailEventProvider.PartSettingsUpdated; }
-        }
-
         protected override void OnAlterShape(ShapeDisplayingContext context) {
             var eventData = (IDictionary<string, object>)context.Shape.EventData;
             var oldSettings = _settingsFormatter.Map(XmlHelper.Parse((string)eventData["OldSettings"]));
             var newSettings = _settingsFormatter.Map(XmlHelper.Parse((string)eventData["NewSettings"]));
             var diff = oldSettings.GetDiff(newSettings);
-
             context.Shape.OldSettings = oldSettings;
             context.Shape.NewSettings = newSettings;
             context.Shape.Diff = diff;
-        }
     }
 }

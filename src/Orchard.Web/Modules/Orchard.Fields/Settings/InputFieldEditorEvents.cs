@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
@@ -8,19 +16,15 @@ using System.Globalization;
 
 namespace Orchard.Fields.Settings {
     public class InputFieldListModeEvents : ContentDefinitionEditorEventsBase {
-
         public override IEnumerable<TemplateViewModel> PartFieldEditor(ContentPartFieldDefinition definition) {
             if (definition.FieldDefinition.Name == "InputField") {
                 var model = definition.Settings.GetModel<InputFieldSettings>();
                 yield return DefinitionTemplate(model);
             }
         }
-
         public override IEnumerable<TemplateViewModel> PartFieldEditorUpdate(ContentPartFieldDefinitionBuilder builder, IUpdateModel updateModel) {
             if (builder.FieldType != "InputField") {
                 yield break;
-            }
-
             var model = new InputFieldSettings();
             if (updateModel.TryUpdateModel(model, "InputFieldSettings", null, null)) {
                 builder.WithSetting("InputFieldSettings.Type", model.Type.ToString());
@@ -34,9 +38,6 @@ namespace Orchard.Fields.Settings {
                 builder.WithSetting("InputFieldSettings.EditorCssClass", model.EditorCssClass);
                 builder.WithSetting("InputFieldSettings.MaxLength", model.MaxLength.ToString());
                 builder.WithSetting("InputFieldSettings.DefaultValue", model.DefaultValue);
-            }
-
             yield return DefinitionTemplate(model);
-        }
     }
 }

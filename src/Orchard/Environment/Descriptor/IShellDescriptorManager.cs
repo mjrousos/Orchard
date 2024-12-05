@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.Environment.Descriptor.Models;
 using Orchard.Events;
@@ -13,21 +21,15 @@ namespace Orchard.Environment.Descriptor {
         /// to reinitialize the shell.
         /// </summary>
         ShellDescriptor GetShellDescriptor();
-
-        /// <summary>
         /// Alters databased information to match information passed as arguments.
         /// Prior SerialNumber used for optimistic concurrency, and an exception
         /// should be thrown if the number in storage doesn't match what's provided.
-        /// </summary>
         void UpdateShellDescriptor(
             int priorSerialNumber,
             IEnumerable<ShellFeature> enabledFeatures,
             IEnumerable<ShellParameter> parameters);
-
         
     }
-
     public interface IShellDescriptorManagerEventHandler : IEventHandler {
         void Changed(ShellDescriptor descriptor, string tenant);
-    }
 }

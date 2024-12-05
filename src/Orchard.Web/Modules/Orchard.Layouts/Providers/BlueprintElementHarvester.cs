@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,18 +21,14 @@ namespace Orchard.Layouts.Providers {
     public class BlueprintElementHarvester : Component, IElementHarvester {
         private readonly Work<IElementBlueprintService> _elementBlueprintService;
         private readonly Work<IElementManager> _elementManager;
-
         public BlueprintElementHarvester(Work<IElementBlueprintService> elementBlueprintService, Work<IElementManager> elementManager) {
             _elementBlueprintService = elementBlueprintService;
             _elementManager = elementManager;
         }
-
         public IEnumerable<ElementDescriptor> HarvestElements(HarvestElementsContext context) {
             if (context.IsHarvesting)
                 return Enumerable.Empty<ElementDescriptor>();
-
             var blueprints = _elementBlueprintService.Value.GetBlueprints().ToArray();
-
             var query =
                 from blueprint in blueprints
                 let describeContext = new DescribeElementsContext {Content = context.Content, CacheVaryParam = "Blueprints", IsHarvesting = true }
@@ -45,29 +49,18 @@ namespace Orchard.Layouts.Providers {
                             {"ElementTypeName", baseElement.Descriptor.TypeName}
                         }
                     };
-
             return query.ToArray();
-        }
-
         private static string GetCategory(ElementBlueprint blueprint) {
             return !String.IsNullOrWhiteSpace(blueprint.ElementCategory) ? blueprint.ElementCategory : "Blueprints";
-        }
-
         private void CreatingDisplay(ElementCreatingDisplayShapeContext context, ElementBlueprint blueprint) {
             var bluePrintState = ElementDataHelper.Deserialize(blueprint.BaseElementState);
             context.Element.Data = bluePrintState;
-        }
-
         private void Displaying(ElementDisplayingContext context, Element element) {
             var drivers = _elementManager.Value.GetDrivers(element);
-
             foreach (var driver in drivers) {
                 driver.Displaying(context);
             }
-
             if (element.Descriptor.Displaying != null) {
                 element.Descriptor.Displaying(context);
-            }
-        }
     }
 }

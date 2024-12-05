@@ -1,19 +1,22 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 
 namespace Orchard.Mvc.Filters {
     public interface IFilterProvider : IDependency {
         [Obsolete]
         void AddFilters(FilterInfo filterInfo);
     }
-
     public abstract class FilterProvider : IFilterProvider {
-        [Obsolete]
         void IFilterProvider.AddFilters(FilterInfo filterInfo) {
             AddFilters(filterInfo);
         }
-
-        [Obsolete]
         protected virtual void AddFilters(FilterInfo filterInfo) {
             if (this is IAuthorizationFilter)
                 filterInfo.AuthorizationFilters.Add(this as IAuthorizationFilter);
@@ -23,7 +26,4 @@ namespace Orchard.Mvc.Filters {
                 filterInfo.ResultFilters.Add(this as IResultFilter);
             if (this is IExceptionFilter)
                 filterInfo.ExceptionFilters.Add(this as IExceptionFilter);
-        }
-
-    }
 }

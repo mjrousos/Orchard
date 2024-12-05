@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,17 +24,9 @@ namespace Orchard.ContentManagement.MetaData {
                 .WithPart("WidgetPart")
                 .WithSetting("Stereotype", "Widget");
         }
-
-        /// <summary>
         /// This extension method can be used for easy widget creation. Adds all necessary parts and settings to the part. And adds IdentityPart too.
-        /// </summary>
-        /// <returns>The ContentTypeDefinitionBuilder object on which this method is called.</returns>
         public static ContentTypeDefinitionBuilder AsWidgetWithIdentity(this ContentTypeDefinitionBuilder builder) {
-            return builder
-                .WithPart("CommonPart")
-                .WithPart("WidgetPart")
                 .WithSetting("Stereotype", "Widget")
                 .WithIdentity();
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Messaging;
@@ -12,23 +20,17 @@ namespace Orchard.Environment.State {
     public class ContextState<T> where T : class {
         private readonly string _name;
         private readonly Func<T> _defaultValue;
-
         public ContextState(string name) {
             _name = name;
         }
-
         public ContextState(string name, Func<T> defaultValue) {
-            _name = name;
             _defaultValue = defaultValue;
-        }
-
         public T GetState() {
             if (HttpContext.Current.IsBackgroundHttpContext()) {
                 // Because CallContext Logical Data can be shared across application domains,
                 // here we also check if it's a real local instance, not a tranparent proxy.
                 var handle = CallContext.LogicalGetData(_name) as ObjectHandle;
                 var data = handle != null && !RemotingServices.IsTransparentProxy(handle) ? handle.Unwrap() : null;
-
                 if (data == null) {
                     if (_defaultValue != null) {
                         // Because CallContext Logical Data can be shared across application domains,
@@ -37,24 +39,14 @@ namespace Orchard.Environment.State {
                         return data as T;
                     }
                 }
-
                 return data as T;
             }
-
             if (HttpContext.Current.Items[_name] == null) {
                 HttpContext.Current.Items[_name] = _defaultValue == null ? null : _defaultValue();
-            }
-
             return HttpContext.Current.Items[_name] as T;
-        }
-
         public void SetState(T state) {
-            if (HttpContext.Current.IsBackgroundHttpContext()) {
                 CallContext.LogicalSetData(_name, new ObjectHandle(state));
-            }
             else {
                 HttpContext.Current.Items[_name] = state;
-            }
-        }
     }
 }

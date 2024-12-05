@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Web.Routing;
 using NUnit.Framework;
 using Orchard.Utility.Extensions;
@@ -10,25 +18,13 @@ namespace Orchard.Tests.Utility.Extensions {
             Assert.IsTrue(new RouteValueDictionary { { "controller", "foo" }, { "action", "bar" } }
                 .Match(new RouteValueDictionary { { "controller", "foo" }, { "action", "bar" } }));
         }
-
-        [Test]
         public void CasedRouteValueDictionariesShouldMatch() {
             Assert.IsTrue(new RouteValueDictionary { { "controller", "foo" }, { "action", "BAR" } }
-                .Match(new RouteValueDictionary { { "controller", "foo" }, { "action", "bar" } }));
-        }
         
-        [Test]
         public void RouteValueDictionariesWithDifferentNumbersOfValuesShouldNotMatch() {
             Assert.IsFalse(new RouteValueDictionary { { "controller", "foo" }, { "action", "bar" } }
                 .Match(new RouteValueDictionary { { "controller", "foo" }, { "action", "bar" }, { "area", "baz" } }));
-
-        }
-
-        [Test]
         public void RouteValueDictionariesWithDifferentValuesShouldMatch() {
-            Assert.IsFalse(new RouteValueDictionary { { "controller", "foo" }, { "action", "bar" } }
                 .Match(new RouteValueDictionary { { "controller", "foo" }, { "action", "baz" } }));
-
-        }
     }
 }

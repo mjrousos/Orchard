@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.AuditTrail.Services;
 using Orchard.AuditTrail.Services.Models;
 using Orchard.Environment.Extensions;
@@ -13,7 +21,6 @@ namespace Orchard.AuditTrail.Providers.ContentDefinition {
         public const string FieldRemoved = "FieldRemoved";
         public const string PartSettingsUpdated = "PartSettingsUpdated";
         public const string FieldSettingsUpdated = "FieldSettingsUpdated";
-
         public override void Describe(DescribeContext context) {
             context.For("ContentPart", T("Content Parts"))
                 .Event(this, Created, T("Created"), T("A content part was created."), enableByDefault: true)

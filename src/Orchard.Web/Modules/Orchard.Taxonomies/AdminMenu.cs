@@ -1,5 +1,12 @@
-﻿using Orchard.Localization;
+using Orchard.ContentManagement;
 using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.Localization;
 using Orchard.UI.Navigation;
 
 namespace Orchard.Taxonomies {
@@ -10,19 +17,13 @@ namespace Orchard.Taxonomies {
         }
         public Localizer T { get; set; }
         public string MenuName { get { return "admin"; } }
-
         public void GetNavigation(NavigationBuilder builder) {
             builder
                 .AddImageSet("taxonomies")
                 .Add(T("Taxonomies"), "4", BuildMenu);
-        }
-
         private void BuildMenu(NavigationItemBuilder menu) {
-
             if (_services.Authorizer.Authorize(Permissions.MergeTerms) || _services.Authorizer.Authorize(Permissions.EditTerm) || _services.Authorizer.Authorize(Permissions.CreateTerm) || _services.Authorizer.Authorize(Permissions.DeleteTerm)) {
                 menu.Add(T("Manage Taxonomies"), "1.0", item => item.Action("Index", "Admin", new { area = "Orchard.Taxonomies" }));
             }
-        }
     }
-
 }

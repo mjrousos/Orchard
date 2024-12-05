@@ -1,11 +1,17 @@
-﻿using System.Collections.Generic;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
 using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using System.Web.Routing;
 using Orchard.Mvc.Routes;
 
 namespace Orchard.Search {
     public class Routes : IRouteProvider {
-
         public void GetRoutes(ICollection<RouteDescriptor> routes) {
             var routeDescriptors = new[] {
                 new RouteDescriptor {
@@ -17,43 +23,18 @@ namespace Orchard.Search {
                             {"action", "Index"}
                         },
                         null,
-                        new RouteValueDictionary {
                             {"area", "Orchard.Search"}
-                        },
                         new MvcRouteHandler())
                 },
-                new RouteDescriptor {
-                    Priority = 5,
                     Route = new Route("Search/{searchIndex}",
-                        new RouteValueDictionary {
-                            {"area", "Orchard.Search"},
                             {"controller", "Search"},
                             {"action", "Index"},
                             {"searchIndex", UrlParameter.Optional}
-                        },
-                        null,
-                        new RouteValueDictionary {
-                            {"area", "Orchard.Search"}
-                        },
-                        new MvcRouteHandler())
-                },
-                new RouteDescriptor {
-                    Priority = 5,
                     Route = new Route("Admin/Search/BlogSearch/{blogId}",
-                        new RouteValueDictionary {
-                            {"area", "Orchard.Search"},
                             {"controller", "BlogSearch"},
-                            {"action", "Index"},
                             {"blogId", UrlParameter.Optional}
-                        },
-                        null,
-                        new RouteValueDictionary {
-                            {"area", "Orchard.Search"}
-                        },
-                        new MvcRouteHandler())
                 }
             };
-
             foreach (var routeDescriptor in routeDescriptors)
                 routes.Add(routeDescriptor);
         }

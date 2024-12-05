@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Globalization;
 
@@ -9,40 +17,24 @@ namespace Orchard.Utility {
     /// </summary>
     public class Hash {
         private long _hash;
-
         public string Value {
             get {
                 return _hash.ToString("x", CultureInfo.InvariantCulture);
             }
         }
-
         public override string ToString() {
             return Value;
-        }
-
         public void AddString(string value) {
             if (string.IsNullOrEmpty(value))
                 return;
-
             _hash += GetStringHashCode(value);
-        }
-
         public void AddStringInvariant(string value) {
-            if (string.IsNullOrEmpty(value))
-                return;
-
             AddString(value.ToLowerInvariant());
-        }
-
         public void AddTypeReference(Type type) {
             AddString(type.AssemblyQualifiedName);
             AddString(type.FullName);
-        }
-
         public void AddDateTime(DateTime dateTime) {
             _hash += dateTime.ToBinary();
-        }
-
         /// <summary>
         /// We need a custom string hash code function, because .NET string.GetHashCode()
         /// function is not guaranteed to be constant across multiple executions.
@@ -55,7 +47,5 @@ namespace Orchard.Utility {
                     result = result + (h << 27) + h;
                 }
                 return result;
-            }
-        }
     }
 }

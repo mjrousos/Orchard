@@ -1,8 +1,15 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Web.Mvc;
 
 namespace Orchard.Tests.Modules {
     public static class Values {
@@ -14,18 +21,12 @@ namespace Orchard.Tests.Modules {
             }
             return new ValueProvider<T>(obj);
         }
-
         class ValueProvider<T> : IValueProvider {
             private readonly T _obj;
-
             public ValueProvider(T obj) {
                 _obj = obj;
-            }
-
             public bool ContainsPrefix(string prefix) {
                 return typeof(T).GetProperties().Any(x => x.Name.StartsWith(prefix));
-            }
-
             public ValueProviderResult GetValue(string key) {
                 var property = typeof(T).GetProperty(key);
                 if (property == null)
@@ -34,7 +35,5 @@ namespace Orchard.Tests.Modules {
                     property.GetValue(_obj, null),
                     Convert.ToString(property.GetValue(_obj, null)),
                     null);
-            }
-        }
     }
 }

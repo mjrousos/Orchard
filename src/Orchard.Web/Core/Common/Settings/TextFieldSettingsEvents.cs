@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Globalization;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
 using Orchard.ContentManagement.MetaData.Models;
@@ -9,7 +16,6 @@ using Orchard.Core.Common.ViewModels;
 
 namespace Orchard.Core.Common.Settings {
     public class TextFieldSettingsEvents : ContentDefinitionEditorEventsBase {
-
         public override IEnumerable<TemplateViewModel> PartFieldEditor(ContentPartFieldDefinition definition) {
             if (definition.FieldDefinition.Name == "TextField") {
                 var model = new TextFieldSettingsEventsViewModel {
@@ -19,16 +25,12 @@ namespace Orchard.Core.Common.Settings {
                 yield return DefinitionTemplate(model);
             }
         }
-
         public override IEnumerable<TemplateViewModel> PartFieldEditorUpdate(ContentPartFieldDefinitionBuilder builder, IUpdateModel updateModel) {
             if (builder.FieldType != "TextField") {
                 yield break;
-            }
-
             var model = new TextFieldSettingsEventsViewModel {
                 Settings = new TextFieldSettings()
             };
-
             if (updateModel.TryUpdateModel(model, "TextFieldSettingsEventsViewModel", null, null)) {
                 builder.WithSetting("TextFieldSettings.Flavor", model.Settings.Flavor);
                 builder.WithSetting("TextFieldSettings.Hint", model.Settings.Hint);
@@ -36,9 +38,6 @@ namespace Orchard.Core.Common.Settings {
                 builder.WithSetting("TextFieldSettings.Placeholder", model.Settings.Placeholder);
                 builder.WithSetting("TextFieldSettings.DefaultValue", model.Settings.DefaultValue);
                 builder.WithSetting("TextFieldSettings.MaxLength", model.Settings.MaxLength.ToString());               
-            }
-
             yield return DefinitionTemplate(model);
-        }
     }
 }

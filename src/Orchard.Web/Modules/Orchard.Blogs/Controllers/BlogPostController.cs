@@ -1,13 +1,18 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Linq;
-using System.Web.Mvc;
 using Orchard.Blogs.Extensions;
 using Orchard.Blogs.Models;
 using Orchard.Blogs.Routing;
 using Orchard.Blogs.Services;
 using Orchard.Core.Feeds;
-using Orchard.DisplayManagement;
-using Orchard.Localization;
 using Orchard.Mvc;
 using Orchard.Settings;
 using Orchard.Themes;
@@ -40,49 +45,32 @@ namespace Orchard.Blogs.Controllers {
             T = NullLocalizer.Instance;
             Shape = shapeFactory;
         }
-
         dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public ActionResult ListByArchive(string path, PagerParameters pagerParameters) {
             Pager pager = new Pager(_siteService.GetSiteSettings(), pagerParameters);
-
             var blogPath = _archiveConstraint.FindPath(path);
             var archive = _archiveConstraint.FindArchiveData(path);
-
             if (blogPath == null)
                 return HttpNotFound();
-
             if (archive == null)
-                return HttpNotFound();
-
             BlogPart blogPart = _blogService.Get(blogPath);
             if (blogPart == null)
-                return HttpNotFound();
-
-
             if (archive.ToDateTime() == DateTime.MinValue) {
                 // render the archive data
                 return new ShapeResult(this, Shape.Parts_Blogs_BlogArchives(Blog: blogPart, Archives: _blogPostService.GetArchives(blogPart)));
             }
-
             pager.PageSize = blogPart.PostsPerPage;
-
             var list = Shape.List();
             list.AddRange(_blogPostService.Get(blogPart, archive, pager.GetStartIndex(), pager.PageSize)
                 .Select(b => _services.ContentManager.BuildDisplay(b, "Summary")));
-
             var totalItemCount = _blogPostService.Get(blogPart, archive).Count();
-
             _feedManager.Register(blogPart, _services.ContentManager.GetItemMetadata(blogPart).DisplayText);
-
             var viewModel = Shape.ViewModel()
                 .ContentItems(list)
                 .Blog(blogPart)
                 .ArchiveData(archive)
                 .Pager(Shape.Pager(pager).TotalItemCount(totalItemCount));
-
             return View(viewModel);
-        }
     }
 }

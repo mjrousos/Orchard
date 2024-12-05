@@ -1,30 +1,32 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Lucene.Models;
 using Lucene.Services;
 using Lucene.ViewModels;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
 using Orchard.Indexing;
-using Orchard.Localization;
 using Orchard.UI.Notify;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web.Mvc;
 
 namespace Lucene.Drivers {
     public class LuceneSettingsPartDriver : ContentPartDriver<LuceneSettingsPart> {
         private readonly IIndexManager _indexManager;
         private readonly IEnumerable<ILuceneAnalyzerSelector> _analyzerSelectors;
         private readonly INotifier _notifier;
-
         public Localizer T { get; set; }
-
         public LuceneSettingsPartDriver(IIndexManager indexManager, IEnumerable<ILuceneAnalyzerSelector> analyzerSelectors, INotifier notifier) {
             _indexManager = indexManager;
             _analyzerSelectors = analyzerSelectors;
             _notifier = notifier;
             T = NullLocalizer.Instance;
         }
-
         protected override DriverResult Editor(LuceneSettingsPart part, dynamic shapeHelper) {
             return ContentShape("Parts_LuceneSettings_Edit", () => {
                 MaintainMappings(part);
@@ -37,19 +39,13 @@ namespace Lucene.Drivers {
                          },
                          Prefix: Prefix);
             });
-        }
-
         protected override DriverResult Editor(LuceneSettingsPart part, IUpdateModel updater, dynamic shapeHelper) {
             var viewModel = new LuceneSettingsPartEditViewModel();
             if (updater.TryUpdateModel(viewModel, Prefix, null, null)) {
                 _notifier.Warning(T("Don't forget to rebuild your index in case you have changed its analyzer."));
                 part.LuceneAnalyzerSelectorMappings = viewModel.LuceneAnalyzerSelectorMappings;
-                MaintainMappings(part);
             }
-
             return Editor(part, shapeHelper);
-        }
-
         private void MaintainMappings(LuceneSettingsPart part) {
             var analyzerProviderNames = _analyzerSelectors.Select(analyzerProvider => analyzerProvider.Name);
             var indexNames = _indexManager.GetSearchIndexProvider().List();
@@ -61,9 +57,6 @@ namespace Lucene.Drivers {
                 if (!maintainedMappings.Any(mapping => mapping.IndexName == indexName)) {
                     maintainedMappings.Add(new LuceneAnalyzerSelectorMapping { IndexName = indexName, AnalyzerName = "Default" });
                 }
-            }
-
             part.LuceneAnalyzerSelectorMappings = maintainedMappings;
-        }
     }
 }

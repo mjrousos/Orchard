@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using NuGet;
 
 namespace Orchard.Packaging.Services {
@@ -7,10 +15,8 @@ namespace Orchard.Packaging.Services {
         public string ExtensionType { get; set; }
         public string ExtensionPath { get; set; }
     }
-
     public interface IPackageInstaller : IDependency {
         PackageInfo Install(IPackage package, string location, string applicationPath);
         PackageInfo Install(string packageId, string version, string location, string applicationFolder);
         void Uninstall(string packageId, string applicationFolder);
-    }
 }

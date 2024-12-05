@@ -1,7 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Web;
-using System.Web.Mvc;
 using System.Web.Routing;
 
 namespace Orchard.Mvc.Routes {
@@ -16,15 +23,11 @@ namespace Orchard.Mvc.Routes {
                         {"action", "index"},
                         {"id", ""},
                     },
-                    new RouteValueDictionary {
                         {"controller", new HomeOrAccount()}
-                    },
                     new MvcRouteHandler())
             };
-
             routes.Add(routeDescriptor);
         }
-
         //TEMP: this is hardcoded to allow base web app controllers to pass
         public class HomeOrAccount : IRouteConstraint {
             public bool Match(HttpContextBase httpContext, Route route, string parameterName, RouteValueDictionary values, RouteDirection routeDirection) {
@@ -36,6 +39,5 @@ namespace Orchard.Mvc.Routes {
                 }
                 return false;
             }
-        }
     }
 }

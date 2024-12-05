@@ -1,18 +1,23 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Orchard.ContentManagement;
 using Orchard.Taxonomies.Models;
 
 namespace Orchard.Taxonomies.Services {
     public class TermCountProcessor : ITermCountProcessor {
         private readonly ITaxonomyService _taxonomyService;
-
         public TermCountProcessor(ITaxonomyService taxonomyService) {
             _taxonomyService = taxonomyService;
         }
-
         public void Process(IEnumerable<int> termPartRecordIds)
         {
             var processedTermPartRecordIds = new List<int>();
@@ -24,20 +29,13 @@ namespace Orchard.Taxonomies.Services {
                     }
                 }
             }
-        }
-
         private void ProcessTerm(TermPart termPart, ICollection<int> processedTermPartRecordIds)
-        {
             termPart.Count = (int)_taxonomyService.GetContentItemsCount(termPart);
             processedTermPartRecordIds.Add(termPart.Id);
-
             // Look for a parent term that has not yet been processed
             if (termPart.Container != null) {
                 var parentTerm = termPart.Container.As<TermPart>();
                 if (parentTerm != null && !processedTermPartRecordIds.Contains(parentTerm.Id)) {
                     ProcessTerm(parentTerm, processedTermPartRecordIds);
-                }
-            }
-        }
     }
 }

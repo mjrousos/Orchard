@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +33,6 @@ namespace Orchard.Environment {
         private readonly ISweepGenerator _sweepGenerator;
         private readonly IEnumerable<IOwinMiddlewareProvider> _owinMiddlewareProviders;
         private readonly ShellSettings _shellSettings;
-
         public DefaultOrchardShell(
             IWorkContextAccessor workContextAccessor,
             IEnumerable<IRouteProvider> routeProviders,
@@ -45,49 +52,34 @@ namespace Orchard.Environment {
             _sweepGenerator = sweepGenerator;
             _owinMiddlewareProviders = owinMiddlewareProviders;
             _shellSettings = shellSettings;
-
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
         public ISweepGenerator Sweep { get { return _sweepGenerator; } }
-
         public void Activate() {
             var appBuilder = new AppBuilder();
             appBuilder.Properties["host.AppName"] = _shellSettings.Name;
-
             using (var scope = _workContextAccessor.CreateWorkContextScope()) {
                 var orderedMiddlewares = _owinMiddlewareProviders
                     .SelectMany(p => p.GetOwinMiddlewares())
                     .OrderBy(obj => obj.Priority, new FlatPositionComparer());
-
                 foreach (var middleware in orderedMiddlewares) {
                     middleware.Configure(appBuilder);
                 }
-
                 // Register the Orchard middleware after all others.
                 appBuilder.UseOrchard();
-
                 var pipeline = appBuilder.Build();
                 var allRoutes = new List<RouteDescriptor>();
                 foreach (var routeProvider in _routeProviders) {
                     routeProvider.GetRoutes(allRoutes);
-                }
                 foreach (var routeProvider in _httpRouteProviders) {
-                    routeProvider.GetRoutes(allRoutes);
-                }
-
                 _routePublisher.Publish(allRoutes, pipeline);
                 _modelBinderPublisher.Publish(_modelBinderProviders.SelectMany(provider => provider.GetModelBinders()));
-
                 using (var events = scope.Resolve<Owned<IOrchardShellEvents>>()) {
                     events.Value.Activated();
-                }
             }
             
             _sweepGenerator.Activate();
-        }
-
         public void Terminate() {
             SafelyTerminate(() => {
                 using (var scope = _workContextAccessor.CreateWorkContextScope()) {
@@ -96,21 +88,13 @@ namespace Orchard.Environment {
                     }
                 }  
             });
-
             SafelyTerminate(() => _sweepGenerator.Terminate());
-        }
-
         private void SafelyTerminate(Action action) {
             try {
                 action();
-            }
             catch(Exception ex) {
                 if (ex.IsFatal()) {
                     throw;
-                }
-
                 Logger.Error(ex, "An unexpected error occurred while terminating the Shell");
-            }
-        }
     }
 }

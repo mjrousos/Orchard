@@ -1,16 +1,22 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using Autofac;
 using Moq;
 using NUnit.Framework;
 using Orchard.Caching;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.Records;
 using Orchard.Core.Scheduling.Models;
 using Orchard.Core.Scheduling.Services;
 using Orchard.Data;
-using Orchard.DisplayManagement;
 using Orchard.DisplayManagement.Descriptors;
 using Orchard.DisplayManagement.Implementation;
 using Orchard.Environment.Extensions;
@@ -26,7 +32,6 @@ namespace Orchard.Core.Tests.Scheduling {
         private StubTaskHandler _handler;
         private IBackgroundTask _executor;
         private IRepository<ScheduledTaskRecord> _repository;
-
         public override void Init() {
             base.Init();
             _repository = _container.Resolve<IRepository<ScheduledTaskRecord>>();
@@ -44,15 +49,11 @@ namespace Orchard.Core.Tests.Scheduling {
             builder.RegisterType<DefaultShapeFactory>().As<IShapeFactory>();
             builder.RegisterInstance(new Mock<IContentDefinitionManager>().Object);
             builder.RegisterInstance(new Mock<IContentDisplay>().Object);
-
             builder.RegisterType<ScheduledTaskExecutor>().As<IBackgroundTask>().Named("ScheduledTaskExecutor", typeof(IBackgroundTask));
             builder.RegisterInstance(_handler).As<IScheduledTaskHandler>();
-
             builder.RegisterType<StubExtensionManager>().As<IExtensionManager>();
             builder.RegisterInstance(new Mock<IPageClassBuilder>().Object); 
             builder.RegisterType<DefaultContentDisplay>().As<IContentDisplay>();
-        }
-
         protected override IEnumerable<Type> DatabaseTypes {
             get {
                 return new[] {
@@ -62,67 +63,27 @@ namespace Orchard.Core.Tests.Scheduling {
                                  typeof(ScheduledTaskRecord),
                              };
             }
-        }
-
         public class StubTaskHandler : IScheduledTaskHandler {
             public void Process(ScheduledTaskContext context) {
                 TaskContext = context;
-            }
-
             public ScheduledTaskContext TaskContext { get; private set; }
-        }
-
-
         [Test]
         public void SweepShouldBeCallable() {
             _executor.Sweep();
-        }
-
-        [Test]
         public void RecordsForTheFutureShouldBeIgnored() {
             _repository.Create(new ScheduledTaskRecord { ScheduledUtc = _clock.UtcNow.Add(TimeSpan.FromHours(2)) });
             _repository.Flush();
-            _executor.Sweep();
-            _repository.Flush();
             Assert.That(_repository.Count(x => x != null), Is.EqualTo(1));
-        }
-
-
-        [Test]
         public void RecordsWhenTheyAreExecutedShouldBeDeleted() {
             var task = new ScheduledTaskRecord { TaskType = "Ignore", ScheduledUtc = _clock.UtcNow.Add(TimeSpan.FromHours(2)) };
             _repository.Create(task);
-
-            _repository.Flush();
-            _executor.Sweep();
-
-            _repository.Flush();
             Assert.That(_repository.Count(x => x.TaskType == "Ignore"), Is.EqualTo(1));
-
             _clock.Advance(TimeSpan.FromHours(3));
-
-            _repository.Flush();
-            _executor.Sweep();
-
-            _repository.Flush();
             Assert.That(_repository.Count(x => x.TaskType == "Ignore"), Is.EqualTo(0));
-        }
-
-        [Test]
         public void ScheduledTaskHandlersShouldBeCalledWhenTasksAreExecuted() {
-            var task = new ScheduledTaskRecord { TaskType = "Ignore", ScheduledUtc = _clock.UtcNow.Add(TimeSpan.FromHours(2)) };
-            _repository.Create(task);
-
-            _repository.Flush();
-            _clock.Advance(TimeSpan.FromHours(3));
-
             Assert.That(_handler.TaskContext, Is.Null);
-            _executor.Sweep();
             Assert.That(_handler.TaskContext, Is.Not.Null);
-
             Assert.That(_handler.TaskContext.Task.TaskType, Is.EqualTo("Ignore"));
             Assert.That(_handler.TaskContext.Task.ContentItem, Is.Null);
-        }
     }
 }
-

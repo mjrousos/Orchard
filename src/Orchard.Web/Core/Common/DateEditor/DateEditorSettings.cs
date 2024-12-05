@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Builders;
 using Orchard.ContentManagement.MetaData.Models;
@@ -9,7 +16,6 @@ namespace Orchard.Core.Common.DateEditor {
     public class DateEditorSettings {
         public bool ShowDateEditor { get; set; }
     }
-
     public class DateEditorSettingsEvents : ContentDefinitionEditorEventsBase {
         public override IEnumerable<TemplateViewModel> TypePartEditor(ContentTypePartDefinition definition) {
             if (definition.PartDefinition.Name == "CommonPart") {
@@ -17,15 +23,10 @@ namespace Orchard.Core.Common.DateEditor {
                 yield return DefinitionTemplate(model);
             }
         }
-
         public override IEnumerable<TemplateViewModel> TypePartEditorUpdate(ContentTypePartDefinitionBuilder builder, IUpdateModel updateModel) {
             if (builder.Name == "CommonPart") {
                 var model = new DateEditorSettings();
                 if (updateModel.TryUpdateModel(model, "DateEditorSettings", null, null)) {
                     builder.WithSetting("DateEditorSettings.ShowDateEditor", model.ShowDateEditor.ToString());
                 }
-                yield return DefinitionTemplate(model);
-            }
-        }
-    }
 }

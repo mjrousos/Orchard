@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,18 +17,14 @@ using Orchard.Environment.Configuration;
 
 namespace Orchard.Data {
     public class NoLockInterceptor : EmptyInterceptor, ISessionInterceptor {
-
         private readonly ShellSettings _shellSettings;
         private readonly IEnumerable<INoLockTableProvider> _noLockTableProviders;
-
         public NoLockInterceptor(
             ShellSettings shellSettings,
             IEnumerable<INoLockTableProvider> noLockTableProviders) {
-
             _shellSettings = shellSettings;
             _noLockTableProviders = noLockTableProviders;
         }
-
         private List<string> _tableNames;
         public List<string> TableNames {
             get {
@@ -33,16 +37,10 @@ namespace Orchard.Data {
                 }
                 return _tableNames;
             }
-        }
-
         private string GetPrefixedTableName(string tableName) {
             if (string.IsNullOrWhiteSpace(_shellSettings.DataTablePrefix)) {
                 return tableName;
-            }
-
             return _shellSettings.DataTablePrefix + "_" + tableName;
-        }
-
         // based on https://stackoverflow.com/a/39518098/2669614
         public override SqlString OnPrepareStatement(SqlString sql) {
             // only work on select queries
@@ -83,14 +81,12 @@ namespace Orchard.Data {
                     //            inner join Table3 T3 on T2.FK2 = T3.Id
                     //        where
                     //            (T3.Name in ('example')) and T1.Published = 1)
-                    //
                     // The elements of matches.Groups["Close"].Captures would be, in order, the
                     // following strings:
                     //   A.Id
                     //   'example'
                     //   T3.Name in ('example')
                     //   select distinct T1.Id from Table1 T1 inner join Table2 T2 on T1.FK1 = T2.Id inner join Table3 T3 on T2.FK2 = T3.Id where (T3.Name in ('example')) and T1.Published = 1
-                    //
                     // The first element is in none of the others.
                     // The second string is included in both of the following ones.
                     // The third string is included in the last.
@@ -105,7 +101,6 @@ namespace Orchard.Data {
                     // We should also note that we are only going to alter the substrings that represent
                     // a subquery of the original one. We need to be careful of the fact that we may
                     // have multiple and even nested subqueries.
-
                     // We are only interested in those Captures that involve the tables we are affecting:
                     var affectedCaptures = new List<CaptureWrapper>();
                     // we are going to assign to each CaptureWrapper an identifier that we make sure that
@@ -163,49 +158,29 @@ namespace Orchard.Data {
                                     // propagating them after the first
                                     break;
                                 }
-                            }
-                        }
-                    }
                     // rebuild query
-                    for (int i = 0; i < affectedCaptures.Count; i++) {
-                        var inner = affectedCaptures[i];
                         for (int j = i + 1; j < affectedCaptures.Count; j++) {
                             var outer = affectedCaptures[j];
                             outer.Value = outer.Value
                                 .Replace(inner.Tag, inner.Value);
-                        }
-                    }
                     sql = SqlString.Parse(affectedCaptures.Last().Value);
-                }
-            }
-
             return sql;
-        }
-
         class CaptureWrapper {
             private Capture Source { get; set; }
             public CaptureWrapper(Capture source, IEnumerable<string> tableNames) {
                 Source = source;
                 Value = OriginalValue;
                 TableNames = tableNames;
-            }
-
             public int OriginalIndex { get { return Source.Index; } }
             public int OriginalLength { get { return Source.Length; } }
             public int OriginalEnd { get { return OriginalIndex + OriginalLength; } }
             public string OriginalValue { get { return Source.Value; } }
             public string Value { get; set; }
-
             public IEnumerable<string> TableNames { get; set; }
-
             public string Tag { get; set; }
-
             public bool IsAltered { get; set; }
-
             public void AddNoLockHints() {
                 Value = AddNoLockHints(Value, TableNames);
-            }
-
             private string AddNoLockHints(string query, IEnumerable<string> tableNames) {
                 var trimmed = query.Trim();
                 if (trimmed.StartsWith("SELECT", StringComparison.InvariantCultureIgnoreCase)
@@ -216,13 +191,10 @@ namespace Orchard.Data {
                     var parts = query.ToString().Split().ToList();
                     var fromItem = parts.FirstOrDefault(p => p.Trim().Equals("from", StringComparison.OrdinalIgnoreCase));
                     int fromIndex = fromItem != null ? parts.IndexOf(fromItem) : -1;
-
                     if (fromIndex == -1)
                         return query;
-
                     var whereItem = parts.FirstOrDefault(p => p.Trim().Equals("where", StringComparison.OrdinalIgnoreCase));
                     int whereIndex = whereItem != null ? parts.IndexOf(whereItem) : parts.Count;
-
                     foreach (var tableName in tableNames) {
                         // set NOLOCK for each one of these tables
                         var tableItem = parts
@@ -239,14 +211,11 @@ namespace Orchard.Data {
                                                                                      // we can insert "WITH(NOLOCK)" after that
                                 if (tableIndex == fromIndex + 1
                                     || parts[tableIndex - 1].Equals(",")) {
-
                                     if (parts[tableIndex + 1].Equals("where", StringComparison.OrdinalIgnoreCase)) {
                                         // There is no alias in the query, so we add "WITH(NOLOCK)" immediately after table name but before the "where" clause.
                                         parts.Insert(tableIndex + 1, "WITH(NOLOCK)");
-                                    } else {
                                         // We add "WITH(NOLOCK)" after the table alias.
                                         parts.Insert(tableIndex + 2, "WITH(NOLOCK)");
-                                    }
                                 } else {
                                     // probably doing a join, so edit the next "on" and make it
                                     // "WITH (NOLOCK) on"
@@ -257,20 +226,8 @@ namespace Orchard.Data {
                                         }
                                         if (parts[i].Trim().Equals("on", StringComparison.OrdinalIgnoreCase)) {
                                             parts[i] = "WITH(NOLOCK) on";
-                                            break;
-                                        }
-                                    }
-                                }
                                 IsAltered = true;
-                            }
-                        }
-                    }
-
                     query = string.Join(" ", parts);
-                }
                 return query;
-            }
-        }
-
     }
 }

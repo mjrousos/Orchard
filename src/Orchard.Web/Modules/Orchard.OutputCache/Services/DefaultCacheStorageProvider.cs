@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,12 +17,10 @@ namespace Orchard.OutputCache.Services {
     public class DefaultCacheStorageProvider : IOutputCacheStorageProvider {
         private readonly string _tenantName;
         private readonly WorkContext _workContext;
-
         public DefaultCacheStorageProvider(IWorkContextAccessor workContextAccessor, ShellSettings shellSettings) {
             _workContext = workContextAccessor.GetContext();
             _tenantName = shellSettings.Name;
         }
-
         public void Set(string key, CacheItem cacheItem) {
             _workContext.HttpContext.Cache.Remove(key);
             _workContext.HttpContext.Cache.Add(
@@ -25,13 +31,9 @@ namespace Orchard.OutputCache.Services {
                 System.Web.Caching.Cache.NoSlidingExpiration,
                 System.Web.Caching.CacheItemPriority.Normal,
                 null);
-        }
-
         public void Remove(string key) {
             if (_workContext.HttpContext != null)
                 _workContext.HttpContext.Cache.Remove(key);
-        }
-
         public void RemoveAll() {
             var items = GetCacheItems(0, 100).ToList();
             while (items.Any()) {
@@ -40,12 +42,8 @@ namespace Orchard.OutputCache.Services {
                 }
                 items = GetCacheItems(0, 100).ToList();
             }
-        }
-
         public CacheItem GetCacheItem(string key) {
             return _workContext.HttpContext.Cache.Get(key) as CacheItem;
-        }
-
         public IEnumerable<CacheItem> GetCacheItems(int skip, int count) {
             // the ASP.NET cache can also contain other types of items
             return _workContext.HttpContext.Cache.AsParallel()
@@ -55,14 +53,7 @@ namespace Orchard.OutputCache.Services {
                         .Where(x => x.Tenant.Equals(_tenantName, StringComparison.OrdinalIgnoreCase))
                         .Skip(skip)
                         .Take(count);
-        }
-
         public int GetCacheItemsCount() {
-            return _workContext.HttpContext.Cache.AsParallel()
-                        .Cast<DictionaryEntry>()
-                        .Select(x => x.Value)
-                        .OfType<CacheItem>()
                         .Count(x => x.Tenant.Equals(_tenantName, StringComparison.OrdinalIgnoreCase));
-        }
     }
 }

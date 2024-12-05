@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 using Orchard.Recipes.Models;
 using Orchard.Setup.Annotations;
@@ -7,7 +15,6 @@ namespace Orchard.Setup.ViewModels {
     public class SetupViewModel  {
         public SetupViewModel() {
         }
-
         [SiteNameValid(maximumLength: 70)]
         public string SiteName { get; set; }
         [UserNameValid(minimumLength: 3, maximumLength: 25)]
@@ -21,7 +28,6 @@ namespace Orchard.Setup.ViewModels {
         public string DatabaseConnectionString { get; set; }
         public string DatabaseTablePrefix { get; set; }
         public bool DatabaseIsPreconfigured { get; set; }
-
         public IEnumerable<Recipe> Recipes { get; set; }
         public string Recipe { get; set; }
         public string RecipeDescription { get; set; }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Linq;
 using Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata;
@@ -12,12 +20,9 @@ namespace Orchard.Azure.MediaServices.Models.Assets {
                 _encoderMetadata = null; // Clear out cached metadata.
             }
         }
-
         public string EncodingPreset {
             get { return Storage.Get<string>("EncodingPreset"); }
             set { Storage.Set("EncodingPreset", value); }
-        }
-
         public Metadata EncoderMetadata {
             get {
                 if (_encoderMetadata == null) {
@@ -26,9 +31,6 @@ namespace Orchard.Azure.MediaServices.Models.Assets {
                     }
                 }
                 return _encoderMetadata;
-            }
-        }
-
         protected override string GetMainFileUrl(string locatorUrl) {
             // In the case of a video asset we consider the main file to be the first
             // asset file containing one or more video tracks according to the encoder
@@ -39,9 +41,6 @@ namespace Orchard.Azure.MediaServices.Models.Assets {
                     var builder = new UriBuilder(locatorUrl);
                     builder.Path += "/" + firstVideoFile.Name;
                     return builder.Uri.AbsoluteUri;
-                }
-            }
             return null;
-        }
     }
 }

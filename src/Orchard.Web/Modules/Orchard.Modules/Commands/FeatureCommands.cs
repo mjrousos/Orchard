@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +22,14 @@ namespace Orchard.Modules.Commands {
         private readonly INotifier _notifier;
         private readonly IFeatureManager _featureManager;
         private readonly ShellDescriptor _shellDescriptor;
-
         public FeatureCommands(IModuleService moduleService, INotifier notifier, IFeatureManager featureManager, ShellDescriptor shellDescriptor) {
             _moduleService = moduleService;
             _notifier = notifier;
             _featureManager = featureManager;
             _shellDescriptor = shellDescriptor;
         }
-
         [OrchardSwitch]
         public bool Summary { get; set; }
-
         [CommandHelp("feature list [/Summary:true|false] [partial_feature_name]" + "\r\n\tDisplay list of available features" + "\r\n\tFilter the list by partial_feature_name, if given ")]
         [CommandName("feature list")]
         [OrchardSwitches("Summary")]
@@ -40,7 +45,6 @@ namespace Orchard.Modules.Commands {
             else {
                 Context.Output.WriteLine(T("List of available features"));
                 Context.Output.WriteLine(T("--------------------------"));
-
                 var categories = _featureManager.GetAvailableFeatures().Where(f=>filter(f.Name)).ToList().GroupBy(f => f.Category);
                 foreach (var category in categories) {
                     Context.Output.WriteLine(T("Category: {0}", category.Key.OrDefault(T("General"))));
@@ -52,10 +56,6 @@ namespace Orchard.Modules.Commands {
                         Context.Output.WriteLine(T("    Module:        {0}", feature.Extension.Id.OrDefault(T("<none>"))));
                         Context.Output.WriteLine(T("    Dependencies:  {0}", string.Join(", ", feature.Dependencies).OrDefault(T("<none>"))));
                     }
-                }
-            }
-        }
-
         [CommandHelp("feature enable <feature-name-1> ... <feature-name-n>\r\n\t" + "Enable one or more features")]
         [CommandName("feature enable")]
         public void Enable(params string[] featureNames) {
@@ -66,32 +66,22 @@ namespace Orchard.Modules.Commands {
             foreach (var featureName in featureNames) {
                 if (availableFeatures.Contains(featureName, StringComparer.OrdinalIgnoreCase)) {
                     featuresToEnable.Add(featureName);
-                }
                 else {
                     Context.Output.WriteLine(T("Could not find feature {0}", featureName));
                     listAvailableFeatures = true;
-                }
-            }
             if (featuresToEnable.Count != 0) {
                 _moduleService.EnableFeatures(featuresToEnable, true);
                 foreach (var entry in _notifier.List()) {
                     Context.Output.WriteLine(entry.Message);
-                }
-            }
-            else {
                 Context.Output.WriteLine(T("Could not enable features: {0}", string.Join(",", featureNames)));
                 listAvailableFeatures = true;
-            }
             if (listAvailableFeatures)
                 Context.Output.WriteLine(T("Available features are : {0}", string.Join(",", availableFeatures)));
-        }
-
         [CommandHelp("feature disable <feature-name-1> ... <feature-name-n>\r\n\t" + "Disable one or more features")]
         [CommandName("feature disable")]
         public void Disable(params string[] featureNames) {
             Context.Output.WriteLine(T("Disabling features {0}", string.Join(",", featureNames)));
             _moduleService.DisableFeatures(featureNames, true);
             Context.Output.WriteLine(T("Disabled features  {0}", string.Join(",", featureNames)));
-        }
     }
 }

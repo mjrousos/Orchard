@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 
 namespace Orchard.Environment.State.Models {
@@ -5,27 +13,19 @@ namespace Orchard.Environment.State.Models {
         public ShellState() {
             Features = new List<ShellFeatureState>();
         }
-
         public IEnumerable<ShellFeatureState> Features { get; set; }
     }
-
     public class ShellFeatureState {
         public string Name { get; set; }
         public State InstallState { get; set; }
         public State EnableState { get; set; }
-
         public bool IsInstalled { get { return InstallState == State.Up; } }
         public bool IsEnabled { get { return EnableState == State.Up; } }
         public bool IsDisabled { get { return EnableState == State.Down || EnableState == State.Undefined; } }
-
         public enum State {
             Undefined,
             Rising,
             Up,
             Falling,
             Down,
-        }
-    }
-
-
 }

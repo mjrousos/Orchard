@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.AntiSpam.Models;
 using Orchard.AntiSpam.Services;
 using Orchard.AntiSpam.Settings;
@@ -8,7 +16,6 @@ namespace Orchard.AntiSpam.Handlers {
     public class SpamFilterPartHandler : ContentHandler {
         private readonly ITransactionManager _transactionManager;
         private readonly ISpamService _spamService;
-
         public SpamFilterPartHandler(
             IRepository<SpamFilterPartRecord> repository,
             ITransactionManager transactionManager,
@@ -16,23 +23,17 @@ namespace Orchard.AntiSpam.Handlers {
             ) {
             _transactionManager = transactionManager;
             _spamService = spamService;
-
             Filters.Add(StorageFilter.For(repository));
-
             OnCreating<SpamFilterPart>((context, part) => {
                 part.Status = _spamService.CheckForSpam(part);
             });
-
             OnPublishing<SpamFilterPart>((context, part) => {
                 if (part.Status == SpamStatus.Spam) {
                     if (part.Settings.GetModel<SpamFilterPartSettings>().DeleteSpam) {
                         _transactionManager.Cancel();
                     }
-
                     context.Cancel = true;
                 }
-            });
-
         }
     }
 }

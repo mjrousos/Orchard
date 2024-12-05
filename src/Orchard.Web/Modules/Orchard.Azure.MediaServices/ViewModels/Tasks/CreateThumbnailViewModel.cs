@@ -1,8 +1,15 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.ComponentModel.DataAnnotations;
 
 namespace Orchard.Azure.MediaServices.ViewModels.Tasks {
 	public class CreateThumbnailViewModel {
-
 		public CreateThumbnailViewModel() {
 			FileName = "{OriginalFilename}_{Size}_{ThumbnailTime}_{ThumbnailIndex}.{DefaultExtension}";
 			Width = "*";
@@ -10,45 +17,15 @@ namespace Orchard.Azure.MediaServices.ViewModels.Tasks {
 			StartTime = "0:0:0";
 			Type = "Jpeg";
 		}
-
 		[Required]
 		public string Width {
 			get;
 			set;
-		}
-
-		[Required]
 		public string Height {
-			get;
-			set;
-		}
-
-		[Required]
 		public string Type {
-			get;
-			set;
-		}
-
-		[Required]
 		public string FileName {
-			get;
-			set;
-		}
-
-		[Required]
 		public string StartTime {
-			get;
-			set;
-		}
-
 		public string StopTime {
-			get;
-			set;
-		}
-
 		public string Step {
-			get;
-			set;
-		}
 	}
 }

@@ -1,22 +1,26 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Web.Mvc;
 using Orchard.Collections;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Core.Contents;
 using Orchard.Core.Contents.Settings;
 using Orchard.Environment.Extensions;
 using Orchard.Indexing;
-using Orchard.Localization;
 using Orchard.Localization.Services;
 using Orchard.Logging;
 using Orchard.Search.Helpers;
 using Orchard.Search.Models;
 using Orchard.Search.Services;
-using Orchard.Security;
 using Orchard.Settings;
 using Orchard.UI.Navigation;
 using Orchard.UI.Notify;
@@ -31,7 +35,6 @@ namespace Orchard.Search.Controllers {
         private readonly IContentManager _contentManager;
         private readonly IAuthorizer _authorizer;
         private readonly ICultureManager _cultureManager;
-
         public AdminController(
             IOrchardServices orchardServices,
             ISearchService searchService,
@@ -41,7 +44,6 @@ namespace Orchard.Search.Controllers {
             IContentManager contentManager,
             IAuthorizer authorizer,
             ICultureManager cultureManager) {
-
             _searchService = searchService;
             _siteService = siteService;
             Services = orchardServices;
@@ -50,15 +52,12 @@ namespace Orchard.Search.Controllers {
             _contentManager = contentManager;
             _authorizer = authorizer;
             _cultureManager = cultureManager;
-
             T = NullLocalizer.Instance;
             Logger = NullLogger.Instance;
         }
-
         public IOrchardServices Services { get; set; }
         public ILogger Logger { get; set; }
         public Localizer T { get; set; }
-
         public ActionResult Index(PagerParameters pagerParameters, string searchText = "") {
             var pager = new Pager(_siteService.GetSiteSettings(), pagerParameters);
             var adminSearchSettingsPart = Services.WorkContext.CurrentSite.As<AdminSearchSettingsPart>();
@@ -95,28 +94,21 @@ namespace Orchard.Search.Controllers {
                             .GetSearchIndexProvider()
                             .CreateSearchBuilder(adminSearchSettingsPart.SearchIndex)
                         : new NullSearchBuilder();
-
                         searchBuilder
                             .Parse(searchSettingsPart
                                 .GetSearchFields(adminSearchSettingsPart.SearchIndex),
                                 searchText);
-
                         foreach (var searchableType in searchableTypes) {
                             // filter by type
                             searchBuilder
                                 .WithField("type", searchableType)
                                 .NotAnalyzed()
                                 .AsFilter();
-                        }
                         // filter by culture?
                         if (searchSettingsPart.FilterCulture) {
                             var culture = _cultureManager.GetCurrentCulture(Services.WorkContext.HttpContext);
-
                             // use LCID as the text representation gets analyzed by the query parser
-                            searchBuilder
                                 .WithField("culture", CultureInfo.GetCultureInfo(culture).LCID)
-                                .AsFilter();
-                        }
                         // pagination
                         var totalCount = searchBuilder.Count();
                         if (pager != null) {
@@ -124,7 +116,6 @@ namespace Orchard.Search.Controllers {
                                 .Slice(
                                     (pager.Page > 0 ? pager.Page - 1 : 0) * pager.PageSize,
                                     pager.PageSize);
-                        }
                         // search
                         var searchResults = searchBuilder.Search();
                         // prepare the shape for the page
@@ -133,14 +124,11 @@ namespace Orchard.Search.Controllers {
                             PageSize = pager != null ? (pager.PageSize != 0 ? pager.PageSize : totalCount) : totalCount,
                             TotalItemCount = totalCount
                         };
-                    }
                 } 
             }
             catch (Exception exception) {
                 Logger.Error(T("Invalid search query: {0}", exception.Message).Text);
                 Services.Notifier.Error(T("Invalid search query: {0}", exception.Message));
-            }
-
             var list = Services.New.List();
             foreach (var contentItem in Services.ContentManager.GetMany<IContent>(searchHits.Select(x => x.ContentItemId), VersionOptions.Latest, QueryHints.Empty)) {
                 // ignore search results which content item has been removed
@@ -148,18 +136,12 @@ namespace Orchard.Search.Controllers {
                     searchHits.TotalItemCount--;
                     continue;
                 }
-
                 list.Add(Services.ContentManager.BuildDisplay(contentItem, "SummaryAdmin"));
-            }
-
             var pagerShape = Services.New.Pager(pager).TotalItemCount(searchHits.TotalItemCount);
-
             var viewModel = Services.New.ViewModel()
                 .ContentItems(list)
                 .Pager(pagerShape)
                 .SearchText(searchText);
-
             return View(viewModel);
-        }
     }
 }

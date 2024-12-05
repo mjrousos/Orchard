@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement.MetaData;
 using Orchard.Dashboards.Services;
 using Orchard.Data.Migration;
@@ -11,7 +19,6 @@ namespace Orchard.Dashboards {
                 .WithPart("TitlePart")
                 .WithPart("LayoutPart", p => p
                     .WithSetting("LayoutTypePartSettings.DefaultLayoutData", DefaultDashboardSelector.DefaultLayout)));
-
             return 1;
         } 
     }

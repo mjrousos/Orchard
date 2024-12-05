@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
@@ -9,39 +17,27 @@ namespace Orchard.Projections.Models {
         public virtual string Type { get; set; }
         public virtual string State { get; set; }
         public virtual int Position { get; set; }
-
         public virtual bool ExcludeFromDisplay { get; set; }
         public virtual bool LinkToContent { get; set; }
-
         // Label
         public virtual bool CreateLabel { get; set; }
         [StringLength(255)]
         public virtual string Label { get; set; }
-
         // Styling
         public virtual bool CustomizePropertyHtml { get; set; }
         [StringLength(64)]
         public virtual string CustomPropertyTag { get; set; }
-        [StringLength(64)]
         public virtual string CustomPropertyCss { get; set; }
-
         public virtual bool CustomizeLabelHtml { get; set; }
-        [StringLength(64)]
         public virtual string CustomLabelTag { get; set; }
-        [StringLength(64)]
         public virtual string CustomLabelCss { get; set; }
-
         public virtual bool CustomizeWrapperHtml { get; set; }
-        [StringLength(64)]
         public virtual string CustomWrapperTag { get; set; }
-        [StringLength(64)]
         public virtual string CustomWrapperCss { get; set; }
-
         // No Result
         public virtual string NoResultText { get; set; }
         public virtual bool ZeroIsEmpty { get; set; }
         public virtual bool HideEmpty { get; set; }
-
         // Rewrite Result
         [Obsolete("Set RewriteOutputCondition to \"true\" instead.")]
         public virtual bool RewriteOutput { get; set; }
@@ -54,7 +50,6 @@ namespace Orchard.Projections.Models {
         public virtual bool TrimOnWordBoundary { get; set; }
         public virtual bool PreserveLines { get; set; }
         public virtual bool TrimWhiteSpace { get; set; }
-
         // Parent property
         public virtual LayoutRecord LayoutRecord { get; set; }
     }

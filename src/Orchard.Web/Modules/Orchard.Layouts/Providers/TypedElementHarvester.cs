@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Orchard.Environment;
@@ -9,12 +17,10 @@ namespace Orchard.Layouts.Providers {
     public class TypedElementHarvester : IElementHarvester {
         private readonly Work<IElementManager> _elementManager;
         private readonly Work<IElementFactory> _factory;
-
         public TypedElementHarvester(Work<IElementManager> elementManager, Work<IElementFactory> factory) {
             _elementManager = elementManager;
             _factory = factory;
         }
-
         public IEnumerable<ElementDescriptor> HarvestElements(HarvestElementsContext context) {
             var drivers = _elementManager.Value.GetDrivers();
             var elementTypes = drivers
@@ -22,7 +28,6 @@ namespace Orchard.Layouts.Providers {
                 .Where(x => !x.IsAbstract && !x.IsInterface)
                 .Distinct()
                 .ToArray();
-
             return elementTypes.Select(elementType => {
                 var element = _factory.Value.Activate(elementType);
                 return new ElementDescriptor(elementType, element.Type, element.DisplayText, element.Description, element.Category) {
@@ -32,6 +37,5 @@ namespace Orchard.Layouts.Providers {
                     ToolboxIcon = element.ToolboxIcon
                 };
             });
-        }
     }
 }

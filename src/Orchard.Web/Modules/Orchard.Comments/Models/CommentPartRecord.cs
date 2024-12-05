@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.ContentManagement.Records;
 using Orchard.Data.Conventions;
@@ -12,7 +20,6 @@ namespace Orchard.Comments.Models {
         public virtual DateTime? CommentDateUtc { get; set; }
         [StringLengthMax]
         public virtual string CommentText { get; set; }
-
         // this is a duplicate of CommentsPartRecord FK, but
         // it's kept for compatibility and it can also prevent
         // a lazy load if only the Id value is needed 
@@ -20,7 +27,6 @@ namespace Orchard.Comments.Models {
         public virtual int CommentedOnContainer { get; set; }
         public virtual int? RepliedOn { get; set; }
         public virtual decimal Position { get; set; }
-
         // inverse relationship of CommentsPartRecord.CommentPartRecords
         public virtual CommentsPartRecord CommentsPartRecord { get; set; }
     }

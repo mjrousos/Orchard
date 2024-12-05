@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.ContentManagement.Records;
 using System;
 using System.Collections.Generic;
@@ -9,12 +17,10 @@ namespace Orchard.Users.Models {
         public virtual string UserName { get; set; }
         public virtual string Email { get; set; }
         public virtual string NormalizedUserName { get; set; }
-
         public virtual string Password { get; set; }
         public virtual MembershipPasswordFormat PasswordFormat { get; set; }
         public virtual string HashAlgorithm { get; set; }
         public virtual string PasswordSalt { get; set; }
-
         public virtual UserStatus RegistrationStatus { get; set; }
         public virtual UserStatus EmailStatus { get; set; }
         public virtual string EmailChallengeToken { get; set; }

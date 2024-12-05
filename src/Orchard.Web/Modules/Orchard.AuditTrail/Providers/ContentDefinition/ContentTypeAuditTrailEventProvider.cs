@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using Orchard.AuditTrail.Helpers;
@@ -10,11 +18,9 @@ namespace Orchard.AuditTrail.Providers.ContentDefinition {
     [OrchardFeature("Orchard.AuditTrail.ContentDefinition")]
     public class ContentTypeAuditTrailEventProvider : AuditTrailEventProviderBase {
         private readonly IContentDefinitionManager _contentDefinitionManager;
-
         public ContentTypeAuditTrailEventProvider(IContentDefinitionManager contentDefinitionManager) {
             _contentDefinitionManager = contentDefinitionManager;
         }
-
         public const string Created = "Created";
         public const string Removed = "Removed";
         public const string Imported = "Imported";
@@ -24,7 +30,6 @@ namespace Orchard.AuditTrail.Providers.ContentDefinition {
         public const string TypeSettingsUpdated = "TypeSettingsUpdated";
         public const string PartSettingsUpdated = "PartSettingsUpdated";
         public const string FieldSettingsUpdated = "FieldSettingsUpdated";
-
         public override void Describe(DescribeContext context) {
             context.For("ContentType", T("Content Type"))
                 .Event(this, Created, T("Created"), T("A content type was created."), enableByDefault: true)
@@ -36,26 +41,17 @@ namespace Orchard.AuditTrail.Providers.ContentDefinition {
                 .Event(this, TypeSettingsUpdated, T("Type settings updated"), T("The settings of a content type were updated."), enableByDefault: true)
                 .Event(this, PartSettingsUpdated, T("Part settings updated"), T("The settings of a content part on a content type were updated."), enableByDefault: true)
                 .Event(this, FieldSettingsUpdated, T("Field settings updated"), T("The settings of a content field on a content part on a content type were updated."), enableByDefault: true);
-
             context.QueryFilter(QueryFilter);
             context.DisplayFilter(DisplayFilter);
-        }
-
         private void QueryFilter(QueryFilterContext context) {
             var contentType = context.Filters.Get("contenttype");
-
             if(String.IsNullOrWhiteSpace(contentType))
                 return;
-
             context.Query = context.Query.Where(x => x.EventFilterKey == "contenttype" && x.EventFilterData == contentType);
-        }
-
         private void DisplayFilter(DisplayFilterContext context) {
             var filterDisplay = context.ShapeFactory.AuditTrailFilter__ContentType(
                 ContentType: context.Filters.Get("contenttype"),
                 ContentTypes: _contentDefinitionManager.ListTypeDefinitions().OrderBy(x => x.DisplayName).ToArray());
-
             context.FilterDisplay.Add(filterDisplay);
-        }
     }
 }

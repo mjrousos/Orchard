@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Web.Mvc;
 using Orchard.Events;
 
@@ -8,25 +16,15 @@ namespace Orchard.Forms.Services {
         void Validating(ValidatingContext context);
         void Validated(ValidatingContext context);
     }
-
     public class FormHandler : IFormEventHandler {
-
         public virtual void Building(BuildingContext context) {}
-
         public virtual void Built(BuildingContext context) {}
-
         public virtual void Validating(ValidatingContext context) {}
-
         public virtual void Validated(ValidatingContext context) {}
-    }
-
     public class BuildingContext {
         public dynamic Shape { get; set; }
-    }
-
     public class ValidatingContext {
         public string FormName { get; set; }
         public IValueProvider ValueProvider { get; set; }
         public ModelStateDictionary ModelState { get; set; }
-    }
 }

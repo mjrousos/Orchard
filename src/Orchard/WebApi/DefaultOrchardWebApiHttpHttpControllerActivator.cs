@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Net.Http;
 using System.Web.Http;
@@ -11,12 +19,10 @@ using Orchard.WebApi.Extensions;
 namespace Orchard.WebApi {
     public class DefaultOrchardWebApiHttpControllerActivator : IHttpControllerActivator {
         private readonly HttpConfiguration _configuration;
-
         public DefaultOrchardWebApiHttpControllerActivator(HttpConfiguration configuration)
             : base() {
             _configuration = configuration;
         }
-
         /// <summary>
         /// Tries to resolve an instance for the controller associated with a given service key for the work context scope.
         /// </summary>
@@ -34,36 +40,25 @@ namespace Orchard.WebApi {
                     return true;
                 }
             }
-
             instance = default(T);
             return false;
-        }
         public IHttpController Create(HttpRequestMessage request, HttpControllerDescriptor controllerDescriptor, Type controllerType) {
             var routeData = request.GetRouteData();
-
             HttpControllerContext controllerContext = new HttpControllerContext(_configuration, routeData, request);
             
             // Determine the area name for the request, and fall back to stock orchard controllers
             var areaName = routeData.GetAreaName();
-
             // Service name pattern matches the identification strategy
             var serviceKey = (areaName + "/" + controllerDescriptor.ControllerName).ToLowerInvariant();
-
             // Now that the request container is known - try to resolve the controller information
             Meta<Lazy<IHttpController>> info;
             var workContext = controllerContext.GetWorkContext();
             if (TryResolve(workContext, serviceKey, out info)) {
                 controllerContext.ControllerDescriptor =
                     new HttpControllerDescriptor(_configuration, controllerDescriptor.ControllerName, controllerType);
-
                 var controller = info.Value.Value;
-
                 controllerContext.Controller = controller;
-
                 return controller;
-            }
-
             return null;
-        }
     }
 }

@@ -1,9 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 /*
 // Uncomment this class to provide custom runtime policy for Glimpse
 
 using Glimpse.AspNet.Extensions;
 using Glimpse.Core.Extensibility;
-
 namespace Orchard.Glimpse
 {
     public class GlimpseSecurityPolicy:IRuntimePolicy
@@ -17,16 +24,12 @@ namespace Orchard.Glimpse
 			// {
             //     return RuntimePolicy.Off;
 			// }
-
             return RuntimePolicy.On;
         }
-
         public RuntimeEvent ExecuteOn
-        {
 			// The RuntimeEvent.ExecuteResource is only needed in case you create a security policy
 			// Have a look at http://blog.getglimpse.com/2013/12/09/protect-glimpse-axd-with-your-custom-runtime-policy/ for more details
             get { return RuntimeEvent.EndRequest | RuntimeEvent.ExecuteResource; }
-        }
     }
 }
 */

@@ -1,10 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Globalization;
-using Orchard.Localization;
 using Orchard.Localization.Models;
 using Orchard.Localization.Services;
 using Orchard.Mvc.Html;
-using Orchard.Services;
 
 namespace Orchard.Tokens.Providers {
     public class DateTokens : ITokenProvider {
@@ -13,9 +19,7 @@ namespace Orchard.Tokens.Providers {
         private readonly IDateTimeFormatProvider _dateTimeFormats;
         private readonly IDateFormatter _dateFormatter;
         private readonly IDateLocalizationServices _dateLocalizationServices;
-
         //private readonly Lazy<CultureInfo> _cultureInfo;
-
         public DateTokens(
             IClock clock, 
             IWorkContextAccessor workContextAccessor,
@@ -27,14 +31,11 @@ namespace Orchard.Tokens.Providers {
             _dateTimeFormats = dateTimeFormats;
             _dateFormatter = dateFormatter;
             _dateLocalizationServices = dateLocalizationServices;
-
             //_cultureInfo = new Lazy<CultureInfo>(() => CultureInfo.GetCultureInfo(_workContextAccessor.GetContext().CurrentCulture));
             
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         public void Describe(DescribeContext context) {
             context.For("Date", T("Date/Time"), T("Current date/time tokens"))
                 .Token("Since", T("Since"), T("Relative to the current date/time."), "Date")
@@ -46,8 +47,6 @@ namespace Orchard.Tokens.Providers {
                 .Token("LongDate", T("Long Date"), T("Long date format."))
                 .Token("LongTime", T("Long Time"), T("Long time format."))
                 .Token("Format:*", T("Format:<formatString>"), T("Optional custom date/time format string (e.g. yyyy/MM/dd). For reference see <a target=\"_blank\" href=\"http://msdn.microsoft.com/en-us/library/8kb3ddd4.aspx\">Custom Date and Time Format Strings</a>"), "DateTime");
-        }
-
         public void Evaluate(EvaluateContext context) {
             context.For("Date", () => _clock.UtcNow)
                 // {Date.Since}
@@ -72,14 +71,10 @@ namespace Orchard.Tokens.Providers {
                     token => token == String.Empty ? String.Empty : null,
                     (token, d) => _dateLocalizationServices.ConvertToLocalizedString(d, new DateLocalizationOptions() { EnableTimeZoneConversion = false }))
                 // {Date.Format:<formatString>}
-                .Token(
                     token => token.StartsWith("Format:", StringComparison.OrdinalIgnoreCase) ? token.Substring("Format:".Length) : null,
                     (token, d) => _dateLocalizationServices.ConvertToLocalizedString(d, token, new DateLocalizationOptions() { EnableTimeZoneConversion = false }));
-        }
-
         private string DateTimeRelative(DateTime dateTimeUtc) {
             var time = _clock.UtcNow - dateTimeUtc.ToUniversalTime();
-
             if (time.TotalDays > 7)
                 return _dateLocalizationServices.ConvertToLocalizedString(dateTimeUtc, T("'on' MMM d yyyy 'at' h:mm tt").Text);
             if (time.TotalHours > 24)
@@ -90,8 +85,6 @@ namespace Orchard.Tokens.Providers {
                 return T.Plural("1 minute ago", "{0} minutes ago", time.Minutes).ToString();
             if (time.TotalSeconds > 10)
                 return T.Plural("1 second ago", "{0} seconds ago", time.Seconds).ToString();
-
             return T("a moment ago").ToString();
-        }
     }
 }

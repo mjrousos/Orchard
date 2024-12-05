@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -14,43 +22,29 @@ namespace Orchard.Wcf {
         private readonly IWorkContextAccessor _workContextAccessor;
         private readonly Type _implementationType;
         private readonly IComponentRegistration _componentRegistration;
-
         public OrchardDependencyInjectionServiceBehavior(IWorkContextAccessor workContextAccessor, Type implementationType, IComponentRegistration componentRegistration) {
             if (workContextAccessor == null) {
                 throw new ArgumentNullException("workContextAccessor");
             }
-
             if (implementationType == null) {
                 throw new ArgumentNullException("implementationType");
-            }
-
             if (componentRegistration == null) {
                 throw new ArgumentNullException("componentRegistration");
-            }
-
             _workContextAccessor = workContextAccessor;
             _implementationType = implementationType;
             _componentRegistration = componentRegistration;
         }
-
         public void AddBindingParameters(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase, Collection<ServiceEndpoint> endpoints, BindingParameterCollection bindingParameters) {
-        }
-
         public void ApplyDispatchBehavior(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase) {
             if (serviceDescription == null) {
                 throw new ArgumentNullException("serviceDescription");
-            }
-
             if (serviceHostBase == null) {
                 throw new ArgumentNullException("serviceHostBase");
-            }
-
             IEnumerable<string> source = serviceDescription.Endpoints.Where<ServiceEndpoint>(delegate(ServiceEndpoint ep) {
                 return ep.Contract.ContractType.IsAssignableFrom(this._implementationType);
             }).Select<ServiceEndpoint, string>(delegate(ServiceEndpoint ep) {
                 return ep.Contract.Name;
             });
-
             OrchardInstanceProvider provider = new OrchardInstanceProvider(this._workContextAccessor, this._componentRegistration);
             foreach (ChannelDispatcherBase base2 in serviceHostBase.ChannelDispatchers) {
                 ChannelDispatcher dispatcher = base2 as ChannelDispatcher;
@@ -62,10 +56,6 @@ namespace Orchard.Wcf {
                     }
                     continue;
                 }
-            }
-        }
-
         public void Validate(ServiceDescription serviceDescription, ServiceHostBase serviceHostBase) {
-        }
     }
 }

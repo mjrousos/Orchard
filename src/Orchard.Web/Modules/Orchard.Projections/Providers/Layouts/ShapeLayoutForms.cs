@@ -1,24 +1,26 @@
-﻿using System;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
-using Orchard.Forms.Services;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
+using Orchard.Forms.Services;
 
 namespace Orchard.Projections.Providers.Layouts {
-
     public class ShapeLayoutForms : IFormProvider {
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public ShapeLayoutForms(
             IShapeFactory shapeFactory) {
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             Func<IShapeFactory, object> form =
                 shape => {
-
                     var f = Shape.Form(
                         Id: "ShapeLayout",
                         _Options: Shape.Fieldset(
@@ -31,12 +33,8 @@ namespace Orchard.Projections.Providers.Layouts {
                                 )
                             )
                         );
-
                     return f;
                 };
-
             context.Form("ShapeLayout", form);
-
-        }
     }
 }

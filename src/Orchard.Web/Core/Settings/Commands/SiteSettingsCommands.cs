@@ -1,5 +1,12 @@
-﻿using Orchard.Commands;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.Commands;
 using Orchard.Core.Settings.Models;
 using Orchard.Mvc;
 using Orchard.Mvc.Extensions;
@@ -10,18 +17,13 @@ namespace Orchard.Core.Settings.Commands {
     public class SiteSettingsCommands : DefaultOrchardCommandHandler {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ISiteService _siteService;
-
         public SiteSettingsCommands(IHttpContextAccessor httpContextAccessor, ISiteService siteService) {
             _httpContextAccessor = httpContextAccessor;
             _siteService = siteService;
         }
-
         [OrchardSwitch]
         public string BaseUrl { get; set; }
-
-        [OrchardSwitch]
         public bool Force { get; set; }
-
         [CommandName("site setting set baseurl")]
         [CommandHelp("site setting set baseurl [/BaseUrl:baseUrl] [/Force:true]\r\n\tSet the 'BaseUrl' site settings. If no base url is provided, " +
             "use the current request context heuristic to discover the base url. " +
@@ -36,20 +38,14 @@ namespace Orchard.Core.Settings.Commands {
                     return;
                 }
             }
-
             // Retrieve request URL if BaseUrl not provided as a switch value
             if (string.IsNullOrEmpty(BaseUrl)) {
                 if (_httpContextAccessor.Current().IsBackgroundContext()) {
                     Context.Output.WriteLine(T("No HTTP request available to determine the base url of the site"));
-                    return;
-                }
                 var request = _httpContextAccessor.Current().Request;
                 BaseUrl = request.ToApplicationRootUrlString();
-            }
-
             // Update base url
             _siteService.GetSiteSettings().As<SiteSettingsPart>().BaseUrl = BaseUrl;
             Context.Output.WriteLine(T("'BaseUrl' site setting set to '{0}'", BaseUrl));
-        }
     }
 }

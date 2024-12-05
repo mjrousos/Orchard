@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -32,18 +40,14 @@ namespace Orchard.Tests.Modules.Settings.Blueprint {
             builder.RegisterType<StubEventBus>().As<IEventBus>().SingleInstance();
             builder.RegisterSource(new EventsRegistrationSource());
         }
-
         public class StubEventBus : IEventBus {
             public string LastMessageName { get; set; }
             public IDictionary<string, object> LastEventData { get; set; }
-
             public IEnumerable Notify(string messageName, IDictionary<string, object> eventData) {
                 LastMessageName = messageName;
                 LastEventData = eventData;
                 return new object[0];
             }
-        }
-
         protected override IEnumerable<Type> DatabaseTypes {
             get {
                 return new[] {
@@ -53,112 +57,39 @@ namespace Orchard.Tests.Modules.Settings.Blueprint {
                                  typeof (ShellFeatureRecord),
                                  typeof (ShellParameterRecord),
                              };
-            }
-        }
-
         [Test]
         public void BlueprintShouldBeNullWhenItsNotInitialized() {
             var manager = _container.Resolve<IShellDescriptorManager>();
             var descriptor = manager.GetShellDescriptor();
             Assert.That(descriptor, Is.Null);
-        }
-
-        [Test]
         public void PriorSerialNumberOfZeroIsAcceptableForInitialUpdateAndSerialNumberIsNonzeroAfterwards() {
-            var manager = _container.Resolve<IShellDescriptorManager>();
             manager.UpdateShellDescriptor(
                 0,
                 Enumerable.Empty<ShellFeature>(),
                 Enumerable.Empty<ShellParameter>());
-
-            var descriptor = manager.GetShellDescriptor();
             Assert.That(descriptor, Is.Not.Null);
             Assert.That(descriptor.SerialNumber, Is.Not.EqualTo(0));
-        }
-
-        [Test]
         public void NonZeroInitialUpdateThrowsInvalidOperationException() {
-            var manager = _container.Resolve<IShellDescriptorManager>();
             Assert.Throws<InvalidOperationException>(() => manager.UpdateShellDescriptor(
                 1,
-                Enumerable.Empty<ShellFeature>(),
                 Enumerable.Empty<ShellParameter>()));
-        }
-
-        [Test]
         public void OnlyCorrectSerialNumberOnLaterUpdatesDoesNotThrowException() {
-            var manager = _container.Resolve<IShellDescriptorManager>();
-            manager.UpdateShellDescriptor(
-                0,
-                Enumerable.Empty<ShellFeature>(),
-                Enumerable.Empty<ShellParameter>());
-
-            var descriptor = manager.GetShellDescriptor();
-            Assert.That(descriptor.SerialNumber, Is.Not.EqualTo(0));
-
-            Assert.Throws<InvalidOperationException>(() => manager.UpdateShellDescriptor(
                                                0,
                                                Enumerable.Empty<ShellFeature>(),
                                                Enumerable.Empty<ShellParameter>()));
-
-            Assert.Throws<InvalidOperationException>(() => manager.UpdateShellDescriptor(
                                                descriptor.SerialNumber + 665321,
-                                               Enumerable.Empty<ShellFeature>(),
-                                               Enumerable.Empty<ShellParameter>()));
-
-            manager.UpdateShellDescriptor(
                 descriptor.SerialNumber,
-                Enumerable.Empty<ShellFeature>(),
-                Enumerable.Empty<ShellParameter>());
-
             var descriptor2 = manager.GetShellDescriptor();
             Assert.That(descriptor2.SerialNumber, Is.Not.EqualTo(0));
             Assert.That(descriptor2.SerialNumber, Is.Not.EqualTo(descriptor.SerialNumber));
-
-            Assert.Throws<InvalidOperationException>(() => manager.UpdateShellDescriptor(
-                                               0,
-                                               Enumerable.Empty<ShellFeature>(),
-                                               Enumerable.Empty<ShellParameter>()));
-
-            Assert.Throws<InvalidOperationException>(() => manager.UpdateShellDescriptor(
                                                descriptor.SerialNumber,
-                                               Enumerable.Empty<ShellFeature>(),
-                                               Enumerable.Empty<ShellParameter>()));
-
-            manager.UpdateShellDescriptor(
                 descriptor2.SerialNumber,
-                Enumerable.Empty<ShellFeature>(),
-                Enumerable.Empty<ShellParameter>());
-
-            Assert.Throws<InvalidOperationException>(() => manager.UpdateShellDescriptor(
                                                descriptor2.SerialNumber,
-                                               Enumerable.Empty<ShellFeature>(),
-                                               Enumerable.Empty<ShellParameter>()));
-        }
-
-        [Test]
         public void SuccessfulUpdateRaisesAnEvent() {
-            var manager = _container.Resolve<IShellDescriptorManager>();
             var eventBus = _container.Resolve<IEventBus>() as StubEventBus;
-
             Assert.That(eventBus.LastMessageName, Is.Null);
-
-            Assert.Throws<InvalidOperationException>(() => manager.UpdateShellDescriptor(
                                                5,
-                                               Enumerable.Empty<ShellFeature>(),
-                                               Enumerable.Empty<ShellParameter>()));
-
-            Assert.That(eventBus.LastMessageName, Is.Null);
-
-            manager.UpdateShellDescriptor(
-                0,
-                Enumerable.Empty<ShellFeature>(),
-                Enumerable.Empty<ShellParameter>());
-
             Assert.That(eventBus.LastMessageName, Is.EqualTo("IShellDescriptorManagerEventHandler.Changed"));
-        }
-
-        [Test]
         public void ManagerReturnsStateForFeaturesInDescriptor() {
             var descriptorManager = _container.Resolve<IShellDescriptorManager>();
             var stateManager = _container.Resolve<IShellStateManager>();
@@ -167,11 +98,8 @@ namespace Orchard.Tests.Modules.Settings.Blueprint {
             descriptorManager.UpdateShellDescriptor(
                 0, 
                 new[]{new ShellFeature{ Name="Foo"}},
-                Enumerable.Empty<ShellParameter>());
-
             var state2 = stateManager.GetShellState();
             Assert.That(state2.Features.Count(), Is.EqualTo(1));
             Assert.That(state2.Features, Has.Some.Property("Name").EqualTo("Foo"));
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Environment;
 using Orchard.Environment.Extensions.Models;
 
@@ -16,39 +24,21 @@ namespace Orchard.Data.Migration {
     /// </summary>
     public class DataMigrationCoordinator : IFeatureEventHandler {
         private readonly IDataMigrationManager _dataMigrationManager;
-
         public DataMigrationCoordinator(IDataMigrationManager dataMigrationManager) {
             _dataMigrationManager = dataMigrationManager;
         }
-
         public void Installing(Feature feature) {
             var featureName = feature.Descriptor.Id;
             _dataMigrationManager.Update(featureName);
-        }
-
         public void Installed(Feature feature) {
-        }
-
         public void Enabling(Feature feature) {
-        }
-
         public void Enabled(Feature feature) {
-        }
-
         public void Disabling(Feature feature) {
-        }
-
         public void Disabled(Feature feature) {
-        }
-
         public void Uninstalling(Feature feature) {
-        }
-
         public void Uninstalled(Feature feature) {
-            var featureName = feature.Descriptor.Id;
             if ( _dataMigrationManager.IsFeatureAlreadyInstalled(featureName) ) {
                 _dataMigrationManager.Uninstall(featureName);
             }
-        }
     }
 }

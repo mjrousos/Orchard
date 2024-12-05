@@ -1,9 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Orchard.AuditTrail.Services;
-using Orchard.ContentManagement;
 using Orchard.Logging;
 
 namespace Orchard.AuditTrail.Providers.AuditTrail {
@@ -19,10 +26,8 @@ namespace Orchard.AuditTrail.Providers.AuditTrail {
                     EventCategory = descriptor.CategoryDescriptor.Name.TextHint,
                     EventDisplayName = descriptor.Name.TextHint
                 };
-
             return SerializeEventData(query);
         }
-
         public static string SerializeEventData(IEnumerable<AuditTrailEventSettingEventData> settings) {
             var doc = new XDocument(
                 new XElement("Events",
@@ -32,14 +37,10 @@ namespace Orchard.AuditTrail.Providers.AuditTrail {
                             new XAttribute("IsEnabled", x.IsEnabled),
                             new XAttribute("DisplayName", x.EventDisplayName),
                             new XAttribute("Category", x.EventCategory)))));
-
             return doc.ToString(SaveOptions.DisableFormatting);
-        }
-
         public static IEnumerable<AuditTrailEventSettingEventData> DeserializeEventData(string data, ILogger logger) {
             if (String.IsNullOrWhiteSpace(data))
                 return Enumerable.Empty<AuditTrailEventSettingEventData>();
-
             try {
                 var doc = XDocument.Parse(data);
                 return doc.Element("Events").Elements("Event").Select(x => new AuditTrailEventSettingEventData {
@@ -48,12 +49,9 @@ namespace Orchard.AuditTrail.Providers.AuditTrail {
                     EventDisplayName = x.Attr<string>("DisplayName"),
                     EventCategory = x.Attr<string>("Category")
                 }).ToArray();
-
             }
             catch (Exception ex) {
                 logger.Error(ex, "Error occurred during deserialization of audit trail settings.");
-            }
             return Enumerable.Empty<AuditTrailEventSettingEventData>();
-        }
     }
 }

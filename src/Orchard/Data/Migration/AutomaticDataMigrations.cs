@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using Orchard.Data.Migration.Interpreters;
@@ -20,7 +28,6 @@ namespace Orchard.Data.Migration {
         private readonly IDataMigrationInterpreter _dataMigrationInterpreter;
         private readonly ShellSettings _shellSettings;
         private readonly ITransactionManager _transactionManager;
-
         public AutomaticDataMigrations(
             IDataMigrationManager dataMigrationManager,
             IDataMigrationInterpreter dataMigrationInterpreter,
@@ -28,22 +35,17 @@ namespace Orchard.Data.Migration {
             IDistributedLockService distributedLockService,
             ITransactionManager transactionManager,
             ShellSettings shellSettings) {
-
             _dataMigrationManager = dataMigrationManager;
             _featureManager = featureManager;
             _distributedLockService = distributedLockService;
             _shellSettings = shellSettings;
             _transactionManager = transactionManager;
             _dataMigrationInterpreter = dataMigrationInterpreter;
-
             Logger = NullLogger.Instance;
         }
-
         public ILogger Logger { get; set; }
-
         public void Activated() {
             EnsureDistributedLockSchemaExists();
-
             IDistributedLock @lock;
             if (_distributedLockService.TryAcquireLock(GetType().FullName, TimeSpan.FromMinutes(30), TimeSpan.FromMilliseconds(250), out @lock)) {
                 using (@lock) {
@@ -51,13 +53,11 @@ namespace Orchard.Data.Migration {
                     var theseFeaturesShouldAlwaysBeActive = new[] {
                         "Common", "Containers", "Contents", "Dashboard", "Feeds", "Navigation", "Scheduling", "Settings", "Shapes", "Title"
                     };
-
                     var enabledFeatures = _featureManager.GetEnabledFeatures().Select(f => f.Id).ToList();
                     var featuresToEnable = theseFeaturesShouldAlwaysBeActive.Where(shouldBeActive => !enabledFeatures.Contains(shouldBeActive)).ToList();
                     if (featuresToEnable.Any()) {
                         _featureManager.EnableFeatures(featuresToEnable, true);
                     }
-
                     foreach (var feature in _dataMigrationManager.GetFeaturesThatNeedUpdate()) {
                         try {
                             _dataMigrationManager.Update(feature);
@@ -67,16 +67,10 @@ namespace Orchard.Data.Migration {
                                 throw;
                             }
                             Logger.Error("Could not run migrations automatically on " + feature, ex);
-                        }
-                    }
                 }
             }
-        }
-
         public void Terminating() {
             // No-op.
-        }
-
         /// <summary>
         /// This ensures that the framework migrations have run for the distributed locking feature, as existing Orchard installations will not have the required tables when upgrading.
         /// </summary>
@@ -86,17 +80,12 @@ namespace Orchard.Data.Migration {
             var schemaBuilder = new SchemaBuilder(_dataMigrationInterpreter);
             var distributedLockSchemaBuilder = new DistributedLockSchemaBuilder(_shellSettings, schemaBuilder);
             if (!distributedLockSchemaBuilder.SchemaExists()) {
-
                 // Workaround to avoid some Transaction issue for PostgreSQL.
                 if (_shellSettings.DataProvider.Equals("PostgreSql", StringComparison.OrdinalIgnoreCase)) {
                     _transactionManager.RequireNew();
                     distributedLockSchemaBuilder.CreateSchema();
                     return;
-                }
-
                 distributedLockSchemaBuilder.CreateSchema();
                 _transactionManager.RequireNew();
-            }
-        }
     }
 }

@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Collections.Generic;
-using Orchard.ContentManagement;
 
 namespace Orchard.Tasks.Scheduling {
     public interface IScheduledTaskManager : IDependency {
@@ -8,7 +15,6 @@ namespace Orchard.Tasks.Scheduling {
         
         IEnumerable<IScheduledTask> GetTasks(ContentItem contentItem);
         IEnumerable<IScheduledTask> GetTasks(string taskType, DateTime? scheduledBeforeUtc = null);
-
         void DeleteTasks(ContentItem contentItem, Func<IScheduledTask, bool> predicate = null);
     }
 }

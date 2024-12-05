@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using FluentNHibernate.Conventions;
 using FluentNHibernate.Conventions.AcceptanceCriteria;
@@ -9,15 +17,10 @@ namespace Orchard.Data.Conventions {
         public void Accept(IAcceptanceCriteria<ICollectionInspector> criteria) {
             criteria.Expect(inspector => GetAttribute(inspector) != null);
         }
-
         public void Apply(ICollectionInstance instance) {
             Apply(GetAttribute(instance), instance);
-        }
-
         protected abstract void Apply(T attribute, ICollectionInstance instance);
-
         private static T GetAttribute(ICollectionInspector inspector) {
             return Attribute.GetCustomAttribute(inspector.Member, typeof(T)) as T;
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using FluentNHibernate.Automapping;
 using FluentNHibernate.Cfg;
 using Orchard.Azure.MediaServices.Models.Records;
@@ -15,11 +23,9 @@ namespace Orchard.Azure.MediaServices.Infrastructure.Mappings {
         public void Prepared(FluentConfiguration cfg) {}
         public void Building(Configuration cfg) {}
         public void Finished(Configuration cfg) {}
-
         public void ComputingHash(Hash hash) {
             hash.AddString("AssetRecord.Ignore.InfoSet");
             hash.AddString("TaskRecord.References.Job.Via.JobId");
             hash.AddString("JobRecord.HasMany.Tasks.KeyColumn.JobId");
-        }
     }
 }

@@ -1,5 +1,12 @@
-﻿using Orchard.AntiSpam.Models;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using Orchard.AntiSpam.Models;
 using Orchard.DynamicForms.Elements;
 using Orchard.Environment.Extensions;
 using Orchard.Layouts.Framework.Display;
@@ -14,17 +21,13 @@ namespace Orchard.DynamicForms.Drivers {
     public class ReCaptchaElementDriver : FormsElementDriver<ReCaptcha>{
         private readonly IOrchardServices _services;
         private readonly ITokenizer _tokenizer;
-
         public ReCaptchaElementDriver(IFormsBasedElementServices formsServices, IOrchardServices services, ITokenizer tokenizer) : base(formsServices) {
             _services = services;
             _tokenizer = tokenizer;
         }
-
         protected override EditorResult OnBuildEditor(ReCaptcha element, ElementEditorContext context) {
             var reCaptchaValidation = BuildForm(context, "ReCaptchaValidation", "Validation:10");
             return Editor(context, reCaptchaValidation);
-        }
-
         protected override void DescribeForm(DescribeContext context) {
             context.Form("ReCaptchaValidation", factory => {
                 var shape = (dynamic)factory;
@@ -42,22 +45,16 @@ namespace Orchard.DynamicForms.Drivers {
                         Title: "Show Validation Message",
                         Value: "true",
                         Description: T("Autogenerate a validation message when a validation error occurs for the current anti-spam filter. Alternatively, to control the placement of the validation message you can use the ValidationMessage element instead.")));
-
                 return form;
             });
-        }
-
         protected override void OnDisplaying(ReCaptcha element, ElementDisplayingContext context) {
             var workContext = _services.WorkContext;
             var currentSite = workContext.CurrentSite;
             var settings = currentSite.As<ReCaptchaSettingsPart>();
-
             if (settings.TrustAuthenticatedUsers && workContext.CurrentUser != null) {
                 return;
             }
-
             context.ElementShape.ProcessedName = _tokenizer.Replace(element.Name, context.GetTokenData());
             context.ElementShape.PublicKey = settings.PublicKey;
-        }
     }
 }

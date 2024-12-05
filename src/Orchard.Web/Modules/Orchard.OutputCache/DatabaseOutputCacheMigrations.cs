@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System;
 using System.Data;
 using Orchard.Data.Migration;
@@ -6,7 +14,6 @@ using Orchard.Environment.Extensions;
 namespace Contrib.Cache.Database {
     [OrchardFeature("Orchard.OutputCache.Database")]
     public class DatabaseOutputCacheMigrations : DataMigrationImpl {
-
         public int Create() {
             // Creating table CacheItemRecord
             SchemaBuilder.CreateTable("CacheItemRecord", table => table
@@ -26,14 +33,10 @@ namespace Contrib.Cache.Database {
                 .Column<int>("StatusCode")
                 .Column<string>("Tags", column => column.Unlimited())
             );
-
             SchemaBuilder.AlterTable("CacheItemRecord", table => table
                 .CreateIndex("IDX_CacheItemRecord_CacheKey", "CacheKey")
-            );
-
             return 3;
         }
-
         public int UpdateFrom1() {
             SchemaBuilder.AlterTable("CacheItemRecord",
                     table => {
@@ -42,17 +45,8 @@ namespace Contrib.Cache.Database {
                         table.AddColumn<int>("GraceTime", c => c.Nullable());
                         table.AddColumn<DateTime>("StoredUntilUtc");
                     });
-
             return 2;
-        }
-
         public int UpdateFrom2() {
-            SchemaBuilder.AlterTable("CacheItemRecord",
-                    table => {
                         table.AlterColumn("Output", c => c.Unlimited().WithType(DbType.Binary));
-                    });
-
-            return 3;
-        }
     }
 }

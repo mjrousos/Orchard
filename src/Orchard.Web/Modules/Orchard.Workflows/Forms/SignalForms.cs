@@ -1,12 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
-using System.Web.Mvc;
 using System.Xml.Linq;
 using Newtonsoft.Json;
 using Orchard.Data;
-using Orchard.DisplayManagement;
 using Orchard.Forms.Services;
-using Orchard.Localization;
 using Orchard.Workflows.Activities;
 using Orchard.Workflows.Models;
 
@@ -15,13 +20,11 @@ namespace Orchard.Workflows.Forms {
         private readonly IRepository<ActivityRecord> _activityRecords;
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public SignalForms(IShapeFactory shapeFactory, IRepository<ActivityRecord> activityRecords) {
             _activityRecords = activityRecords;
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             Func<IShapeFactory, dynamic> form =
                 shape => {
@@ -34,47 +37,33 @@ namespace Orchard.Workflows.Forms {
                             Classes: new[] { "text medium" })
                         );
                 };
-
             context.Form("SignalEvent", form);
-
             form =
-                shape => {
                     var f = Shape.Form(
                         Id: "OneOfSignals",
                         _Parts: Shape.SelectList(
-                            Id: "signal", Name: "Signal",
                             Title: T("Available signals"),
                             Description: T("Select a signal."),
                             Size: 1,
                             Multiple: false
                             )
-                        );
-
                     var allEvents = _activityRecords
                         .Table
                         .Where(x => x.Name == SignalActivity.SignalEventName)
                         .Select(x => GetState(x.State))
                         .ToArray()
                         .Select(x => (string)x.Signal);
-
                     foreach (var signal in allEvents) {
                         f._Parts.Add(new SelectListItem { Value = signal, Text = signal });
                     }
-
                     return f;
-                };
-
             context.Form("Trigger", form);
-        }
-
         private dynamic GetState(string state) {
             if (!String.IsNullOrWhiteSpace(state)) {
                 var formatted = JsonConvert.DeserializeXNode(state, "Root").ToString();
                 var serialized = String.IsNullOrEmpty(formatted) ? "{}" : JsonConvert.SerializeXNode(XElement.Parse(formatted));
                 return FormParametersHelper.FromJsonString(serialized).Root;
             }
-
             return FormParametersHelper.FromJsonString("{}");
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Threading;
 using Orchard.FileSystems.AppData;
 
@@ -14,41 +22,30 @@ namespace Orchard.FileSystems.LockFile {
         private readonly string _content;
         private readonly ReaderWriterLockSlim _rwLock;
         private bool _released;
-
         public LockFile(IAppDataFolder appDataFolder, string path, string content, ReaderWriterLockSlim rwLock) {
             _appDataFolder = appDataFolder;
             _path = path;
             _content = content;
             _rwLock = rwLock;
-
             // create the physical lock file
             _appDataFolder.CreateFile(path, content);
         }
-
         public void Dispose() {
             Release();
-        }
-
         public void Release() {
             _rwLock.EnterWriteLock();
-
             try{
                 if (_released || !_appDataFolder.FileExists(_path)) {
                     // nothing to do, might happen if re-granted, and already released
                     return;
                 }
-
                 _released = true;
-
                 // check it has not been granted in the meantime
                 var current = _appDataFolder.ReadFile(_path);
                 if (current == _content) {
                     _appDataFolder.DeleteFile(_path);
-                }
             }
             finally {
                 _rwLock.ExitWriteLock();
-            }
-        }
     }
 }

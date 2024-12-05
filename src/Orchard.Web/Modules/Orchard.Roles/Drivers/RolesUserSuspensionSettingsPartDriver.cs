@@ -1,8 +1,14 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Drivers;
-using Orchard.Localization;
 using Orchard.Roles.Constants;
 using Orchard.Roles.Models;
 using Orchard.Roles.Services;
@@ -11,19 +17,13 @@ using Orchard.Roles.ViewModels;
 namespace Orchard.Roles.Drivers {
     public class RolesUserSuspensionSettingsPartDriver : ContentPartDriver<RolesUserSuspensionSettingsPart> {
         private readonly IRoleService _roleService;
-
         public RolesUserSuspensionSettingsPartDriver(
             IRoleService roleService) {
-
             _roleService = roleService;
-
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         protected override DriverResult Editor(RolesUserSuspensionSettingsPart part, dynamic shapeHelper) {
-
             return ContentShape("Parts_Roles_UserSuspensionSettings_Edit",
                 () => {
                     var vm = BuildVM(part);
@@ -34,17 +34,12 @@ namespace Orchard.Roles.Drivers {
                          Prefix: Prefix
                          );
                 }).OnGroup(T("Users").Text);
-        }
-
         protected override DriverResult Editor(RolesUserSuspensionSettingsPart part, IUpdateModel updater, dynamic shapeHelper) {
-
             var vm = BuildVM(part);
             if (updater.TryUpdateModel(vm, Prefix, null, null)) {
                 part.Configuration = vm.Configuration;
             }
             return Editor(part, shapeHelper);
-        }
-
         private RolesUserSuspensionSettingsViewModel BuildVM(RolesUserSuspensionSettingsPart part) {
             var systemRoles = SystemRoles.GetSystemRoles();
             var allRoles = _roleService
@@ -72,11 +67,8 @@ namespace Orchard.Roles.Drivers {
                     IsSafeFromSuspension = GetConfigurationStatus(part, rr.Id)
                 }));
             return vm;
-        }
-
         private bool GetConfigurationStatus(RolesUserSuspensionSettingsPart part, int rId) {
             var config = part.Configuration?.FirstOrDefault(rsc => rsc.RoleId == rId);
             return config == null ? false : config.IsSafeFromSuspension;
-        }
     }
 }

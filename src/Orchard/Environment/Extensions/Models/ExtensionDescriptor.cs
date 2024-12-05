@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 
 namespace Orchard.Environment.Extensions.Models {
@@ -5,22 +13,14 @@ namespace Orchard.Environment.Extensions.Models {
         public ExtensionDescriptor() {
             LifecycleStatus = LifecycleStatus.Production;
         }
-
         /// <summary>
         /// Virtual path base, "~/Themes", "~/Modules", or "~/Core"
         /// </summary>
         public string Location { get; set; }
-
-        /// <summary>
         /// Folder name under virtual path base
-        /// </summary>
         public string Id { get; set; }
-
         public string VirtualPath { get { return Location + "/" + Id; } }
-
-        /// <summary>
         /// The extension type.
-        /// </summary>
         public string ExtensionType { get; set; }
         
         // extension metadata
@@ -37,7 +37,6 @@ namespace Orchard.Environment.Extensions.Models {
         public string BaseTheme { get; set; }
         public string SessionState { get; set; }
         public LifecycleStatus LifecycleStatus { get; set; }
-
         public IEnumerable<FeatureDescriptor> Features { get; set; }
     }
 }

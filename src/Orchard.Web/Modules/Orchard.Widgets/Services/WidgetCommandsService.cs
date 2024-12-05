@@ -1,13 +1,18 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using Orchard.Commands;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.Aspects;
 using Orchard.Core.Common.Models;
 using Orchard.Core.Navigation.Models;
 using Orchard.Core.Navigation.Services;
-using Orchard.Localization;
-using Orchard.Security;
 using Orchard.Settings;
 using Orchard.Widgets.Models;
 
@@ -18,9 +23,7 @@ namespace Orchard.Widgets.Services {
         private readonly ISiteService _siteService;
         private readonly IMembershipService _membershipService;
         private readonly IContentManager _contentManager;
-
         private const string LoremIpsum = "<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur a nibh ut tortor dapibus vestibulum. Aliquam vel sem nibh. Suspendisse vel condimentum tellus.</p>";
-
         public WidgetCommandsService(
             IWidgetsService widgetsService,
             IMenuService menuService,
@@ -34,9 +37,7 @@ namespace Orchard.Widgets.Services {
             _contentManager = contentManager;
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         public WidgetPart CreateBaseWidget(CommandContext context, string type, string title, string name, string zone, string position, string layer, string identity, bool renderTitle, string owner, string text, bool useLoremIpsumText, string menuName) {
             var widgetTypeNames = _widgetsService.GetWidgetTypeNames().ToList();
             if (!widgetTypeNames.Contains(type)) {
@@ -45,19 +46,12 @@ namespace Orchard.Widgets.Services {
                     string.Join(" ", widgetTypeNames)));
                 return null;
             }
-
             var layerPart = GetLayer(layer);
             if (layerPart == null) {
                 context.Output.WriteLine(T("Creating widget failed : layer {0} was not found.", layer));
-                return null;
-            }
-
             var widget = _widgetsService.CreateWidget(layerPart.ContentItem.Id, type, T(title).Text, position, zone);
-
             if (!String.IsNullOrWhiteSpace(name)) {
                 widget.Name = name.Trim();
-            }
-
             var widgetText = String.Empty;
             if (widget.Has<BodyPart>()) {
                 if (useLoremIpsumText) {
@@ -67,39 +61,23 @@ namespace Orchard.Widgets.Services {
                     if (!String.IsNullOrEmpty(text)) {
                         widgetText = text;
                     }
-                }
                 widget.As<BodyPart>().Text = text;
-            }
-
             widget.RenderTitle = renderTitle;
-
             if (widget.Has<MenuWidgetPart>() && !String.IsNullOrWhiteSpace(menuName)) {
                 var menu = _menuService.GetMenu(menuName);
-
                 if (menu != null) {
                     widget.As<MenuWidgetPart>().MenuContentItemId = menu.ContentItem.Id;
-                }
-            }
-
             if (String.IsNullOrEmpty(owner)) {
                 owner = _siteService.GetSiteSettings().SuperUser;
-            }
             var widgetOwner = _membershipService.GetUser(owner);
             widget.As<ICommonPart>().Owner = widgetOwner;
-
             if (widget.Has<IdentityPart>() && !String.IsNullOrEmpty(identity)) {
                 widget.As<IdentityPart>().Identifier = identity;
-            }
-
             return widget;
-        }
         private LayerPart GetLayer(string layer) {
             var layers = _widgetsService.GetLayers();
             return layers.FirstOrDefault(layerPart => String.Equals(layerPart.Name, layer, StringComparison.OrdinalIgnoreCase));
-        }
-
         public void Publish(WidgetPart widget) {
             _contentManager.Publish(widget.ContentItem);
-        }
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Data.Migration;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Environment.Extensions;
@@ -17,7 +25,6 @@ namespace Orchard.Alias {
                     .WithSetting("Description", "A menu item that can be used to generate breadcrumb links, using Alias data, to content items without explicitly adding links to those content items in the menu.")
                     .WithSetting("Stereotype", "MenuItem")
                 );
-
             return 1;
         }
     }

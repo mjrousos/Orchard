@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.OutputCache.Models;
 
@@ -10,7 +18,6 @@ namespace Orchard.OutputCache.Services {
         /// <param name="key">The unique key representing the <see cref="CacheItem"/>.</param>
         /// <param name="cacheItem">The <see cref="CacheItem"/> instance to add to the cache.</param>
         void Set(string key, CacheItem cacheItem);
-
         void Remove(string key);
         void RemoveAll();
         

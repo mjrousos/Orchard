@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Xml.Linq;
 using Autofac;
 using NUnit.Framework;
@@ -10,7 +18,6 @@ namespace Orchard.Tests.Modules.Recipes.RecipeHandlers {
     [TestFixture]
     public class RecipeExecutionStepHandlerTest {
         protected IContainer _container;
-
         [SetUp]
         public void Init() {
             var builder = new ContainerBuilder();
@@ -18,41 +25,26 @@ namespace Orchard.Tests.Modules.Recipes.RecipeHandlers {
             builder.RegisterType<StubRecipeExecutionStep>().As<IRecipeExecutionStep>().AsSelf().SingleInstance();
             builder.RegisterType<RecipeExecutionStepHandler>().SingleInstance();
             builder.RegisterType<RecipeExecutionStepResolver>().As<IRecipeExecutionStepResolver>().SingleInstance();
-
            _container = builder.Build();
         }
-
         [Test]
         public void ExecuteRecipeExecutionStepHandlerTest() {
             var handlerUnderTest = _container.Resolve<RecipeExecutionStepHandler>();
             var fakeRecipeStep = _container.Resolve<StubRecipeExecutionStep>();
-
             var context = new RecipeContext {
                 RecipeStep = new RecipeStep (id: "1", recipeName: "FakeRecipe",  name: "FakeRecipeStep", step: new XElement("FakeRecipeStep")),
                 ExecutionId = "12345"
             };
-
             handlerUnderTest.ExecuteRecipeStep(context);
-
             Assert.That(fakeRecipeStep.IsExecuted, Is.True);
             Assert.That(context.Executed, Is.True);
-        }
     }
-
     public class StubRecipeExecutionStep : RecipeExecutionStep {
-
         public StubRecipeExecutionStep(
             RecipeExecutionLogger logger) : base(logger) {
-        }
-
         public override string Name {
             get { return "FakeRecipeStep"; }
-        }
-
         public bool IsExecuted { get; set; }
-
         public override void Execute(RecipeExecutionContext context) {
             IsExecuted = true;
-        }
-    }
 }

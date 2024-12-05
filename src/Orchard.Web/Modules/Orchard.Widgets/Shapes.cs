@@ -1,5 +1,12 @@
-﻿using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 using Orchard.DisplayManagement.Descriptors;
 using Orchard.Utility.Extensions;
 using Orchard.Widgets.Models;
@@ -15,39 +22,29 @@ namespace Orchard.Widgets {
                 .OnCreated(created => {
                     var widget = created.Shape;
                     widget.Child.Add(created.New.PlaceChildContent(Source: widget));
-                })
                 .OnDisplaying(displaying => {
                     var widget = displaying.Shape;
                     widget.Classes.Add("widget");
-
                     ContentItem contentItem = displaying.Shape.ContentItem;
                     if (contentItem != null) {
                         var widgetPart = contentItem.As<WidgetPart>();
                         var zoneName = widgetPart.Zone;
-
                         widget.Classes.Add("widget-" + contentItem.ContentType.HtmlClassify());
                         widget.Classes.Add("widget-" + zoneName.HtmlClassify());
-
                         // Widget__[ZoneName] e.g. Widget-SideBar
                         displaying.ShapeMetadata.Alternates.Add("Widget__" + zoneName);
-
                         // Widget__[ContentType] e.g. Widget-BlogArchive
                         displaying.ShapeMetadata.Alternates.Add("Widget__" + contentItem.ContentType);
-
                         // using the technical name to add a CSS class and an alternate
                         if (!String.IsNullOrWhiteSpace(widgetPart.Name)) {
                             widget.Classes.Add("widget-" + widgetPart.Name);
-
                             // Widget__Name__[Name]
                             // Replacing dashes to shape type-compatible double underscores.
                             displaying.ShapeMetadata.Alternates.Add("Widget__Name__" + widgetPart.Name.Replace("-", "__"));
                         }
-
                         // Adding other css classes to the widget.
                         if (!String.IsNullOrWhiteSpace(widgetPart.CssClasses)) {
                             widget.Classes.Add(widgetPart.CssClasses);
-                        }
-
                     }
                 });
         }

@@ -1,18 +1,22 @@
-﻿using System.Web.Mvc;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
-using Orchard.Forms.Services;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Web.Mvc;
+using Orchard.Forms.Services;
 
 namespace Orchard.Rules.Providers {
     public class NotificationForms : IFormProvider {
         protected dynamic Shape { get; set; }
         public Localizer T { get; set; }
-
         public NotificationForms(IShapeFactory shapeFactory) {
             Shape = shapeFactory;
             T = NullLocalizer.Instance;
         }
-
         public void Describe(DescribeContext context) {
             context.Form("ActionNotify",
                 shape => Shape.Form(
@@ -31,6 +35,5 @@ namespace Orchard.Rules.Providers {
                     Classes: new[] { "text medium", "tokenized" })
                 )
             );
-        }
     }
 }

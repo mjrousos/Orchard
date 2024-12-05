@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.IO;
 using System.Text;
@@ -18,7 +26,6 @@ namespace Orchard.WarmupStarter {
             var url = ToUrlString(httpApplication.Request);
             var virtualFileCopy = WarmupUtility.EncodeUrl(url.Trim('/'));
             var localCopy = Path.Combine(HostingEnvironment.MapPath(WarmupFilesPath), virtualFileCopy);
-
             if (File.Exists(localCopy)) {
                 // result should not be cached, even on proxies
                 httpApplication.Response.Cache.SetExpires(DateTime.UtcNow.AddDays(-1));
@@ -26,30 +33,20 @@ namespace Orchard.WarmupStarter {
                 httpApplication.Response.Cache.SetRevalidation(HttpCacheRevalidation.AllCaches);
                 httpApplication.Response.Cache.SetCacheability(HttpCacheability.NoCache);
                 httpApplication.Response.Cache.SetNoStore();
-
                 httpApplication.Response.WriteFile(localCopy);
                 httpApplication.Response.End();
                 return true;
             }
-
             // there is no local copy and the file exists
             // serve the static file
             if (File.Exists(httpApplication.Request.PhysicalPath)) {
-                return true;
-            }
-
             return false;
         }
-
         public static string ToUrlString(HttpRequest request) {
             return string.Format("{0}://{1}{2}", request.Url.Scheme, request.Headers["Host"], request.RawUrl);
-        }
-
         public static string EncodeUrl(string url) {
             if (String.IsNullOrWhiteSpace(url)) {
                 throw new ArgumentException("url can't be empty");
-            }
-
             var sb = new StringBuilder();
             foreach (var c in url.ToLowerInvariant()) {
                 // only accept alphanumeric chars
@@ -62,10 +59,6 @@ namespace Orchard.WarmupStarter {
                     foreach (var b in Encoding.UTF8.GetBytes(new[] { c })) {
                         sb.Append(b.ToString("X"));
                     }
-                }
-            }
-
             return sb.ToString();
-        }
     }
 }

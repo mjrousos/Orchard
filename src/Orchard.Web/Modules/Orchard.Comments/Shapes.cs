@@ -1,9 +1,13 @@
-using System.IO;
-using System.Web.Mvc;
-using System.Web.Mvc.Html;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
 using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System.IO;
+using System.Web.Mvc.Html;
 using Orchard.Mvc.Html;
 using Orchard.Utility.Extensions;
 
@@ -12,13 +16,10 @@ namespace Orchard.Comments {
         public Shapes() {
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         [Shape]
         public void CommentSummaryLinks(dynamic Display, TextWriter Output, HtmlHelper Html, ContentItem item, int count, int pendingCount) {
             var commentText = "";
-
             if (item.Id != 0) {
                 var totalCommentCount = count + pendingCount;
                 var totalCommentText = T.Plural("1 comment", "{0} comments", totalCommentCount);
@@ -36,8 +37,6 @@ namespace Orchard.Comments {
                                 id = item.Id,
                                 returnUrl = Html.ViewContext.HttpContext.Request.RawUrl
                             });
-                }
-
                 if (pendingCount > 0) {
                     commentText += " " + Html.ActionLink(T("({0} pending)", pendingCount).ToString(),
                                                    "Details",
@@ -47,10 +46,7 @@ namespace Orchard.Comments {
                                                        id = item.Id,
                                                        returnUrl = Html.ViewContext.HttpContext.Request.Url
                                                    });
-                }
             }
-
             Output.Write(commentText);
-        }
     }
 }

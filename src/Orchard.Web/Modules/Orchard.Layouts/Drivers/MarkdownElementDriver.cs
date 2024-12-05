@@ -1,9 +1,16 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Environment.Extensions;
 using Orchard.Layouts.Framework.Display;
 using Orchard.Layouts.Framework.Drivers;
 using Orchard.Layouts.Helpers;
 using Orchard.Layouts.ViewModels;
-using Orchard.Services;
 using MarkdownElement = Orchard.Layouts.Elements.Markdown;
 
 namespace Orchard.Layouts.Drivers
@@ -14,23 +21,18 @@ namespace Orchard.Layouts.Drivers
         public MarkdownElementDriver(IHtmlFilterProcessor htmlFilterProcessor) {
             _htmlFilterProcessor = htmlFilterProcessor;
         }
-
         protected override EditorResult OnBuildEditor(MarkdownElement element, ElementEditorContext context) {
             var viewModel = new MarkdownEditorViewModel {
                 Text = element.Content
             };
             var editor = context.ShapeFactory.EditorTemplate(TemplateName: "Elements.Markdown", Model: viewModel);
-
             if (context.Updater != null) {
                 context.Updater.TryUpdateModel(viewModel, context.Prefix, null, null);
                 element.Content = viewModel.Text;
             }
             
             return Editor(context, editor);
-        }
-
         protected override void OnDisplaying(MarkdownElement element, ElementDisplayingContext context) {
             context.ElementShape.ProcessedContent = _htmlFilterProcessor.ProcessFilters(element.Content, new HtmlFilterContext { Flavor = "markdown", Data = context.GetTokenData() });
-        }
     }
 }

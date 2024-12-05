@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using Orchard.Azure.MediaServices.Models.Jobs;
@@ -5,7 +13,6 @@ using Orchard.Data.Conventions;
 
 namespace Orchard.Azure.MediaServices.Models.Records {
     public class JobRecord {
-
         public JobRecord() {
             Tasks = new List<TaskRecord>();
         }

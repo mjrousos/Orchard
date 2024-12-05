@@ -1,11 +1,17 @@
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using Orchard.ContentManagement.MetaData;
 using Orchard.Data;
 using Orchard.Environment.Configuration;
 using Orchard.Environment.Descriptor;
 using Orchard.Environment.Extensions;
 using Orchard.Environment.State;
-using Orchard.Security;
 using Orchard.Taxonomies.Models;
 using Orchard.UI.Notify;
 
@@ -21,7 +27,6 @@ namespace Orchard.Taxonomies.Services {
         private readonly IProcessingEngine _processingEngine;
         private readonly ShellSettings _shellSettings;
         private readonly IShellDescriptorManager _shellDescriptorManager;
-
         public TaxonomyServiceDraftable(
             IRepository<TermContentItem> termContentItemRepository,
             IContentManager contentManager,
@@ -54,22 +59,15 @@ namespace Orchard.Taxonomies.Services {
         
         public override TaxonomyPart GetTaxonomy(int id) {
             return _contentManager.Get(id, VersionOptions.Latest).As<TaxonomyPart>();
-        }
-        
         public override IContentQuery<TaxonomyPart, TaxonomyPartRecord> GetTaxonomiesQuery() {
             return base.GetTaxonomiesQuery().ForVersion(VersionOptions.Latest);
-        }
-
         public override IContentQuery<TermPart, TermPartRecord> GetTermsQuery() {
             return base.GetTermsQuery().ForVersion(VersionOptions.Latest);
-        }
-
         protected override void PublishTerm(TermPart term) {
             // Only publish the Term if it was published already.
             if (term.ContentItem.HasPublished() && !term.ContentItem.IsPublished()) {
                 var contentItem = _contentManager.Get(term.ContentItem.Id, VersionOptions.DraftRequired);
                 _contentManager.Publish(contentItem);
             }
-        }
     }
 }

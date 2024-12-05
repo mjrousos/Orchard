@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 
 namespace Orchard.ContentManagement.Utilities {
@@ -5,41 +13,28 @@ namespace Orchard.ContentManagement.Utilities {
         private T _value;
         private Func<T> _loader;
         private Func<T, T> _setter;
-
         public T Value {
             get { return GetValue(); }
             set { SetValue(value); }
         }
-
         public void Loader(Func<T> loader) {
             _loader = loader;
-        }
-
         [Obsolete]
         public void Loader(Func<T, T> loader) {
             _loader = () => loader(_value);
-        }
-
         public void Setter(Func<T, T> setter) {
             _setter = setter;
-        }
-
         private T GetValue() {
             if (_loader != null) {
                 _value = _loader();
                 _loader = null;
             }
             return _value;
-        }
-
         private void SetValue(T value) {
             _loader = null;
             if (_setter != null) {
                 _value = _setter(value);
-            }
             else {
                 _value = value;
-            }
-        }
     }
 }

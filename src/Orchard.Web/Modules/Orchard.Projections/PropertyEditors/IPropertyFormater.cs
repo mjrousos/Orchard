@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Projections.ModelBinding;
 
@@ -11,10 +19,7 @@ namespace Orchard.Projections.PropertyEditors {
         /// Returns the form for a specific type
         /// </summary>
         string GetForm(Type type);
-
-        /// <summary>
         /// Formats the value based on the Form state, for a specific type
-        /// </summary>
         dynamic Format(Type type, object value, dynamic formState);
     }
 }

@@ -1,6 +1,12 @@
-﻿using System;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System;
 
 namespace Orchard.Projections.FilterEditors {
     /// <summary>
@@ -12,15 +18,9 @@ namespace Orchard.Projections.FilterEditors {
         /// Returns the form for a specific type
         /// </summary>
         string GetForm(Type type);
-
-        /// <summary>
         /// Returns a predicate representing the filter for a specific type
-        /// </summary>
         Action<IHqlExpressionFactory> Filter(Type type, string property, dynamic formState);
-
-        /// <summary>
         /// Returns a textual description of a filter
-        /// </summary>
         LocalizedString Display(Type type, string property, dynamic formState);
     }
 }

@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +22,6 @@ namespace Orchard.Blogs.BlogsLocalizationExtensions.Migrations {
         cfg => cfg
             .WithPart("LocalizationPart"));
             ContentDefinitionManager.AlterTypeDefinition("BlogPost",
-        cfg => cfg
-            .WithPart("LocalizationPart"));
             return 1;
         }
     }

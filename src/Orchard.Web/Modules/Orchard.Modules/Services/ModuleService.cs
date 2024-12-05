@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +15,6 @@ using Orchard.Environment.Extensions.Models;
 using Orchard.Environment.Descriptor;
 using Orchard.Environment.Features;
 using Orchard.FileSystems.VirtualPath;
-using Orchard.Localization;
 using Orchard.Modules.Models;
 using Orchard.UI.Notify;
 
@@ -18,7 +25,6 @@ namespace Orchard.Modules.Services {
         private readonly IExtensionManager _extensionManager;
         private readonly IShellDescriptorManager _shellDescriptorManager;
         private readonly ICacheManager _cacheManager;
-
         public ModuleService(
                 IFeatureManager featureManager,
                 IOrchardServices orchardServices,
@@ -26,25 +32,19 @@ namespace Orchard.Modules.Services {
                 IExtensionManager extensionManager,
                 IShellDescriptorManager shellDescriptorManager,
                 ICacheManager cacheManager) {
-
             Services = orchardServices;
-
             _featureManager = featureManager;
             _virtualPathProvider = virtualPathProvider;
             _extensionManager = extensionManager;
             _shellDescriptorManager = shellDescriptorManager;
             _cacheManager = cacheManager;
-
             if (_featureManager.FeatureDependencyNotification == null) {
                 _featureManager.FeatureDependencyNotification = GenerateWarning;
             }
-
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
         public IOrchardServices Services { get; set; }
-
         /// <summary>
         /// Retrieves an enumeration of the available features together with its state (enabled / disabled).
         /// </summary>
@@ -55,51 +55,25 @@ namespace Orchard.Modules.Services {
                 .SelectMany(m => _extensionManager.LoadFeatures(m.Features))
                 .Select(f => AssembleModuleFromDescriptor(f, enabledFeatures
                     .FirstOrDefault(sf => string.Equals(sf.Name, f.Descriptor.Id, StringComparison.OrdinalIgnoreCase)) != null));
-        }
-
-        /// <summary>
         /// Enables a list of features.
-        /// </summary>
         /// <param name="featureIds">The IDs for the features to be enabled.</param>
         public void EnableFeatures(IEnumerable<string> featureIds) {
             EnableFeatures(featureIds, false);
-        }
-
-        /// <summary>
-        /// Enables a list of features.
-        /// </summary>
-        /// <param name="featureIds">The IDs for the features to be enabled.</param>
         /// <param name="force">Boolean parameter indicating if the feature should enable it's dependencies if required or fail otherwise.</param>
         public void EnableFeatures(IEnumerable<string> featureIds, bool force) {
             foreach (string featureId in _featureManager.EnableFeatures(featureIds, force)) {
                 var featureName = _featureManager.GetAvailableFeatures().First(f => f.Id.Equals(featureId, StringComparison.OrdinalIgnoreCase)).Name;
                 Services.Notifier.Success(T("{0} was enabled", featureName));
-            }
-        }
-
-        /// <summary>
         /// Disables a list of features.
-        /// </summary>
         /// <param name="featureIds">The IDs for the features to be disabled.</param>
         public void DisableFeatures(IEnumerable<string> featureIds) {
             DisableFeatures(featureIds, false);
-        }
-
-        /// <summary>
-        /// Disables a list of features.
-        /// </summary>
-        /// <param name="featureIds">The IDs for the features to be disabled.</param>
         /// <param name="force">Boolean parameter indicating if the feature should disable the features which depend on it if required or fail otherwise.</param>
         public void DisableFeatures(IEnumerable<string> featureIds, bool force) {
             foreach (string featureId in _featureManager.DisableFeatures(featureIds, force)) {
                 var featureName = _featureManager.GetAvailableFeatures().Single(f => f.Id.Equals(featureId, StringComparison.OrdinalIgnoreCase)).Name;
                 Services.Notifier.Success(T("{0} was disabled", featureName));
-            }
-        }
-
-        /// <summary>
         /// Determines if a module was recently installed by using the project's last written time.
-        /// </summary>
         /// <param name="extensionDescriptor">The extension descriptor.</param>
         public bool IsRecentlyInstalled(ExtensionDescriptor extensionDescriptor) {
             DateTime lastWrittenUtc = _cacheManager.Get(extensionDescriptor, descriptor => {
@@ -108,48 +82,31 @@ namespace Orchard.Modules.Services {
                     // If project file was modified less than 24 hours ago, the module was recently deployed
                     return _virtualPathProvider.GetFileLastWriteTimeUtc(projectFile);
                 }
-
                 return DateTime.UtcNow;
             });
-
             return DateTime.UtcNow.Subtract(lastWrittenUtc) < new TimeSpan(1, 0, 0, 0);
-        }
-
         public IEnumerable<FeatureDescriptor> GetDependentFeatures(string featureId) {
             var dependants = _featureManager.GetDependentFeatures(featureId);
             var availableFeatures = _featureManager.GetAvailableFeatures().ToLookup(f => f.Id, StringComparer.OrdinalIgnoreCase);
-
             return dependants
                 .SelectMany(id => availableFeatures[id])
                 .ToList();
-        }
-
-        /// <summary>
         /// Retrieves the full path of the manifest file for a module's extension descriptor.
-        /// </summary>
         /// <param name="extensionDescriptor">The module's extension descriptor.</param>
         /// <returns>The full path to the module's manifest file.</returns>
         private string GetManifestPath(ExtensionDescriptor extensionDescriptor) {
             string projectPath = _virtualPathProvider.Combine(extensionDescriptor.Location, extensionDescriptor.Id, "module.txt");
-
             if (!_virtualPathProvider.FileExists(projectPath)) {
                 return null;
-            }
-
             return projectPath;
-        }
-
         private static ModuleFeature AssembleModuleFromDescriptor(Feature feature, bool isEnabled) {
             return new ModuleFeature {
                                          Descriptor = feature.Descriptor,
                                          IsEnabled = isEnabled
                                      };
-        }
-
         private void GenerateWarning(string messageFormat, string featureName, IEnumerable<string> featuresInQuestion) {
             if (featuresInQuestion.Count() < 1)
                 return;
-
             Services.Notifier.Warning(T(
                 messageFormat,
                 featureName,
@@ -163,6 +120,5 @@ namespace Orchard.Modules.Services {
                                                    ? "{0} and "
                                                    : "{0}, "), fn).ToString()).ToArray())
                     : featuresInQuestion.First()));
-        }
     }
 }

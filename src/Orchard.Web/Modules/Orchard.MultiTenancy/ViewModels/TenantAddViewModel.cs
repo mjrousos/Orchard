@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.ComponentModel.DataAnnotations;
 using Orchard.MultiTenancy.Annotations;
 using System.Collections.Generic;
@@ -10,7 +18,6 @@ namespace Orchard.MultiTenancy.ViewModels {
             Themes = new List<ThemeEntry>();
             Modules = new List<ModuleEntry>();
         }
-
         [Required]
         public string Name { get; set; }
         public string RequestUrlHost { get; set; }
@@ -19,9 +26,7 @@ namespace Orchard.MultiTenancy.ViewModels {
         [SqlDatabaseConnectionString]
         public string DatabaseConnectionString { get; set; }
         public string DatabaseTablePrefix { get; set; }
-
         public List<ThemeEntry> Themes { get; set; }
         public List<ModuleEntry> Modules { get; set; }
     }
 }
-

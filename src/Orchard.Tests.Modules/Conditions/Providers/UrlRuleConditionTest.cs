@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Autofac;
 using NUnit.Framework;
@@ -14,7 +22,6 @@ namespace Orchard.Tests.Modules.Conditions.Providers {
         private IConditionProvider _urlCondition;
         private StubHttpContextAccessor _stubContextAccessor;
         private ShellSettings _shellSettings;
-
         [SetUp]
         public void Init() {
             var builder = new ContainerBuilder();
@@ -26,62 +33,26 @@ namespace Orchard.Tests.Modules.Conditions.Providers {
             _container = builder.Build();
             _urlCondition = _container.Resolve<IConditionProvider>();
         }
-
         [Test]
         public void UrlForHomePageMatchesHomePagePath() {
             _stubContextAccessor.Set(new StubHttpContext("~/"));
             var context = new ConditionEvaluationContext { FunctionName = "url", Arguments = new[] { "~/" } };
             _urlCondition.Evaluate(context);
             Assert.That(context.Result, Is.True);
-        }
-
-        [Test]
         public void UrlForAboutPageMatchesAboutPagePath() {
             _stubContextAccessor.Set(new StubHttpContext("~/about"));
             var context = new ConditionEvaluationContext { FunctionName = "url", Arguments = new[] { "~/about" } };
-            _urlCondition.Evaluate(context);
-            Assert.That(context.Result, Is.True);
-        }
-
-        [Test]
         public void UrlForBlogWithEndingWildcardMatchesBlogPostPageInSaidBlog() {
             _stubContextAccessor.Set(new StubHttpContext("~/my-blog/my-blog-post"));
             var context = new ConditionEvaluationContext { FunctionName = "url", Arguments = new[] { "~/my-blog/*" } };
-            _urlCondition.Evaluate(context);
-            Assert.That(context.Result, Is.True);
-        }
-
-        [Test]
         public void UrlForHomePageDoesNotMatchAboutPagePath() {
-            _stubContextAccessor.Set(new StubHttpContext("~/about"));
-            var context = new ConditionEvaluationContext { FunctionName = "url", Arguments = new[] { "~/" } };
-            _urlCondition.Evaluate(context);
             Assert.That(context.Result, Is.False);
-        }
-
-        [Test]
         public void UrlForAboutPageMatchesDifferentCasedAboutPagePath() {
             _stubContextAccessor.Set(new StubHttpContext("~/About"));
-            var context = new ConditionEvaluationContext { FunctionName = "url", Arguments = new[] { "~/about" } };
-            _urlCondition.Evaluate(context);
-            Assert.That(context.Result, Is.True);
-        }
-
-        [Test]
         public void UrlForAboutPageWithEndingSlashMatchesAboutPagePath() {
             _stubContextAccessor.Set(new StubHttpContext("~/About/"));
-            var context = new ConditionEvaluationContext { FunctionName = "url", Arguments = new[] { "~/about" } };
-            _urlCondition.Evaluate(context);
-            Assert.That(context.Result, Is.True);
-        }
-
-        [Test]
         public void UrlForHomePageMatchesHomePagePathWithUrlPrefix() {
             _stubContextAccessor.Set(new StubHttpContext("~/site1"));
             _shellSettings.RequestUrlPrefix = "site1";
-            var context = new ConditionEvaluationContext { FunctionName = "url", Arguments = new[] { "~/" } };
-            _urlCondition.Evaluate(context);
-            Assert.That(context.Result, Is.True);
-        }
     }
 }

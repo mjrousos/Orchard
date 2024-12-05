@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 
@@ -8,17 +16,14 @@ namespace Orchard.Specs.Hosting {
             RequestHeaders = new Dictionary<string, string>();
             ResponseHeaders = new Dictionary<string, string>();
         }
-
         public string HostName { get; set; }
         public string UrlPath { get; set; }
         public string Page { get; set; }
         public string Query { get; set; }
         public byte[] PostData { get; set; }
-
         public int StatusCode { get; set; }
         public string StatusDescription { get; set; }
         public string ResponseText { get; set; }
-
         public IDictionary<string, string> RequestHeaders { get; set; }
         public IDictionary<string, string> ResponseHeaders { get; set; }
     }

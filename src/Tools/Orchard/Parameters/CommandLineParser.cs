@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 using System.Security;
 using System.Text;
@@ -6,49 +14,35 @@ namespace Orchard.Parameters {
     public interface ICommandLineParser {
         IEnumerable<string> Parse(string commandLine);
     }
-
     public class CommandLineParser : ICommandLineParser {
         [SecurityCritical]
         public IEnumerable<string> Parse(string commandLine) {
             return SplitArgs(commandLine);
         }
-
         public class State {
             private readonly string _commandLine;
             private readonly StringBuilder _stringBuilder;
             private readonly List<string> _arguments;
             private int _index;
-
             public State(string commandLine) {
                 _commandLine = commandLine;
                 _stringBuilder = new StringBuilder();
                 _arguments = new List<string>();
             }
-
             public StringBuilder StringBuilder { get { return _stringBuilder; } }
             public bool EOF { get { return _index >= _commandLine.Length; } }
             public char Current { get { return _commandLine[_index]; } }
             public IEnumerable<string> Arguments { get { return _arguments; } }
-
             public void AddArgument() {
                 _arguments.Add(StringBuilder.ToString());
                 StringBuilder.Clear();
-            }
-
             public void AppendCurrent() {
                 StringBuilder.Append(Current);
-            }
-
             public void Append(char ch) {
                 StringBuilder.Append(ch);
-            }
-
             public void MoveNext() {
                 if (!EOF)
                     _index++;
-            }
-        }
-
         /// <summary>
         /// Implement the same logic as found at
         /// http://msdn.microsoft.com/en-us/library/17w5ykft.aspx
@@ -67,59 +61,32 @@ namespace Orchard.Parameters {
                     case '"':
                         ProcessQuote(state);
                         break;
-
                     case '\\':
                         ProcessBackslash(state);
-                        break;
-
                     case ' ':
                     case '\t':
                         if (state.StringBuilder.Length > 0)
                             state.AddArgument();
                         state.MoveNext();
-                        break;
-
                     default:
                         state.AppendCurrent();
-                        state.MoveNext();
-                        break;
                 }
-            }
             if (state.StringBuilder.Length > 0)
                 state.AddArgument();
             return state.Arguments;
-        }
-
         private void ProcessQuote(State state) {
             state.MoveNext();
-            while (!state.EOF) {
                 if (state.Current == '"') {
                     state.MoveNext();
                     break;
-                }
                 state.AppendCurrent();
                 state.MoveNext();
-            }
-
             state.AddArgument();
-        }
-
         private void ProcessBackslash(State state) {
-            state.MoveNext();
             if (state.EOF) {
                 state.Append('\\');
                 return;
-            }
-
             if (state.Current == '"') {
                 state.Append('"');
-                state.MoveNext();
-            }
             else {
-                state.Append('\\');
-                state.AppendCurrent();
-                state.MoveNext();
-            }
-        }
-    }
 }

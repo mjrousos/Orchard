@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,9 +24,7 @@ namespace Orchard.DisplayManagement.Descriptors {
             Bindings = new Dictionary<string, ShapeBinding>(StringComparer.OrdinalIgnoreCase);
             Placement = ctx => new PlacementInfo {Location = DefaultPlacement};
         }
-
         public string ShapeType { get; set; }
-
         /// <summary>
         /// The BindingSource is informational text about the source of the Binding delegate. Not used except for 
         /// troubleshooting.
@@ -28,33 +34,21 @@ namespace Orchard.DisplayManagement.Descriptors {
                 ShapeBinding binding;
                 return Bindings.TryGetValue(ShapeType, out binding) ? binding.BindingSource : null;
             }
-        }
-
         public Func<DisplayContext, IHtmlString> Binding {
-            get {
                 return Bindings[ShapeType].Binding;
-            }
-        }
-
         public IDictionary<string, ShapeBinding> Bindings { get; set; }
-
         public IEnumerable<Action<ShapeCreatingContext>> Creating { get; set; }
         public IEnumerable<Action<ShapeCreatedContext>> Created { get; set; }
-
         public IEnumerable<Action<ShapeDisplayingContext>> Displaying { get; set; }
         public IEnumerable<Action<ShapeDisplayedContext>> Displayed { get; set; }
-
         public Func<ShapePlacementContext, PlacementInfo> Placement { get; set; }
         public string DefaultPlacement { get; set; }
-
         public IList<string> Wrappers { get; set; }
         public IList<string> BindingSources { get; set; }
     }
-
     public class ShapeBinding {
         public ShapeDescriptor ShapeDescriptor { get; set; }
         public string BindingName { get; set; }
         public string BindingSource { get; set; }
         public Func<DisplayContext, IHtmlString> Binding { get; set; }
-    }
 }

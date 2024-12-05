@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,11 +25,9 @@ namespace Orchard.Utility {
     /// </remarks>
     public class NamedReaderWriterLock : IDisposable {
         private readonly ConcurrentDictionary<string, ReaderWriterLockSlim> _lockDictonary = new ConcurrentDictionary<string, ReaderWriterLockSlim>();
-
         public ReaderWriterLockSlim GetLock(string name) {
             return _lockDictonary.GetOrAdd(name, new ReaderWriterLockSlim());
         }
-
         public TResult RunWithReadLock<TResult>(string name, Func<TResult> body) {
             var rwLock = GetLock(name);
             try {
@@ -30,47 +36,15 @@ namespace Orchard.Utility {
             }
             finally {
                 rwLock.ExitReadLock();
-            }
-        }
-
         public void RunWithReadLock(string name, Action body) {
-            var rwLock = GetLock(name);
-            try {
-                rwLock.EnterReadLock();
                 body();
-            }
-            finally {
-                rwLock.ExitReadLock();
-            }
-        }
-
         public TResult RunWithWriteLock<TResult>(string name, Func<TResult> body) {
-            var rwLock = GetLock(name);
-            try {
                 rwLock.EnterWriteLock();
-                return body();
-            }
-            finally {
                 rwLock.ExitWriteLock();
-            }
-        }
-
         public void RunWithWriteLock(string name, Action body) {
-            var rwLock = GetLock(name);
-            try {
-                rwLock.EnterWriteLock();
-                body();
-            }
-            finally {
-                rwLock.ExitWriteLock();
-            }
-        }
-
         public void RemoveLock(string name) {
             ReaderWriterLockSlim o;
             _lockDictonary.TryRemove(name, out o);
-        }
-
         /// <summary>
         /// Disposes all the internal <see cref="ReaderWriterLockSlim"/> objects. Only call this if you're sure that no concurrent code executes
         /// any other instance method of this class!
@@ -78,7 +52,5 @@ namespace Orchard.Utility {
         public void Dispose() {
             foreach (var lockSlim in _lockDictonary.Values) {
                 lockSlim.Dispose();
-            }
-        }
     }
 }

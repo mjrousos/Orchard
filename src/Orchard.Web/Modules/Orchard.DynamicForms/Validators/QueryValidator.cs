@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Orchard.DynamicForms.Elements;
 using Orchard.DynamicForms.Services;
@@ -9,12 +17,9 @@ namespace Orchard.DynamicForms.Validators {
         public QueryValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
-
         protected override IEnumerable<IValidationRule> GetValidationRules(Query element) {
             var settings = element.ValidationSettings;
-
             if (settings.Required == true)
                 yield return _validationRuleFactory.Create<OptionRequired>(settings.CustomValidationMessage);
-        }
     }
 }

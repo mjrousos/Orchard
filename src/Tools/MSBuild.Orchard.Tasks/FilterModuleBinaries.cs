@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,23 +17,18 @@ namespace MSBuild.Orchard.Tasks {
     public class FilterModuleBinaries : Task {
         public ITaskItem[] ModulesBinaries { get; set; }
         public ITaskItem[] OrchardWebBinaries { get; set; }
-
         [Output]
         public ITaskItem[] ExcludedBinaries { get; set; }
-
         public override bool Execute() {
             if (ModulesBinaries == null || OrchardWebBinaries == null)
                 return true;
-
             var orchardWebAssemblies = new HashSet<string>(
                 OrchardWebBinaries.Select(item => Path.GetFileName(item.ItemSpec)),
                 StringComparer.InvariantCultureIgnoreCase);
-
             ExcludedBinaries = ModulesBinaries
                 .Where(item => orchardWebAssemblies.Contains(Path.GetFileName(item.ItemSpec)))
                 .Select(item => new TaskItem(item))
                 .ToArray();
-
             return true;
         }
     }

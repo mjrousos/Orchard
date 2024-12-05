@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Web.Mvc;
 using System.Web.Routing;
 using Orchard.SecureSocketsLayer.Models;
@@ -14,6 +22,5 @@ namespace Orchard.SecureSocketsLayer.Services {
         string SecureActionUrl(string actionName, string controllerName, object routeValues);
         string SecureActionUrl(string actionName, string controllerName, RouteValueDictionary routeValues);
         SslSettings GetSettings();
-
     }
 }

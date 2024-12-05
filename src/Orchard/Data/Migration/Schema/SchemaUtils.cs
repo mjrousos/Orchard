@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Data;
 
@@ -12,13 +20,10 @@ namespace Orchard.Data.Migration.Schema {
                     break;
                 case TypeCode.Int32:
                     dbType = DbType.Int32;
-                    break;
                 case TypeCode.DateTime:
                     dbType = DbType.DateTime;
-                    break;
                 case TypeCode.Boolean:
                     dbType = DbType.Boolean;
-                    break;
                 default:
                     if (type == typeof(Guid))
                         dbType = DbType.Guid;
@@ -26,11 +31,8 @@ namespace Orchard.Data.Migration.Schema {
                         dbType = DbType.Binary;
                     else
                         Enum.TryParse(Type.GetTypeCode(type).ToString(), true, out dbType);
-                    break;
             }
-
             return dbType;
         }
-
     }
 }

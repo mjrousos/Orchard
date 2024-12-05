@@ -1,13 +1,19 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Linq;
 using System.Web.Management;
-using Orchard.ContentManagement;
 using Orchard.Core.Title.Models;
 using Orchard.Environment.Extensions;
 using Orchard.Localization.Models;
 using Orchard.Localization.Services;
 using Orchard.Taxonomies.Models;
-
 
 namespace Orchard.Taxonomies.Services {
     [OrchardFeature("Orchard.Taxonomies.LocalizationExtensions")]
@@ -20,7 +26,6 @@ namespace Orchard.Taxonomies.Services {
             _localizationService = localizationService;
             _contentManager = contentManager;
         }
-
         public TaxonomyPart GetTaxonomy(string name, ContentItem currentcontent) {
             if (String.IsNullOrWhiteSpace(name)) {
                 throw new ArgumentNullException("name");
@@ -35,7 +40,6 @@ namespace Orchard.Taxonomies.Services {
             // It can be null in the case of a TaxonomyField with not taxonomy selected (misconfiguration).
             if (taxonomyPart == null) {
                 return null;
-            }
             if (String.IsNullOrWhiteSpace(culture) || _localizationService.GetContentCulture(taxonomyPart.ContentItem) == culture)
                 return taxonomyPart;
             else {
@@ -48,7 +52,5 @@ namespace Orchard.Taxonomies.Services {
                     return taxonomyPart;
                 else
                     return localizedLocalizationPart.ContentItem.As<TaxonomyPart>();
-            }
-        }
     }
 }

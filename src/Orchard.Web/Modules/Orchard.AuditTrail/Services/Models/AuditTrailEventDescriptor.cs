@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 using System.Linq;
 using Orchard.AuditTrail.Models;
-using Orchard.Localization;
 
 namespace Orchard.AuditTrail.Services.Models {
     public class AuditTrailEventDescriptor {
@@ -10,7 +17,6 @@ namespace Orchard.AuditTrail.Services.Models {
         public LocalizedString Description { get; set; }
         public bool IsEnabledByDefault { get; set; }
         public bool IsMandatory { get; set; }
-
         /// <summary>
         /// Returns a basic descriptor based on an event record.
         /// This is useful in cases where event records were previously stored by providers that are no longer enabled.

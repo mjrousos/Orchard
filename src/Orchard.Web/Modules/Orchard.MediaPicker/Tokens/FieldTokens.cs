@@ -1,6 +1,13 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Events;
-using Orchard.Localization;
 using Orchard.MediaPicker.Fields;
 
 namespace Orchard.MediaPicker.Tokens {
@@ -8,16 +15,11 @@ namespace Orchard.MediaPicker.Tokens {
         void Describe(dynamic context);
         void Evaluate(dynamic context);
     }
-
     public class FieldTokens : ITokenProvider {
-
-
         public FieldTokens() {
             T = NullLocalizer.Instance;
         }
-
         public Localizer T { get; set; }
-
         public void Describe(dynamic context) {
             context.For("MediaPickerField", T("Media Picker Field"), T("Tokens for Media Picker Fields"))
                 .Token("Url", T("Url"), T("The url of the media."), "Url")
@@ -28,8 +30,6 @@ namespace Orchard.MediaPicker.Tokens {
                 .Token("Width", T("Width"), T("The width of the media."))
                 .Token("Height", T("Height"), T("The height of the media."))
                 ;
-        }
-
         public void Evaluate(dynamic context) {
             context.For<MediaPickerField>("MediaPickerField")
                 .Token("Url", (Func<MediaPickerField, object>)(field => field.Url))
@@ -44,7 +44,4 @@ namespace Orchard.MediaPicker.Tokens {
                 .Chain("Alignment", "Text", (Func<MediaPickerField, object>)(field => field.Alignment))
                 .Token("Width", (Func<MediaPickerField, object>)(field => field.Width))
                 .Token("Height", (Func<MediaPickerField, object>)(field => field.Height))
-                ;
-        }
-    }
 }

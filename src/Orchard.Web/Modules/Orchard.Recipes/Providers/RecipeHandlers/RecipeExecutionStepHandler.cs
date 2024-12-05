@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Orchard.Logging;
@@ -13,17 +21,14 @@ namespace Orchard.Recipes.Providers.RecipeHandlers {
         public RecipeExecutionStepHandler(IRecipeExecutionStepResolver recipeExecutionStepResolver) {
             _recipeExecutionStepResolver = recipeExecutionStepResolver;
         }
-
         public void ExecuteRecipeStep(RecipeContext recipeContext) {
             var executionStep = _recipeExecutionStepResolver.Resolve(recipeContext.RecipeStep.Name);
             var recipeExecutionContext = new RecipeExecutionContext {ExecutionId = recipeContext.ExecutionId, RecipeStep = recipeContext.RecipeStep};
-
             if (executionStep != null) {
                 Logger.Information("Executing recipe step '{0}'.", recipeContext.RecipeStep.Name);
                 executionStep.Execute(recipeExecutionContext);
                 Logger.Information("Finished executing recipe step '{0}'.", recipeContext.RecipeStep.Name);
                 recipeContext.Executed = true;
             }
-        }
     }
 }

@@ -1,5 +1,12 @@
-﻿using System.Collections.Generic;
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
 using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+﻿using System.Collections.Generic;
 using Orchard.Logging;
 
 namespace Orchard.UI.Notify {
@@ -18,30 +25,19 @@ namespace Orchard.UI.Notify {
         /// The type of the notification (notifications with different types can be displayed differently)</param>
         /// <param name="message">A localized message to display</param>
         void Add(NotifyType type, LocalizedString message);
-
-        /// <summary>
         /// Get all notifications added
-        /// </summary>
         IEnumerable<NotifyEntry> List();
     }
-
     public class Notifier : INotifier {
         private readonly IList<NotifyEntry> _entries;
-
         public Notifier() {
             Logger = NullLogger.Instance;
             _entries = new List<NotifyEntry>();
         }
-
         public ILogger Logger { get; set; }
-
         public void Add(NotifyType type, LocalizedString message) {
             Logger.Information("Notification {0} message: {1}", type, message);
             _entries.Add(new NotifyEntry { Type = type, Message = message });
-        }
-
         public IEnumerable<NotifyEntry> List() {
             return _entries;
-        }
-    }
 }

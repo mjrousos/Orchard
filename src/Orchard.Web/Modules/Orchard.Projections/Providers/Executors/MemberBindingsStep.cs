@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Data;
 using Orchard.Logging;
@@ -8,15 +16,11 @@ using Orchard.Recipes.Services;
 namespace Orchard.Projections.Providers.Executors {
     public class MemberBindingsStep : RecipeExecutionStep {
         private readonly IRepository<MemberBindingRecord> _repository;
-
         public MemberBindingsStep(IRepository<MemberBindingRecord> repository, RecipeExecutionLogger logger) : base(logger) {
             _repository = repository;
         }
-
         public override string Name {
             get { return "MemberBindings"; }
-        }
-
         public override void Execute(RecipeExecutionContext context) {
             foreach (var memberBindingElement in context.RecipeStep.Step.Elements()) {
                 Logger.Information("Importing member bindings.");
@@ -35,8 +39,6 @@ namespace Orchard.Projections.Providers.Executors {
                 catch (Exception ex) {
                     Logger.Error(ex, "Error while importing member bindings.");
                     throw;
-                }
             }
-        }
     }
 }

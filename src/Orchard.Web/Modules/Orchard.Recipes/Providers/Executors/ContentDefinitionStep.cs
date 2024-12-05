@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Xml;
@@ -12,25 +20,19 @@ namespace Orchard.Recipes.Providers.Executors {
         private readonly IContentDefinitionManager _contentDefinitionManager;
         private readonly IContentDefinitionReader _contentDefinitionReader;
         private readonly IContentDefinitionEventHandler _contentDefinitonEventHandlers;
-
         public override string Name { get { return "ContentDefinition"; } }
-
         public override IEnumerable<string> Names
         {
             get { return new[] {Name, "Metadata"}; }
         }
-
         public ContentDefinitionStep(
             IContentDefinitionManager contentDefinitionManager, 
             IContentDefinitionReader contentDefinitionReader, 
             IContentDefinitionEventHandler contentDefinitonEventHandlers,
             RecipeExecutionLogger logger) : base(logger) {
-
             _contentDefinitionManager = contentDefinitionManager;
             _contentDefinitionReader = contentDefinitionReader;
             _contentDefinitonEventHandlers = contentDefinitonEventHandlers;
-        }
-
         /* 
            <ContentDefinition>
             <Types>
@@ -52,7 +54,6 @@ namespace Orchard.Recipes.Providers.Executors {
                         foreach (var element in metadataElement.Elements()) {
                             var typeElement = element;
                             var typeName = XmlConvert.DecodeName(element.Name.LocalName);
-
                             Logger.Information("Importing content type '{0}'.", typeName);
                             try {
                                 _contentDefinitonEventHandlers.ContentTypeImporting(new ContentTypeImportingContext { ContentTypeDefinition = _contentDefinitionManager.GetTypeDefinition(typeName), ContentTypeName = typeName });
@@ -62,33 +63,19 @@ namespace Orchard.Recipes.Providers.Executors {
                             catch (Exception ex) {
                                 Logger.Error(ex, "Error while importing content type '{0}'.", typeName);
                                 throw;
-                            }
                         }
                         break;
-
                     case "Parts":
-                        foreach (var element in metadataElement.Elements()) {
                             var partElement = element;
                             var partName = XmlConvert.DecodeName(element.Name.LocalName);
-
                             Logger.Information("Importing content part '{0}'.", partName);
-                            try {
                                 _contentDefinitonEventHandlers.ContentPartImporting(new ContentPartImportingContext { ContentPartDefinition = _contentDefinitionManager.GetPartDefinition(partName), ContentPartName = partName });
                             _contentDefinitionManager.AlterPartDefinition(partName, alteration => _contentDefinitionReader.Merge(partElement, alteration));
                             _contentDefinitonEventHandlers.ContentPartImported(new ContentPartImportedContext { ContentPartDefinition = _contentDefinitionManager.GetPartDefinition(partName)});
-                            }
-                            catch (Exception ex) {
                                 Logger.Error(ex, "Error while importing content part '{0}'.", partName);
-                                throw;
-                            }
-                        }
-                        break;
-
                     default:
                         Logger.Warning("Unrecognized element '{0}' encountered; skipping", metadataElement.Name.LocalName);
-                        break;
                 }
             }
-        }
     }
 }

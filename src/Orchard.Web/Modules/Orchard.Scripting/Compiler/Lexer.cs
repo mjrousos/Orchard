@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 
 namespace Orchard.Scripting.Compiler {
@@ -5,40 +13,25 @@ namespace Orchard.Scripting.Compiler {
         private readonly Tokenizer _tokenizer;
         private readonly List<Token> _tokens= new List<Token>();
         private int _tokenIndex;
-
         public Lexer(Tokenizer tokenizer) {
             _tokenizer = tokenizer;
         }
-
         public Token Token() {
             if (_tokenIndex == _tokens.Count) {
                 _tokens.Add(_tokenizer.NextToken());
             }
             return _tokens[_tokenIndex];
-        }
-
         public void NextToken() {
             _tokenIndex++;
-        }
-
         public Marker Mark() {
             return new Marker(_tokens.Count);
-        }
-
         public void Mark(Marker marker) {
             _tokenIndex = marker.TokenIndex;
-        }
-
         public struct Marker {
             private readonly int _tokenIndex;
-
             public Marker(int tokenIndex) {
                 _tokenIndex = tokenIndex;
-            }
-
             public int TokenIndex {
                 get { return _tokenIndex; }
-            }
-        }
     }
 }

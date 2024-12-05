@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Threading.Tasks;
 using System.Web.WebPages;
@@ -10,7 +18,6 @@ namespace Orchard.OpenId.Services.AzureActiveDirectory {
         public string Token { get; set; }
         public DateTimeOffset TokenExpiresOn { get; set; }
         public string AzureTenant { get; set; }
-
         public async Task<string> AcquireTokenAsync() {
             if (Token == null || Token.IsEmpty())
             {
@@ -18,14 +25,10 @@ namespace Orchard.OpenId.Services.AzureActiveDirectory {
             }
             return await Task.FromResult(Token);
         }
-
         public ActiveDirectoryClient GetActiveDirectoryClient() {
             var baseServiceUri = new Uri("https://graph.windows.net/");
-
             var activeDirectoryClient = new ActiveDirectoryClient(new Uri(baseServiceUri, AzureTenant),
                 async () => await AcquireTokenAsync());
-
             return activeDirectoryClient;
-        }
     }
 }

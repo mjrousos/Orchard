@@ -1,11 +1,17 @@
-using System.Collections.Generic;
 using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
+using System.Collections.Generic;
 using Orchard.Tags.Models;
 
 namespace Orchard.Tags.Services {
     public interface ITagService : IDependency {
         IEnumerable<TagRecord> GetTags();
-
         /// <summary>
         /// Returns tags whose name start with snippet
         /// </summary>
@@ -21,13 +27,9 @@ namespace Orchard.Tags.Services {
         IEnumerable<IContent> GetTaggedContentItems(int tagId, int skip, int count, VersionOptions versionOptions);
         int GetTaggedContentItemCount(int tagId);
         int GetTaggedContentItemCount(int tagId, VersionOptions versionOptions);
-
         TagRecord CreateTag(string tagName);
-
         void DeleteTag(int tagId);
-
         void UpdateTag(int tagId, string tagName);
-
         void UpdateTagsForContentItem(ContentItem contentItem, IEnumerable<string> tagNamesForContentItem);
         void RemoveTagsForContentItem(ContentItem contentItem);
     }

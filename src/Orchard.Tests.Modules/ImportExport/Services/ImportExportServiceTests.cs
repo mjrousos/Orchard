@@ -1,10 +1,17 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System.Collections.Generic;
 using Autofac;
 using Moq;
 using NHibernate;
 using NUnit.Framework;
 using Orchard.Caching;
-using Orchard.ContentManagement;
 using Orchard.ContentManagement.MetaData;
 using Orchard.ContentManagement.MetaData.Services;
 using Orchard.ContentManagement.Records;
@@ -20,7 +27,6 @@ using Orchard.ImportExport.Services;
 using Orchard.Recipes.Events;
 using Orchard.Recipes.Models;
 using Orchard.Recipes.Services;
-using Orchard.Services;
 using Orchard.Tests.ContentManagement;
 using Orchard.Tests.Environment.Extensions;
 using Orchard.Tests.Modules.Recipes.Services;
@@ -34,7 +40,6 @@ namespace Orchard.Tests.Modules.ImportExport.Services {
         private IImportExportService _importExportService;
         private ISessionFactory _sessionFactory;
         private ISession _session;
-
         [TestFixtureSetUp]
         public void InitFixture() {
             var databaseFileName = System.IO.Path.GetTempFileName();
@@ -45,7 +50,6 @@ namespace Orchard.Tests.Modules.ImportExport.Services {
                 typeof(ContentItemVersionRecord),
                 typeof(RecipeStepResultRecord));
         }
-
         [SetUp]
         public void Init() {
             var builder = new ContainerBuilder();
@@ -68,18 +72,14 @@ namespace Orchard.Tests.Modules.ImportExport.Services {
             builder.RegisterType<ContentDefinitionManager>().As<IContentDefinitionManager>();
             builder.RegisterType<ContentDefinitionWriter>().As<IContentDefinitionWriter>();
             builder.RegisterType<StubOrchardServices>().As<IOrchardServices>();
-            builder.RegisterType<StubAppDataFolder>().As<IAppDataFolder>();
             builder.RegisterType<Signals>().As<ISignals>();
             builder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>));
             builder.RegisterInstance(new Mock<ISettingsFormatter>().Object);
             builder.RegisterInstance(new Mock<IRecipeExecuteEventHandler>().Object);
             _session = _sessionFactory.OpenSession();
             builder.RegisterInstance(new TestTransactionManager(_session)).As<ITransactionManager>();
-
             _container = builder.Build();
             _importExportService = _container.Resolve<IImportExportService>();
-        }
-
         [Test]
         public void ImportSucceedsWhenRecipeContainsImportSteps() {
             Assert.DoesNotThrow(() => _importExportService.Import(
@@ -89,26 +89,11 @@ namespace Orchard.Tests.Modules.ImportExport.Services {
     </Recipe>
     <Settings />
 </Orchard>"));
-        }
-
-        [Test]
         public void ImportDoesntFailWhenRecipeContainsNonImportSteps() {
-            Assert.DoesNotThrow(() => _importExportService.Import(
-@"<Orchard>
-    <Recipe>
-    <Name>MyModuleInstaller</Name>
-    </Recipe>
     <Module name=""MyModule"" />
-</Orchard>"));
-        }
     }
-
     public class StubShellDescriptorManager : IShellDescriptorManager {
         public ShellDescriptor GetShellDescriptor() {
             return new ShellDescriptor();
-        }
-
         public void UpdateShellDescriptor(int priorSerialNumber, IEnumerable<ShellFeature> enabledFeatures, IEnumerable<ShellParameter> parameters) {
-        }
-    }
 }

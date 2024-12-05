@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.Data.Migration.Schema;
 
 namespace Orchard.Data.Migration.Interpreters {
@@ -8,33 +16,15 @@ namespace Orchard.Data.Migration.Interpreters {
         ICommandInterpreter<DropForeignKeyCommand>,
         ICommandInterpreter<AddIndexCommand>,
         ICommandInterpreter<DropIndexCommand> {
-
         public string[] CreateStatements(DropColumnCommand command) {
             return new string[0];
         }
-
         public string[] CreateStatements(AlterColumnCommand command) {
-            return new string[0];
-        }
-
         public string[] CreateStatements(CreateForeignKeyCommand command) {
-            return new string[0];
-        }
-
         public string[] CreateStatements(DropForeignKeyCommand command) {
-            return new string[0];
-        }
-
         public string[] CreateStatements(AddIndexCommand command) {
-            return new string[0];
-        }
-
         public string[] CreateStatements(DropIndexCommand command) {
-            return new string[0];
-        }
-
         public string DataProvider {
             get { return "SQLite"; }
-        }
     }
 }

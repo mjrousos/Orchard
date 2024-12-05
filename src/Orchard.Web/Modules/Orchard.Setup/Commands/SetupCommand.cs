@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,36 +17,19 @@ namespace Orchard.Setup.Commands {
     public class SetupCommand : DefaultOrchardCommandHandler {
         private readonly ISetupService _setupService;
         private readonly IRecipeHarvester _recipeHarvester;
-
         public SetupCommand(ISetupService setupService, IRecipeHarvester recipeHarvester) {
             _setupService = setupService;
             _recipeHarvester = recipeHarvester;
         }
-
         [OrchardSwitch]
         public string SiteName { get; set; }
-
-        [OrchardSwitch]
         public string AdminUsername { get; set; }
-
-        [OrchardSwitch]
         public string AdminPassword { get; set; }
-
-        [OrchardSwitch]
         public string DatabaseProvider { get; set; }
-
-        [OrchardSwitch]
         public string DatabaseConnectionString { get; set; }
-
-        [OrchardSwitch]
         public string DatabaseTablePrefix { get; set; }
-
-        [OrchardSwitch]
         public string EnabledFeatures { get; set; }
-
-        [OrchardSwitch]
         public string Recipe { get; set; }
-
         [CommandHelp("setup /SiteName:<siteName> /AdminUsername:<username> /AdminPassword:<password> /DatabaseProvider:<SqlCe|SQLServer|MySql|PostgreSql> " + 
             "/DatabaseConnectionString:<connection_string> /DatabaseTablePrefix:<table_prefix> /EnabledFeatures:<feature1,feature2,...> " +
             "/Recipe:<recipe>" + 
@@ -55,7 +46,6 @@ namespace Orchard.Setup.Commands {
             }
             Recipe = String.IsNullOrEmpty(Recipe) ? "Default" : Recipe;
             var recipe = _setupService.Recipes().GetRecipeByName(Recipe);
-
             var setupContext = new SetupContext {
                 SiteName = SiteName,
                 AdminUsername = AdminUsername,
@@ -66,10 +56,7 @@ namespace Orchard.Setup.Commands {
                 EnabledFeatures = enabledFeatures,
                 Recipe = recipe,
             };
-
             var executionId = _setupService.Setup(setupContext);
-
             Context.Output.WriteLine(T("Setup of site '{0}' was started with recipe execution ID {1}. Use the 'recipes result' command to check the result of the execution.", setupContext.SiteName, executionId));
-        }
     }
 }

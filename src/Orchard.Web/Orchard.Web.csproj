@@ -54,6 +54,7 @@
     <PackageAsSingleFile>false</PackageAsSingleFile>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <HintPath>..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
     </Reference>
@@ -141,12 +142,14 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Global.asax" />
     <Content Include="Refresh.html" />
     <Content Include="Web.config">
@@ -154,6 +157,7 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <ProjectReference Include="..\Orchard.WarmupStarter\Orchard.WarmupStarter.csproj">
       <Project>{5C0D5249-AEF5-4BB6-8F5F-057B91AC2D7A}</Project>
       <Name>Orchard.WarmupStarter</Name>
@@ -176,9 +180,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Config\Host.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Content Include="Config\Sites.config" />
     <None Include="packages.config" />
     <None Include="Web.Debug.config">
@@ -196,6 +202,7 @@
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <WebConfigsToTransform Include="Config\log4net.config">
       <DestinationRelativePath>Config\log4net.config</DestinationRelativePath>
       <Exclude>False</Exclude>
@@ -215,6 +222,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <WebConfigsToTransform Include="Config\HostComponents.config">
       <DestinationRelativePath>Config\HostComponents.config</DestinationRelativePath>
       <Exclude>False</Exclude>
@@ -234,6 +242,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ProjectExtensions>
@@ -251,6 +260,7 @@
   </Target>
   <Target Name="ExcludeRootBinariesDeployment">
     <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
       <RootBinFiles Include="bin\*">
         <InProject>false</InProject>
       </RootBinFiles>
@@ -261,11 +271,13 @@
   </Target>
   <Target Name="ExcludeRootBinariesPackage" DependsOnTargets="ExcludeRootBinariesDeployment" BeforeTargets="ExcludeFilesFromPackage">
     <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
       <ExcludeFromPackageFiles Include="$(ExcludeFilesFromDeployment)" />
     </ItemGroup>
   </Target>
   <Target Name="CopySqlCeBinaries">
     <ItemGroup>
+    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
       <SqlCeBinariesx86 Include="$(ProjectDir)..\..\lib\sqlce\x86\**\*" />
       <SqlCeBinariesx64 Include="$(ProjectDir)..\..\lib\sqlce\amd64\**\*" />
     </ItemGroup>

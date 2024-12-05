@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using System.Text;
 
@@ -7,7 +15,6 @@ namespace Orchard.Environment.Warmup {
             if(String.IsNullOrWhiteSpace(url)) {
                 throw new ArgumentException("url can't be empty");
             }
-
             var sb = new StringBuilder();
             foreach (var c in url.ToLowerInvariant()) {
                 // only accept alphanumeric chars
@@ -20,9 +27,6 @@ namespace Orchard.Environment.Warmup {
                     foreach(var b in Encoding.UTF8.GetBytes(new [] {c})) {
                         sb.Append(b.ToString("X"));
                     }
-                }
-            }
-
             return sb.ToString();
         }
     }

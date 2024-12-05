@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using System;
 using Orchard.Data.Migration.Schema;
 using Orchard.Environment.Configuration;
@@ -7,12 +15,10 @@ namespace Orchard.Tasks.Locking.Services {
         private readonly ShellSettings _shellSettings;
         private readonly SchemaBuilder _schemaBuilder;
         private const string TableName = "Orchard_Framework_DistributedLockRecord";
-
         public DistributedLockSchemaBuilder(ShellSettings shellSettings, SchemaBuilder schemaBuilder) {
             _shellSettings = shellSettings;
             _schemaBuilder = schemaBuilder;
         }
-
         public void CreateSchema() {
             _schemaBuilder.CreateTable(TableName, table => table
                 .Column<int>("Id", column => column.PrimaryKey().Identity())
@@ -20,12 +26,9 @@ namespace Orchard.Tasks.Locking.Services {
                 .Column<string>("MachineName", column => column.WithLength(256))
                 .Column<DateTime>("CreatedUtc")
                 .Column<DateTime>("ValidUntilUtc", column => column.Nullable()));
-
             _schemaBuilder.AlterTable(TableName, table => {
                 table.CreateIndex("IDX_DistributedLockRecord_Name", "Name");
             });
-        }
-
         public bool SchemaExists() {
             try {
                 var tablePrefix = String.IsNullOrEmpty(_shellSettings.DataTablePrefix) ? "" : _shellSettings.DataTablePrefix + "_";
@@ -34,7 +37,5 @@ namespace Orchard.Tasks.Locking.Services {
             }
             catch {
                 return false;
-            }
-        }
     }
 }

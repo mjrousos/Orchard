@@ -1,3 +1,11 @@
+using Orchard.ContentManagement;
+using Orchard.Security;
+using Orchard.UI.Admin;
+using Orchard.DisplayManagement;
+using Orchard.Localization;
+using Orchard.Services;
+using System.Web.Mvc;
+using Orchard.Mvc.Filters;
 ﻿using Orchard.ContentManagement.Records;
 
 namespace Orchard.Projections.Models {
@@ -6,15 +14,9 @@ namespace Orchard.Projections.Models {
         /// Maximum number of items to retrieve from db
         /// </summary>
         public virtual int Items { get; set; }
-
-        /// <summary>
         /// Number of items to skip
-        /// </summary>
         public virtual int Skip { get; set; }
-
-        /// <summary>
         /// The query to execute
-        /// </summary>
         public virtual QueryPartRecord QueryPartRecord { get; set; }
     }
 }
