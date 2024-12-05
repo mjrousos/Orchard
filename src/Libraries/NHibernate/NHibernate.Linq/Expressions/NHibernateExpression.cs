@@ -1,20 +1,12 @@
-using Orchard.ContentManagement;
-using Orchard.Security;
-using Orchard.UI.Admin;
-using Orchard.DisplayManagement;
-using Orchard.Localization;
-using Orchard.Services;
-using System.Web.Mvc;
-using Orchard.Mvc.Filters;
-﻿using System;
+using System;
 using System.Linq.Expressions;
 
 namespace NHibernate.Linq.Expressions
 {
-	public abstract class NHibernateExpression : Expression
-	{
-		public NHibernateExpression(NHibernateExpressionType nodeType, System.Type type)
-			: base() {
+    public abstract class NHibernateExpression : Expression
+    {
+        public NHibernateExpression(NHibernateExpressionType nodeType, System.Type type)
+            : base() {
             _nodeType = nodeType;
             _type = type;
         }
