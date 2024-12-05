@@ -18,4 +18,5 @@ namespace Orchard.Tokens {
     }
     public class TokenTypeDescriptor {
         public IEnumerable<TokenDescriptor> Tokens { get; set; }
+    }
 }

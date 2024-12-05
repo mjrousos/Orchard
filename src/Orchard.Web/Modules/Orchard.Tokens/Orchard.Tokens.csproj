@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../Orchard.Compat/Orchard.Compat.csproj" />
+    <ProjectReference Include="../../../Orchard.Compat/Orchard.Compat.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
   </ItemGroup>
 
