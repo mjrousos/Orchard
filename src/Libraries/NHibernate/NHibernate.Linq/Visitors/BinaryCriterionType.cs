@@ -1,18 +1,10 @@
-using Orchard.ContentManagement;
-using Orchard.Security;
-using Orchard.UI.Admin;
-using Orchard.DisplayManagement;
-using Orchard.Localization;
-using Orchard.Services;
-using System.Web.Mvc;
-using Orchard.Mvc.Filters;
 namespace NHibernate.Linq.Visitors
 {
-	public enum BinaryCriterionType
-	{
-		None,
-		Value,
-		Property,
-		Criteria
-	}
+    public enum BinaryCriterionType
+    {
+        None,
+        Value,
+        Property,
+        Criteria
+    }
 }
