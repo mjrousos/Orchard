@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Themes", "Themes", "{74492C
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Specs", "Specs", "{3E10BF6D-ADA5-417D-B36C-EBB0660B475E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchard.Compat", "Orchard.Compat\Orchard.Compat.csproj", "{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchard.Web", "Orchard.Web\Orchard.Web.csproj", "{50B779EA-EC00-4699-84C0-03B395C365D2}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4BE4EB01-AC56-4048-924E-2CA77F509ABA} = {4BE4EB01-AC56-4048-924E-2CA77F509ABA}
@@ -313,15 +315,17 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.Coverage|Any CPU.ActiveCfg = Release|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.Coverage|Any CPU.Build.0 = Release|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.FxCop|Any CPU.Build.0 = Release|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02E6D451-AF0A-4E9B-8D4B-6B8A322A7153}.Release|Any CPU.Build.0 = Release|Any CPU
 		{50B779EA-EC00-4699-84C0-03B395C365D2}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.Coverage|Any CPU.ActiveCfg = Release|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.Coverage|Any CPU.Build.0 = Release|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.FxCop|Any CPU.Build.0 = Release|Any CPU
-		{50B779EA-EC00-4699-84C0-03B395C365D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{50B779EA-EC00-4699-84C0-03B395C365D2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2D1D92BB-4555-4CBE-8D0E-63563D6CE4C6}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
 		{2D1D92BB-4555-4CBE-8D0E-63563D6CE4C6}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
