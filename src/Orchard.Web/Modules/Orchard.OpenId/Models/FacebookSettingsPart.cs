@@ -16,9 +16,12 @@ namespace Orchard.OpenId.Models {
             get { return this.Retrieve(x => x.AppId); }
             set { this.Store(x => x.AppId, value); }
         }
+
         public string AppSecret {
             get { return this.Retrieve(x => x.AppSecret); }
             set { this.Store(x => x.AppSecret, value); }
+        }
+
         public bool IsValid() {
             if (String.IsNullOrWhiteSpace(AppId) ||
                 String.CompareOrdinal(AppId, Constants.Facebook.DefaultAppId) == 0 ||
@@ -27,5 +30,6 @@ namespace Orchard.OpenId.Models {
                 return false;
             }
             return true;
+        }
     }
 }
