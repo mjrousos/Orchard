@@ -237,7 +237,7 @@ namespace NHibernate.Linq.Visitors
                     list.Add(b);
                 }
             }
-            return list ?? original;
+            return list?.AsReadOnly() ?? original;
         }
 
         protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
@@ -260,7 +260,7 @@ namespace NHibernate.Linq.Visitors
                     list.Add(init);
                 }
             }
-            return list ?? original;
+            return list?.AsReadOnly() ?? original;
         }
 
         protected virtual Expression VisitLambda(LambdaExpression lambda)
