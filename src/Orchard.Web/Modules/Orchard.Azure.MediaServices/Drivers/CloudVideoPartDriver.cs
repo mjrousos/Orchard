@@ -29,10 +29,11 @@ namespace Orchard.Azure.MediaServices.Drivers {
         private readonly IAssetManager _assetManager;
         private readonly IJobManager _jobManager;
         private readonly IWamsClient _wamsClient;
+
         public CloudVideoPartDriver(
-            IOrchardServices services, 
-            IHttpContextAccessor httpContextAccessor, 
-            IAssetManager assetManager, 
+            IOrchardServices services,
+            IHttpContextAccessor httpContextAccessor,
+            IAssetManager assetManager,
             IJobManager jobManager,
             IWamsClient wamsClient) {
             _services = services;
@@ -42,7 +43,9 @@ namespace Orchard.Azure.MediaServices.Drivers {
             _wamsClient = wamsClient;
             T = NullLocalizer.Instance;
         }
+
         public Localizer T { get; set; }
+
         protected override DriverResult Display(CloudVideoPart part, string displayType, dynamic shapeHelper) {
             return Combined(
                 ContentShape("Parts_CloudVideo_Metadata", () => shapeHelper.Parts_CloudVideo_Metadata(ActiveJobCount: _jobManager.GetActiveJobs().Count(job => job.Record.CloudVideoPartId == part.Id))),
@@ -50,14 +53,18 @@ namespace Orchard.Azure.MediaServices.Drivers {
                 ContentShape("Parts_CloudVideo_Summary", () => shapeHelper.Parts_CloudVideo_Summary()),
                 ContentShape("Parts_CloudVideo_Raw", () => shapeHelper.Parts_CloudVideo_Raw()),
                 ContentShape("Parts_CloudVideo", () => shapeHelper.Parts_CloudVideo()));
+        }
+
         protected override DriverResult Editor(CloudVideoPart part, dynamic shapeHelper) {
             return Editor(part, null, shapeHelper);
+        }
+
         protected override DriverResult Editor(CloudVideoPart part, IUpdateModel updater, dynamic shapeHelper) {
             var results = new List<DriverResult>();
             results.Add(ContentShape("Parts_CloudVideo_Edit", () => {
                 var settings = _services.WorkContext.CurrentSite.As<CloudMediaSettingsPart>();
                 var httpContext = _httpContextAccessor.Current();
-                
+
                 var occupiedSubtitleLanguagesQuery =
                     from asset in part.Assets
                     where asset is SubtitleAsset
@@ -80,12 +87,12 @@ namespace Orchard.Azure.MediaServices.Drivers {
                     WamsThumbnail = new WamsAssetViewModel(),
                     WamsSubtitle = new WamsAssetViewModel()
                 };
+
                 if (updater != null) {
-                    
                     if (updater.TryUpdateModel(viewModel, Prefix, null, null) && AVideoWasUploaded(part, updater, viewModel)) {
                         ProcessCreatedWamsAssets(part, viewModel);
                         ProcessUploadedFiles(part, viewModel);
-                        
+
                         var unpublish = httpContext.Request.Form["submit.Save"] == "submit.Unpublish";
                         if (unpublish) {
                             _services.ContentManager.Unpublish(part.ContentItem);
@@ -97,16 +104,22 @@ namespace Orchard.Azure.MediaServices.Drivers {
                 }
                 return shapeHelper.EditorTemplate(TemplateName: "Parts/CloudVideo", Model: viewModel, Prefix: Prefix);
             }));
+
             if (part.TypeDefinition.Settings.GetModel<ContentTypeSettings>().Draftable) {
                 if (part.IsPublished()) {
                     results.Add(ContentShape("CloudVideo_Edit_UnpublishButton", actions => actions));
+                }
             }
             return Combined(results.ToArray());
+        }
+
         private bool AVideoWasUploaded(CloudVideoPart part, IUpdateModel updater, CloudVideoPartViewModel viewModel) {
             var isValid = viewModel.WamsVideo.WamsAssetId != null || viewModel.TemporaryVideoFile.FileSize > 0 || part.MezzanineAsset != null;
             if (!isValid)
                 updater.AddModelError(Prefix + ".WamsVideo.WamsAssetId", T("You need to upload a video."));
             return isValid;
+        }
+
         private void ProcessCreatedWamsAssets(CloudVideoPart part, CloudVideoPartViewModel viewModel) {
             if (viewModel.WamsVideo.AssetId == null && !String.IsNullOrWhiteSpace(viewModel.WamsVideo.WamsAssetId)) {
                 var asset = _assetManager.CreateAssetFor<MezzanineAsset>(part, a => {
@@ -118,29 +131,42 @@ namespace Orchard.Azure.MediaServices.Drivers {
                     CreatePrivateLocatorFor(a);
                 });
                 viewModel.WamsVideo.AssetId = asset.Record.Id;
+            }
+
             if (viewModel.WamsThumbnail.AssetId == null && !String.IsNullOrWhiteSpace(viewModel.WamsThumbnail.WamsAssetId)) {
                 var asset = _assetManager.CreateAssetFor<ThumbnailAsset>(part, a => {
                     a.Name = viewModel.WamsThumbnail.FileName;
                     a.IncludeInPlayer = true;
                     a.OriginalFileName = viewModel.WamsThumbnail.FileName;
                     a.WamsAssetId = viewModel.WamsThumbnail.WamsAssetId;
+                });
                 viewModel.WamsThumbnail.AssetId = asset.Record.Id;
+            }
+
             if (viewModel.WamsSubtitle.AssetId == null && !String.IsNullOrWhiteSpace(viewModel.WamsSubtitle.WamsAssetId)) {
                 var asset = _assetManager.CreateAssetFor<SubtitleAsset>(part, a => {
                     a.Name = viewModel.AddedSubtitleLanguage;
                     a.OriginalFileName = viewModel.WamsSubtitle.FileName;
                     a.Language = viewModel.AddedSubtitleLanguage;
                     a.WamsAssetId = viewModel.WamsSubtitle.WamsAssetId;
+                });
+            }
+        }
+
         private void ProcessUploadedFiles(CloudVideoPart part, CloudVideoPartViewModel viewModel) {
             var httpContext = _httpContextAccessor.Current();
             var files = httpContext.Request.Files;
             var postedThumbnailFile = files["ThumbnailFile.Proxied"];
             var postedSubtitleFile = files["SubtitleFile.Proxied"];
+
             if (viewModel.TemporaryVideoFile.FileSize > 0) {
                 _assetManager.CreateAssetFor<MezzanineAsset>(part, a => {
                     a.OriginalFileName = Path.GetFileName(viewModel.TemporaryVideoFile.OriginalFileName);
                     a.LocalTempFileName = viewModel.TemporaryVideoFile.TemporaryFileName;
                     a.LocalTempFileSize = viewModel.TemporaryVideoFile.FileSize;
+                });
+            }
+
             if (postedThumbnailFile != null && postedThumbnailFile.ContentLength > 0) {
                 var thumbnailTempFilePath = _assetManager.SaveTemporaryFile(postedThumbnailFile);
                 _assetManager.CreateAssetFor<ThumbnailAsset>(part, a => {
@@ -148,6 +174,9 @@ namespace Orchard.Azure.MediaServices.Drivers {
                     a.OriginalFileName = Path.GetFileName(postedThumbnailFile.FileName);
                     a.LocalTempFileName = thumbnailTempFilePath;
                     a.LocalTempFileSize = postedThumbnailFile.ContentLength;
+                });
+            }
+
             if (postedSubtitleFile != null && postedSubtitleFile.ContentLength > 0) {
                 var subtitleTempFilePath = _assetManager.SaveTemporaryFile(postedSubtitleFile);
                 _assetManager.CreateAssetFor<SubtitleAsset>(part, a => {
@@ -155,14 +184,22 @@ namespace Orchard.Azure.MediaServices.Drivers {
                     a.OriginalFileName = Path.GetFileName(postedSubtitleFile.FileName);
                     a.LocalTempFileName = subtitleTempFilePath;
                     a.LocalTempFileSize = postedSubtitleFile.ContentLength;
+                });
+            }
+        }
+
         private void DeleteExistingThumbnails(CloudVideoPart part) {
             var thumbnailAssets = part.Assets.Where(x => x is ThumbnailAsset);
             foreach (var asset in thumbnailAssets) {
                 _assetManager.DeleteAsset(asset);
+            }
+        }
+
         public void CreatePrivateLocatorFor(Asset asset) {
             var wamsAsset = _wamsClient.GetAssetById(asset.WamsAssetId);
-            var wamsLocators =  _wamsClient.CreateLocatorsAsync(wamsAsset, WamsLocatorCategory.Private).Result;
+            var wamsLocators = _wamsClient.CreateLocatorsAsync(wamsAsset, WamsLocatorCategory.Private).Result;
             asset.WamsPrivateLocatorId = wamsLocators.SasLocator.Id;
             asset.WamsPrivateLocatorUrl = wamsLocators.SasLocator.Url;
+        }
     }
 }
