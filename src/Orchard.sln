@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33815.320
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -305,6 +305,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		..\.github\workflows\build-crowdin-translation-packages.yml = ..\.github\workflows\build-crowdin-translation-packages.yml
 		..\.github\workflows\compile.yml = ..\.github\workflows\compile.yml
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchard.Compat", "Orchard.Compat\Orchard.Compat.csproj", "{B0226115-4F7C-4543-BF4E-31E7F7D550CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1181,6 +1183,16 @@ Global
 		{2CF9A83A-BC40-4485-A763-BFF59B2EBDAD}.FxCop|Any CPU.Build.0 = Release|Any CPU
 		{2CF9A83A-BC40-4485-A763-BFF59B2EBDAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CF9A83A-BC40-4485-A763-BFF59B2EBDAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.CodeCoverage|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.CodeCoverage|Any CPU.Build.0 = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.Coverage|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.Coverage|Any CPU.Build.0 = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.FxCop|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.FxCop|Any CPU.Build.0 = Debug|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0226115-4F7C-4543-BF4E-31E7F7D550CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

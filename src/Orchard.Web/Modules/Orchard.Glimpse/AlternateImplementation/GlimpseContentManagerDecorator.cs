@@ -7,6 +7,7 @@ using Orchard.Glimpse.Extensions;
 using Orchard.Glimpse.Services;
 using Orchard.Glimpse.Tabs.ContentManager;
 using Orchard.Indexing;
+using Orchard.Compat.Orchard.ContentManagement;
 
 namespace Orchard.Glimpse.AlternateImplementation {
     [OrchardFeature(FeatureNames.ContentManager)]
