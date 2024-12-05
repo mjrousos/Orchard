@@ -19,8 +19,7 @@ namespace Orchard.Tests.Modules.DynamicForms.ValidationRules {
             _context = new ValidateInputContext {ModelState = new ModelStateDictionary(), FieldName = "Email Address"};
             _validator = new EmailAddress();
         }
-        private ValidateInputContext _context;
-        private EmailAddress _validator;
+
         [Test]
         public void InvalidateDoubleDotDomain() {
             _context.AttemptedValue = "x@example..com";
@@ -45,3 +44,7 @@ namespace Orchard.Tests.Modules.DynamicForms.ValidationRules {
             _context.AttemptedValue = "something@example.io";
     }
 }
+
+        private ValidateInputContext _context;
+        private EmailAddress _validator;
+

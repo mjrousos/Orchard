@@ -13,7 +13,7 @@ using Orchard.DynamicForms.ValidationRules;
 
 namespace Orchard.DynamicForms.Validators {
     public class TextFieldValidator : ElementValidator<TextField> {
-        private readonly IValidationRuleFactory _validationRuleFactory;
+
         public TextFieldValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
@@ -33,3 +33,6 @@ namespace Orchard.DynamicForms.Validators {
                     r.Pattern = settings.ValidationExpression;
     }
 }
+
+        private readonly IValidationRuleFactory _validationRuleFactory;
+

@@ -21,9 +21,12 @@ namespace Orchard.DynamicForms.ValidationRules {
         }
         public override void RegisterClientAttributes(RegisterClientValidationAttributesContext context) {
             context.ClientAttributes["data-val-mandatory"] = GetValidationMessage(context).Text;
-        private LocalizedString GetValidationMessage(ValidationContext context) {
+
             return String.IsNullOrWhiteSpace(ErrorMessage)
                 ? T("{0} is a required field.", context.FieldName)
                 : T(ErrorMessage);
     }
 }
+
+        private LocalizedString GetValidationMessage(ValidationContext context) {
+

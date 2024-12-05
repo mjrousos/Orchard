@@ -13,7 +13,7 @@ using Orchard.DynamicForms.ValidationRules;
 
 namespace Orchard.DynamicForms.Validators {
     public class TextAreaValidator : ElementValidator<TextArea> {
-        private readonly IValidationRuleFactory _validationRuleFactory;
+
         public TextAreaValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
@@ -30,3 +30,6 @@ namespace Orchard.DynamicForms.Validators {
             }
     }
 }
+
+        private readonly IValidationRuleFactory _validationRuleFactory;
+

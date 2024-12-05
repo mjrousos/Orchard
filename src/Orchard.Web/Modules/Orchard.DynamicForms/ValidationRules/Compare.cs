@@ -6,7 +6,7 @@ using Orchard.Localization;
 using Orchard.Services;
 using System.Web.Mvc;
 using Orchard.Mvc.Filters;
-﻿using System;
+using System;
 using Orchard.DynamicForms.Helpers;
 using Orchard.DynamicForms.Services;
 using Orchard.DynamicForms.Services.Models;
@@ -21,12 +21,19 @@ namespace Orchard.DynamicForms.ValidationRules {
                 context.ModelState.AddModelError(context.FieldName, message.Text);
             }
         }
+
         public override void RegisterClientAttributes(RegisterClientValidationAttributesContext context) {
             context.ClientAttributes["data-val-equalto"] = GetValidationMessage(context).Text;
             context.ClientAttributes["data-val-equalto-other"] = "*." + TargetName;
-        private LocalizedString GetValidationMessage(ValidationContext context) {
+        }
+
+
             return String.IsNullOrWhiteSpace(ErrorMessage)
                 ? T("{0} must match the value of {1}.", context.FieldName, TargetName)
                 : T(ErrorMessage, context);
+        }
     }
 }
+
+        private LocalizedString GetValidationMessage(ValidationContext context) {
+

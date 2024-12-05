@@ -27,9 +27,12 @@ namespace Orchard.DynamicForms.ValidationRules {
         public override void RegisterClientAttributes(RegisterClientValidationAttributesContext context) {
             context.ClientAttributes["data-val-regex"] = GetValidationMessage(context).Text;
             context.ClientAttributes["data-val-regex-pattern"] = Pattern;
-        private LocalizedString GetValidationMessage(ValidationContext context) {
+
             return String.IsNullOrWhiteSpace(ErrorMessage)
                 ? T("{0} must match the following pattern: {1}.", context.FieldName, Pattern)
                 : T(ErrorMessage);
     }
 }
+
+        private LocalizedString GetValidationMessage(ValidationContext context) {
+

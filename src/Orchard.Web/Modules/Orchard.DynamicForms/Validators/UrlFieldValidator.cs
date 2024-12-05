@@ -13,7 +13,7 @@ using Orchard.DynamicForms.ValidationRules;
 
 namespace Orchard.DynamicForms.Validators {
     public class UrlFieldValidator : ElementValidator<UrlField> {
-        private readonly IValidationRuleFactory _validationRuleFactory;
+
         public UrlFieldValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
@@ -29,3 +29,6 @@ namespace Orchard.DynamicForms.Validators {
             }
     }
 }
+
+        private readonly IValidationRuleFactory _validationRuleFactory;
+

@@ -33,7 +33,7 @@ namespace Orchard.DynamicForms.ValidationRules {
                     context.ClientAttributes["data-val-length-min"] = Minimum.Value.ToString(CultureInfo.InvariantCulture);
                 if (Maximum != null) {
                     context.ClientAttributes["data-val-length-max"] = Maximum.Value.ToString(CultureInfo.InvariantCulture);
-        private LocalizedString GetValidationMessage(ValidationContext context) {
+
             if(!String.IsNullOrWhiteSpace(ErrorMessage))
                 return T(ErrorMessage, context.FieldName, Minimum, Maximum);
             if(Minimum != null && Maximum != null)
@@ -44,3 +44,6 @@ namespace Orchard.DynamicForms.ValidationRules {
             return T("{0} must be at most {1} characters long.", context.FieldName, Maximum);
     }
 }
+
+        private LocalizedString GetValidationMessage(ValidationContext context) {
+

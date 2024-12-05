@@ -13,7 +13,7 @@ using Orchard.DynamicForms.ValidationRules;
 
 namespace Orchard.DynamicForms.Validators {
     public class EnumerationValidator : ElementValidator<Enumeration> {
-        private readonly IValidationRuleFactory _validationRuleFactory;
+
         public EnumerationValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
@@ -23,3 +23,6 @@ namespace Orchard.DynamicForms.Validators {
                 yield return _validationRuleFactory.Create<OptionRequired>(settings.CustomValidationMessage);
     }
 }
+
+        private readonly IValidationRuleFactory _validationRuleFactory;
+

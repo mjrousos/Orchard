@@ -30,9 +30,12 @@ namespace Orchard.DynamicForms.ValidationRules {
         public override void RegisterClientAttributes(RegisterClientValidationAttributesContext context) {
             context.ClientAttributes["data-val-regex"] = GetValidationMessage(context).Text;
             context.ClientAttributes["data-val-regex-pattern"] = Pattern;
-        private LocalizedString GetValidationMessage(ValidationContext context) {
+
             return String.IsNullOrWhiteSpace(ErrorMessage)
                 ? T("{0} is not a valid email address.", context.FieldName)
                 : T(ErrorMessage);
     }
 }
+
+        private LocalizedString GetValidationMessage(ValidationContext context) {
+

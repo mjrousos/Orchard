@@ -14,7 +14,7 @@ using Orchard.DynamicForms.ValidationRules;
 
 namespace Orchard.DynamicForms.Validators {
     public class PasswordFieldValidator : ElementValidator<PasswordField> {
-        private readonly IValidationRuleFactory _validationRuleFactory;
+
         public PasswordFieldValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
@@ -37,3 +37,6 @@ namespace Orchard.DynamicForms.Validators {
                     r.TargetName = settings.CompareWith;
     }
 }
+
+        private readonly IValidationRuleFactory _validationRuleFactory;
+

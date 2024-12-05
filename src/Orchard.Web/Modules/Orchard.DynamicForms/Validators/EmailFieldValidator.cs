@@ -14,7 +14,7 @@ using Orchard.DynamicForms.ValidationRules;
 
 namespace Orchard.DynamicForms.Validators {
     public class EmailFieldValidator : ElementValidator<EmailField> {
-        private readonly IValidationRuleFactory _validationRuleFactory;
+
         public EmailFieldValidator(IValidationRuleFactory validationRuleFactory) {
             _validationRuleFactory = validationRuleFactory;
         }
@@ -34,3 +34,6 @@ namespace Orchard.DynamicForms.Validators {
                     r.TargetName = settings.CompareWith;
     }
 }
+
+        private readonly IValidationRuleFactory _validationRuleFactory;
+

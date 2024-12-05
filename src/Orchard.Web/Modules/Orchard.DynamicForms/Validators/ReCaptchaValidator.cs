@@ -22,11 +22,11 @@ using Orchard.Logging;
 
 namespace Orchard.DynamicForms.Validators {
     public class ReCaptchaValidator : ElementValidator<ReCaptcha> {
-        private readonly IWorkContextAccessor _workContextAccessor;
+
         public ReCaptchaValidator(IWorkContextAccessor workContextAccessor) {
             _workContextAccessor = workContextAccessor;
         }
-        private const string ReCaptchaSecureUrl = "https://www.google.com/recaptcha/api/siteverify";
+
         protected override void OnValidate(ReCaptcha element, ValidateInputContext context) {
             var workContext = _workContextAccessor.GetContext();
             var settings = workContext.CurrentSite.As<ReCaptchaSettingsPart>();
@@ -59,10 +59,10 @@ namespace Orchard.DynamicForms.Validators {
                 catch (Exception e) {
                     Logger.Error(e, "An unexcepted error occurred while submitting a reCaptcha");
                     context.ModelState.AddModelError("recaptcha_response_field", T("There was an error while validating the Captcha image.").Text);
-        private static string ExecuteValidateRequest(string privateKey, string remoteip, string response) {
+
             var postData = String.Format(CultureInfo.InvariantCulture,
                 "secret={0}&response={1}&remoteip={2}",
-                privateKey,
+
                 response,
                 remoteip
             );
@@ -75,3 +75,9 @@ namespace Orchard.DynamicForms.Validators {
                     return reader.ReadToEnd();
     }
 }
+
+        private readonly IWorkContextAccessor _workContextAccessor;
+        private const string ReCaptchaSecureUrl = "https://www.google.com/recaptcha/api/siteverify";
+        private static string ExecuteValidateRequest(string privateKey, string remoteip, string response) {
+                privateKey,
+

@@ -13,3 +13,5 @@ namespace Orchard.DynamicForms.Validators.Settings {
         public bool? IsMandatory { get; set; }
     }
 }
+
+

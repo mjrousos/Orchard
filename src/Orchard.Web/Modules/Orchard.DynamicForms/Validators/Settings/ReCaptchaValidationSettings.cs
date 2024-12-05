@@ -12,3 +12,5 @@ namespace Orchard.DynamicForms.Validators.Settings {
     public class ReCaptchaValidationSettings : ValidationSettingsBase {
     }
 }
+
+
