@@ -6,7 +6,7 @@ using Orchard.Localization;
 using Orchard.Services;
 using System.Web.Mvc;
 using Orchard.Mvc.Filters;
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -39,6 +39,8 @@ namespace Orchard.OpenId.OwinMiddlewares {
         private string _azureClientId;
         private string _azureTenant;
         private string _azureAdInstance;
+        private string authority;
+
         public AzureActiveDirectory(
             IWorkContextAccessor workContextAccessor,
             IAzureActiveDirectoryService azureActiveDirectoryService,
@@ -48,15 +50,18 @@ namespace Orchard.OpenId.OwinMiddlewares {
             _inMemoryCache = inMemoryCache;
             Logger = NullLogger.Instance;
         }
+
         public IEnumerable<OwinMiddlewareRegistration> GetOwinMiddlewares() {
             var settings = _workContextAccessor.GetContext().CurrentSite.As<AzureActiveDirectorySettingsPart>();
             var logoutRedirectUri = string.Empty;
             var azureAppKey = string.Empty;
             var azureWebSiteProtectionEnabled = false;
             var azureUseAzureGraphApi = false;
+
             if (settings == null || !settings.IsValid()) {
                 return Enumerable.Empty<OwinMiddlewareRegistration>();
             }
+
             _azureClientId = settings.ClientId;
             _azureTenant = settings.Tenant;
             _azureAdInstance = settings.ADInstance;
@@ -66,8 +71,10 @@ namespace Orchard.OpenId.OwinMiddlewares {
             azureWebSiteProtectionEnabled = settings.AzureWebSiteProtectionEnabled;
             azureAppKey = settings.AppKey;
             azureUseAzureGraphApi = settings.UseAzureGraphApi;
-            var authority = string.Format(CultureInfo.InvariantCulture, _azureAdInstance, _azureTenant);
+
+            authority = string.Format(CultureInfo.InvariantCulture, _azureAdInstance, _azureTenant);
             var middlewares = new List<OwinMiddlewareRegistration>();
+
             AntiForgeryConfig.UniqueClaimTypeIdentifier = ClaimTypes.NameIdentifier;
             var openIdOptions = new OpenIdConnectAuthenticationOptions {
                 ClientId = _azureClientId,
@@ -86,47 +93,64 @@ namespace Orchard.OpenId.OwinMiddlewares {
                         context.HandleResponse();
                         context.Response.Redirect(Constants.General.AuthenticationErrorUrl);
                         Logger.Debug(context.Exception, "AAD authentication failed.");
+                        return Task.FromResult(0);
                     }
                 }
             };
-            // Allowing login from all AAD tenants (so with any Microsoft ID). We'd need to list all possible AAD tenants 
-            // here otherwise.
+
+            // Allowing login from all AAD tenants (so with any Microsoft ID)
             openIdOptions.TokenValidationParameters.ValidateIssuer = false;
+
             if (azureWebSiteProtectionEnabled) {
                 middlewares.Add(new OwinMiddlewareRegistration {
                     Priority = "9",
                     Configure = app => { app.SetDataProtectionProvider(new MachineKeyProtectionProvider()); }
                 });
+            }
+
             middlewares.Add(new OwinMiddlewareRegistration {
                 Priority = Constants.General.OpenIdOwinMiddlewarePriority,
                 Configure = app => {
                     app.UseOpenIdConnectAuthentication(openIdOptions);
+                }
             });
+
             if (azureUseAzureGraphApi) {
+                middlewares.Add(new OwinMiddlewareRegistration {
                     Priority = "11",
                     Configure = app => app.Use(async (context, next) => {
                         try {
                             if (_azureActiveDirectoryService.Token == null && _azureActiveDirectoryService.Token.IsEmpty()) {
                                 RegenerateAzureGraphApiToken();
                             }
-                            else {
-                                if (DateTimeOffset.Compare(DateTimeOffset.UtcNow, _azureActiveDirectoryService.TokenExpiresOn) > 0) {
-                                    RegenerateAzureGraphApiToken();
-                                }
+                            else if (DateTimeOffset.Compare(DateTimeOffset.UtcNow, _azureActiveDirectoryService.TokenExpiresOn) > 0) {
+                                RegenerateAzureGraphApiToken();
+                            }
                         }
                         catch (Exception ex) {
                             Logger.Log(LogLevel.Error, ex, "An error occurred generating azure api credential {0}", ex.Message);
+                        }
                         await next.Invoke();
                     })
+                });
+            }
+
             return middlewares;
+        }
+
         private void RegenerateAzureGraphApiToken() {
             var result = GetAuthContext().AcquireTokenAsync(_azureGraphApiUri, GetClientCredential()).Result;
             _azureActiveDirectoryService.TokenExpiresOn = result.ExpiresOn;
             _azureActiveDirectoryService.Token = result.AccessToken;
             _azureActiveDirectoryService.AzureTenant = _azureTenant;
+        }
+
         private ClientCredential GetClientCredential() {
             return new ClientCredential(_azureClientId, _azureGraphApiKey);
+        }
+
         private AuthenticationContext GetAuthContext() {
             return new AuthenticationContext(authority, false);
+        }
     }
 }
