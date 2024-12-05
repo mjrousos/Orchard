@@ -8,14 +8,14 @@ namespace NHibernate.Linq.Util
     /// </remarks>
     public static class TypeSystem
     {
-        public static Type GetElementType(Type seqType)
+        public static System.Type GetElementType(System.Type seqType)
         {
-            Type ienum = FindIEnumerable(seqType);
+            System.Type ienum = FindIEnumerable(seqType);
             if (ienum == null) return seqType;
             return ienum.GetGenericArguments()[0];
         }
 
-        private static Type FindIEnumerable(Type seqType)
+        private static System.Type FindIEnumerable(System.Type seqType)
         {
             if (seqType == null || seqType == typeof(string))
                 return null;
@@ -25,9 +25,9 @@ namespace NHibernate.Linq.Util
 
             if (seqType.IsGenericType)
             {
-                foreach (Type arg in seqType.GetGenericArguments())
+                foreach (System.Type arg in seqType.GetGenericArguments())
                 {
-                    Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
+                    System.Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
                     if (ienum.IsAssignableFrom(seqType))
                     {
                         return ienum;
@@ -35,12 +35,12 @@ namespace NHibernate.Linq.Util
                 }
             }
 
-            Type[] ifaces = seqType.GetInterfaces();
+            System.Type[] ifaces = seqType.GetInterfaces();
             if (ifaces != null && ifaces.Length > 0)
             {
-                foreach (Type iface in ifaces)
+                foreach (System.Type iface in ifaces)
                 {
-                    Type ienum = FindIEnumerable(iface);
+                    System.Type ienum = FindIEnumerable(iface);
                     if (ienum != null) return ienum;
                 }
             }
