@@ -6,7 +6,7 @@ using Orchard.Localization;
 using Orchard.Services;
 using System.Web.Mvc;
 using Orchard.Mvc.Filters;
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
@@ -21,18 +21,22 @@ namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
             var xml = XDocument.Parse(encoderMetadataXml);
             return new Metadata(xml, privateLocatorUrl, publicLocatorUrl, mimeTypeProvider);
         }
+
         private readonly XmlNamespaceManager _nsm;
         private readonly XDocument _xml;
         private readonly string _privateLocatorUrl;
         private readonly string _publicLocatorUrl;
         private readonly IMimeTypeProvider _mimeTypeProvider;
         private IEnumerable<AssetFile> _assetFiles;
+
         public Metadata(XDocument xml, string privateLocatorUrl, string publicLocatorUrl, IMimeTypeProvider mimeTypeProvider) {
             _nsm = NamespaceHelper.CreateNamespaceManager(xml);
             _xml = xml;
             _privateLocatorUrl = privateLocatorUrl;
             _publicLocatorUrl = publicLocatorUrl;
             _mimeTypeProvider = mimeTypeProvider;
+        }
+
         /// <summary>
         /// A collection of media files contained in this asset.
         /// </summary>
@@ -46,10 +50,19 @@ namespace Orchard.Azure.MediaServices.Models.Assets.EncoderMetadata {
                 }
                 return _assetFiles;
             }
+        }
+
         [JsonIgnore]
         public string PrivateLocatorUrl {
+            get {
                 return _privateLocatorUrl;
+            }
+        }
+
         public string PublicLocatorUrl {
+            get {
                 return _publicLocatorUrl;
+            }
+        }
     }
 }
