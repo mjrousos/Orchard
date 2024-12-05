@@ -6,7 +6,7 @@ using Orchard.Localization;
 using Orchard.Services;
 using System.Web.Mvc;
 using Orchard.Mvc.Filters;
-﻿using System;
+using System;
 using System.Linq;
 using Orchard.Azure.MediaServices.Models;
 using Orchard.Azure.MediaServices.Models.Assets;
@@ -22,6 +22,7 @@ namespace Orchard.Azure.MediaServices.Shapes {
                 bool ignoreIncludeInPlayer = shape.IgnoreIncludeInPlayer; // True to ignore the IncludeInPlayer property of assets.
                 bool allowPrivateUrls = shape.AllowPrivateUrls; // True to allow private locator URLs to be used, otherwise false.
                 Func<string, string, string> selectUrl = (privateUrl, publicUrl) => publicUrl ?? (allowPrivateUrls ? privateUrl : null);
+
                 var videoAssetQuery =
                     from asset in cloudVideoPart.Assets
                     where
@@ -39,31 +40,50 @@ namespace Orchard.Azure.MediaServices.Shapes {
                         EncoderMetadata = videoAsset.EncoderMetadata,
                         MainFileUrl = selectUrl(videoAsset.PrivateMainFileUrl, videoAsset.PublicMainFileUrl)
                     };
+
                 var dynamicVideoAssetQuery =
+                    from asset in cloudVideoPart.Assets
+                    where
+                        (asset.IncludeInPlayer || ignoreIncludeInPlayer) &&
                         asset is DynamicVideoAsset &&
+                        (!assetId.HasValue || asset.Record.Id == assetId.Value)
                     let videoAsset = asset as DynamicVideoAsset
+                    select new {
+                        Type = videoAsset.GetType().Name,
+                        Id = videoAsset.Record.Id,
+                        Name = videoAsset.Name,
+                        MimeType = videoAsset.MimeType,
+                        MediaQuery = videoAsset.MediaQuery,
                         MainFileUrl = selectUrl(videoAsset.PrivateMainFileUrl, videoAsset.PublicMainFileUrl),
                         SmoothStreamingUrl = selectUrl(videoAsset.PrivateSmoothStreamingUrl, videoAsset.PublicSmoothStreamingUrl),
                         HlsUrl = selectUrl(videoAsset.PrivateHlsUrl, videoAsset.PublicHlsUrl),
                         MpegDashUrl = selectUrl(videoAsset.PrivateMpegDashUrl, videoAsset.PublicMpegDashUrl)
+                    };
+
                 var thumbnailAssetQuery =
-                from asset in cloudVideoPart.Assets
-                where
-                    (asset.IncludeInPlayer || ignoreIncludeInPlayer) &&
-                    asset is ThumbnailAsset &&
-                    (!assetId.HasValue || asset.Record.Id == assetId.Value)
-                let thumbnailAsset = asset as ThumbnailAsset
-                select new {
-                    Type = thumbnailAsset.GetType().Name,
-                    Id = thumbnailAsset.Record.Id,
-                    Name = thumbnailAsset.Name,
-                    MimeType = thumbnailAsset.MimeType,
-                    MediaQuery = thumbnailAsset.MediaQuery,
-                    MainFileUrl = selectUrl(thumbnailAsset.PrivateMainFileUrl, thumbnailAsset.PublicMainFileUrl)
-                };
+                    from asset in cloudVideoPart.Assets
+                    where
+                        (asset.IncludeInPlayer || ignoreIncludeInPlayer) &&
+                        asset is ThumbnailAsset &&
+                        (!assetId.HasValue || asset.Record.Id == assetId.Value)
+                    let thumbnailAsset = asset as ThumbnailAsset
+                    select new {
+                        Type = thumbnailAsset.GetType().Name,
+                        Id = thumbnailAsset.Record.Id,
+                        Name = thumbnailAsset.Name,
+                        MimeType = thumbnailAsset.MimeType,
+                        MediaQuery = thumbnailAsset.MediaQuery,
+                        MainFileUrl = selectUrl(thumbnailAsset.PrivateMainFileUrl, thumbnailAsset.PublicMainFileUrl)
+                    };
+
                 var subtitleAssetQuery =
+                    from asset in cloudVideoPart.Assets
+                    where
+                        (asset.IncludeInPlayer || ignoreIncludeInPlayer) &&
                         asset is SubtitleAsset &&
+                        (!assetId.HasValue || asset.Record.Id == assetId.Value)
                     let subtitleAsset = asset as SubtitleAsset
+                    select new {
                         Type = subtitleAsset.GetType().Name,
                         Id = subtitleAsset.Record.Id,
                         Name = subtitleAsset.Name,
@@ -71,11 +91,15 @@ namespace Orchard.Azure.MediaServices.Shapes {
                         MediaQuery = subtitleAsset.MediaQuery,
                         Language = subtitleAsset.Language,
                         MainFileUrl = selectUrl(subtitleAsset.PrivateMainFileUrl, subtitleAsset.PublicMainFileUrl)
+                    };
+
                 var assetData = new {
                     VideoAssets = videoAssetQuery.ToArray(),
                     DynamicVideoAssets = dynamicVideoAssetQuery.ToArray(),
                     ThumbnailAssets = thumbnailAssetQuery.ToArray(),
                     SubtitleAssets = subtitleAssetQuery.ToArray()
+                };
+
                 shape.AssetData = assetData;
             });
         }
