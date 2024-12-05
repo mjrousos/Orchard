@@ -18,16 +18,27 @@ namespace Autofac.Core
         {
             // Default implementation does nothing
         }
+
         protected virtual void Load(ContainerBuilder builder)
+        {
+            // Default implementation does nothing
+        }
+
         void IModule.Configure(IComponentRegistry componentRegistry)
+        {
             if (componentRegistry == null)
             {
                 throw new ArgumentNullException(nameof(componentRegistry));
             }
+
             var builder = new ContainerBuilder();
             Load(builder);
             builder.Update(componentRegistry);
+
             foreach (var registration in componentRegistry.Registrations)
+            {
                 AttachToComponentRegistration(componentRegistry, registration);
+            }
+        }
     }
 }

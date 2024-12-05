@@ -23,21 +23,33 @@ namespace Orchard.Data
         T Get(Expression<Func<T, bool>> predicate);
         IQueryable<T> Table { get; }
     }
+
     public interface IContentDefinitionStore
+    {
         string LoadContentDefinition();
         void SaveContentDefinition(string contentDefinition);
+    }
+
     public interface ITransactionManager
+    {
         void Demand();
         void RequireNew();
         void RequireNew(Action action);
         void Cancel();
+    }
+
     public interface ISession
+    {
         void Create(object entity);
         void Update(object entity);
         void Delete(object entity);
         T Get<T>(int id) where T : class;
         void Flush();
         void Clear();
+    }
+
     public interface ISessionLocator
+    {
         ISession For(Type entityType);
+    }
 }

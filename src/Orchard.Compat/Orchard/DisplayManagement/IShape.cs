@@ -21,25 +21,40 @@ namespace Orchard.DisplayManagement
         IList<string> Classes_List { get; }
         IEnumerable<dynamic> Items { get; set; }
     }
+
     public interface IShapeFactory
+    {
         dynamic Create(string shapeType);
         dynamic Create(string shapeType, INamedEnumerable<object> parameters);
         dynamic Create(string shapeType, object parameters);
+    }
+
     public interface IShapeDisplay
+    {
         string Display(IShape shape);
         string Display(IShape shape, string displayType);
+    }
+
     public interface INamedEnumerable<T> : IEnumerable<T>
+    {
         IDictionary<string, T> Named { get; }
+    }
+
     public class Component
+    {
         public virtual string Type { get; set; }
         public virtual IDictionary<string, object> Properties { get; set; }
         public virtual IList<Component> Components { get; set; }
+
         public Component()
         {
             Properties = new Dictionary<string, object>();
             Components = new List<Component>();
         }
+    }
+
     public class ShapeMetadata
+    {
         public string Type { get; set; }
         public string DisplayType { get; set; }
         public string Position { get; set; }
@@ -48,12 +63,24 @@ namespace Orchard.DisplayManagement
         public string Name { get; set; }
         public AlternatesCollection Alternates { get; set; }
         public AlternatesCollection Wrappers { get; set; }
+
         public ShapeMetadata()
+        {
             Alternates = new AlternatesCollection();
             Wrappers = new AlternatesCollection();
+        }
+    }
+
     public class AlternatesCollection : List<string>
+    {
         public void Add(string format, params object[] args)
+        {
             Add(String.Format(format, args));
+        }
+    }
+
     [AttributeUsage(AttributeTargets.Class)]
     public class ShapeAttribute : Attribute
+    {
+    }
 }

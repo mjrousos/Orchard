@@ -21,14 +21,20 @@ namespace Orchard
         ICacheManager CacheManager { get; }
         WorkContext WorkContext { get; }
     }
+
     public class WorkContext
+    {
         public dynamic Layout { get; set; }
         public string CurrentSite { get; set; }
         public string CurrentTheme { get; set; }
         public string CurrentCulture { get; set; }
+    }
 }
+
 namespace Orchard.Environment.Configuration
+{
     public class ShellSettings
+    {
         public string Name { get; set; }
         public string RequestUrlHost { get; set; }
         public string RequestUrlPrefix { get; set; }
@@ -40,17 +46,30 @@ namespace Orchard.Environment.Configuration
         public bool EncryptionEnabled { get; set; }
         public string EncryptionKey { get; set; }
         public string HashKey { get; set; }
+    }
+}
+
 namespace Orchard.UI.Notify
+{
     public interface INotifier
+    {
         void Add(NotifyType type, string message);
         void Add(NotifyType type, string message, string htmlEncode);
+    }
+
     public enum NotifyType
+    {
         Information,
         Warning,
         Error,
         Success
+    }
+}
+
 namespace Orchard.ContentManagement
+{
     public interface IContentManager
+    {
         ContentItem New(string contentType);
         ContentItem Get(int id);
         ContentItem Get(int id, VersionOptions options);
@@ -60,7 +79,10 @@ namespace Orchard.ContentManagement
         void Remove(ContentItem contentItem);
         void Publish(ContentItem contentItem);
         void Unpublish(ContentItem contentItem);
+    }
+
     public class VersionOptions
+    {
         public static readonly VersionOptions Latest = new VersionOptions { IsLatest = true };
         public static readonly VersionOptions Published = new VersionOptions { IsPublished = true };
         public static readonly VersionOptions Draft = new VersionOptions { IsDraft = true };
@@ -69,3 +91,5 @@ namespace Orchard.ContentManagement
         public bool IsPublished { get; set; }
         public bool IsDraft { get; set; }
         public bool IsAllVersions { get; set; }
+    }
+}

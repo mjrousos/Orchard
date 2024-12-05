@@ -16,21 +16,40 @@ namespace System.Web.Mvc
         private Microsoft.AspNetCore.Mvc.Rendering.ViewContext _coreViewContext;
         private ViewDataDictionary _viewData;
         private TempDataDictionary _tempData;
+
         public ViewContext(Microsoft.AspNetCore.Mvc.Rendering.ViewContext viewContext)
         {
             _coreViewContext = viewContext;
             _viewData = new ViewDataDictionary(viewContext.ViewData);
             _tempData = new TempDataDictionary(viewContext.TempData);
         }
+
         public ViewDataDictionary ViewData => _viewData;
         public TempDataDictionary TempData => _tempData;
         public HttpContextBase HttpContext => new HttpContextWrapper(_coreViewContext.HttpContext);
+
         public void Contextualize(Microsoft.AspNetCore.Mvc.Rendering.ViewContext viewContext)
+        {
+            _coreViewContext = viewContext;
+            _viewData = new ViewDataDictionary(viewContext.ViewData);
+            _tempData = new TempDataDictionary(viewContext.TempData);
+        }
     }
+
     public class HttpContextWrapper : HttpContextBase
+    {
         private readonly Microsoft.AspNetCore.Http.HttpContext _context;
+
         public HttpContextWrapper(Microsoft.AspNetCore.Http.HttpContext context)
+        {
             _context = context;
+        }
+
+        public override Microsoft.AspNetCore.Http.HttpContext HttpContext => _context;
+    }
+
     public abstract class HttpContextBase
-        // Add required members as needed
+    {
+        public abstract Microsoft.AspNetCore.Http.HttpContext HttpContext { get; }
+    }
 }

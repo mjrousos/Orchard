@@ -18,13 +18,18 @@ namespace Orchard.Caching
         void Remove(string key);
         void Clear();
     }
+
     public class CacheManager : ICacheManager
+    {
         private readonly IMemoryCache _memoryCache;
+
         public CacheManager(IMemoryCache memoryCache)
         {
             _memoryCache = memoryCache;
         }
+
         public TResult Get<TResult>(string key, Func<AcquireContext<TResult>, TResult> acquire)
+        {
             if (_memoryCache.TryGetValue(key, out TResult result))
             {
                 return result;
@@ -33,11 +38,24 @@ namespace Orchard.Caching
             result = acquire(context);
             _memoryCache.Set(key, result);
             return result;
+        }
+
         public void Put<T>(string key, T value)
+        {
             _memoryCache.Set(key, value);
+        }
+
         public void Remove(string key)
+        {
             _memoryCache.Remove(key);
+        }
+
         public void Clear()
+        {
             if (_memoryCache is MemoryCache memoryCache)
+            {
                 memoryCache.Compact(1.0);
+            }
+        }
+    }
 }

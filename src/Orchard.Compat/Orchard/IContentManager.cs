@@ -27,24 +27,35 @@ namespace Orchard
         void Unpublish(ContentItem contentItem);
         void Clone(ContentItem contentItem);
     }
+
     public interface IDocumentIndex
+    {
         IDocumentIndex Add(string name, string value);
         IDocumentIndex Add(string name, DateTime value);
         IDocumentIndex Add(string name, int value);
         IDocumentIndex Add(string name, bool value);
         IDocumentIndex Add(string name, double value);
+    }
+
     public interface IHqlQuery
+    {
         IHqlQuery Join(Action<IAliasFactory> alias);
         IHqlQuery Where(Action<IAliasFactory> alias);
         IHqlQuery OrderBy(Action<IAliasFactory> alias);
         IEnumerable<ContentItem> List();
         int Count();
+    }
+
     public interface IAliasFactory
+    {
         IAliasFactory ContentPartRecord<TRecord>();
         IAliasFactory ContentItemRecord();
         IAliasFactory ContentItemVersionRecord();
         IAliasFactory ContentTypeRecord();
+    }
+
     public class VersionOptions
+    {
         public static VersionOptions Latest { get { return new VersionOptions { IsLatest = true }; } }
         public static VersionOptions Published { get { return new VersionOptions { IsPublished = true }; } }
         public static VersionOptions Draft { get { return new VersionOptions { IsDraft = true }; } }
@@ -54,4 +65,5 @@ namespace Orchard
         public bool IsDraft { get; set; }
         public bool IsAllVersions { get; set; }
         public int? Number { get; set; }
+    }
 }

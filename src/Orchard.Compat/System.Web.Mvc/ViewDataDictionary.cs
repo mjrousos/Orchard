@@ -13,16 +13,43 @@ namespace System.Web.Mvc
     public class TempDataDictionary : System.Collections.Generic.Dictionary<string, object>
     {
         private readonly Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataDictionary _coreTempData;
+
         public TempDataDictionary(Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataDictionary coreTempData)
         {
             _coreTempData = coreTempData ?? throw new ArgumentNullException(nameof(coreTempData));
         }
+
         public new object? this[string key]
+        {
             get => _coreTempData.ContainsKey(key) ? _coreTempData[key] : null;
             set => _coreTempData[key] = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
         public new void Clear()
+        {
             _coreTempData.Clear();
+            base.Clear();
+        }
+
         public new bool ContainsKey(string key)
+        {
             return _coreTempData.ContainsKey(key);
+        }
+
+        public new bool Remove(string key)
+        {
+            if (_coreTempData.ContainsKey(key))
+            {
+                _coreTempData.Remove(key);
+                return base.Remove(key);
+            }
+            return false;
+        }
+
+        public new void Add(string key, object value)
+        {
+            _coreTempData[key] = value;
+            base.Add(key, value);
+        }
     }
 }

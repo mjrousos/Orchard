@@ -32,18 +32,23 @@ namespace log4net
         bool IsFatalEnabled { get; }
         bool IsTraceEnabled { get; }
     }
+
     public class Log4NetLogger : ILog
+    {
         private readonly ILogger _logger;
+
         public Log4NetLogger(ILogger logger)
         {
             _logger = logger;
         }
+
         public bool IsDebugEnabled => _logger.IsEnabled(LogLevel.Debug);
         public bool IsInfoEnabled => _logger.IsEnabled(LogLevel.Information);
         public bool IsWarnEnabled => _logger.IsEnabled(LogLevel.Warning);
         public bool IsErrorEnabled => _logger.IsEnabled(LogLevel.Error);
         public bool IsFatalEnabled => _logger.IsEnabled(LogLevel.Critical);
         public bool IsTraceEnabled => _logger.IsEnabled(LogLevel.Trace);
+
         public void Debug(object message) => _logger.LogDebug(message?.ToString());
         public void Info(object message) => _logger.LogInformation(message?.ToString());
         public void Warn(object message) => _logger.LogWarning(message?.ToString());
@@ -56,4 +61,5 @@ namespace log4net
         public void TraceFormat(Exception exception, string format, params object[] args) => _logger.LogTrace(exception, format, args);
         public void TraceFormat(IFormatProvider provider, string format, params object[] args) => _logger.LogTrace(string.Format(provider, format, args));
         public void TraceFormat(Exception exception, IFormatProvider provider, string format, params object[] args) => _logger.LogTrace(exception, string.Format(provider, format, args));
+    }
 }
