@@ -6,7 +6,7 @@ using Orchard.Localization;
 using Orchard.Services;
 using System.Web.Mvc;
 using Orchard.Mvc.Filters;
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
@@ -35,6 +35,7 @@ namespace Orchard.Layouts.Drivers {
         private readonly ILayoutModelMapper _mapper;
         private readonly ILayoutEditorFactory _layoutEditorFactory;
         private readonly HashSet<string> _stack;
+
         public LayoutPartDriver(
             ILayoutSerializer serializer,
             IElementDisplay elementDisplay,
@@ -55,7 +56,9 @@ namespace Orchard.Layouts.Drivers {
             _stack = new HashSet<string>();
             Logger = NullLogger.Instance;
         }
+
         public ILogger Logger { get; set; }
+
         protected override DriverResult Display(LayoutPart part, string displayType, dynamic shapeHelper) {
             return Combined(
                 ContentShape("Parts_Layout", () => {
@@ -72,6 +75,8 @@ namespace Orchard.Layouts.Drivers {
                     var layoutHtml = _shapeDisplay.Display(layoutShape);
                     return shapeHelper.Parts_Layout_Summary(LayoutHtml: layoutHtml);
                 }));
+        }
+
         private bool DetectRecursion(LayoutPart part, string shapeName) {
             var key = String.Format("{0}:{1}", shapeName, part.Id);
             if (_stack.Contains(key)) {
@@ -80,8 +85,12 @@ namespace Orchard.Layouts.Drivers {
             }
             _stack.Add(key);
             return false;
+        }
+
         protected override DriverResult Editor(LayoutPart part, dynamic shapeHelper) {
             return Editor(part, null, shapeHelper);
+        }
+
         protected override DriverResult Editor(LayoutPart part, IUpdateModel updater, dynamic shapeHelper) {
             return ContentShape("Parts_Layout_Edit", () => {
                 if (part.Id == 0 && String.IsNullOrWhiteSpace(part.LayoutData)) {
@@ -93,10 +102,13 @@ namespace Orchard.Layouts.Drivers {
                     }
                     else {
                         part.LayoutData = settings.DefaultLayoutData;
+                    }
                 }
+
                 var viewModel = new LayoutPartViewModel {
                     LayoutEditor = _layoutEditorFactory.Create(part)
                 };
+
                 if (updater != null) {
                     updater.TryUpdateModel(viewModel, Prefix, null, new[] { "Part", "Templates" });
                     var describeContext = new DescribeElementsContext { Content = part };
@@ -114,23 +126,31 @@ namespace Orchard.Layouts.Drivers {
                     part.TemplateId = viewModel.LayoutEditor.TemplateId;
                     part.SessionKey = viewModel.LayoutEditor.SessionKey;
                     viewModel.LayoutEditor.Data = _mapper.ToEditorModel(part.LayoutData, new DescribeElementsContext { Content = part }).ToJson();
+                }
+
                 return shapeHelper.EditorTemplate(TemplateName: "Parts.Layout", Model: viewModel, Prefix: Prefix);
             });
+        }
+
         protected override void Exporting(LayoutPart part, ExportContentContext context) {
             _layoutManager.Exporting(new ExportLayoutContext { Layout = part });
-            
+
             if (part.TemplateId != null) {
                 var template = part.ContentItem.ContentManager.Get(part.TemplateId.Value);
                 if (template != null) {
                     var templateIdentity = part.ContentItem.ContentManager.GetItemMetadata(template).Identity;
                     context.Element(part.PartDefinition.Name).SetAttributeValue("TemplateId", templateIdentity);
+                }
+            }
             context.Element(part.PartDefinition.Name).Add(new XElement("LayoutData", new XCData(WriteFormattedLayoutData(part.LayoutData))));
-        protected override void Exported(LayoutPart part, ExportContentContext context)
-        {
+        }
+
+        protected override void Exported(LayoutPart part, ExportContentContext context) {
             _layoutManager.Exported(new ExportLayoutContext { Layout = part });
+        }
+
         protected override void Importing(LayoutPart part, ImportContentContext context) {
-            HandleImportEvent(part, context, importLayoutContext =>
-            {
+            HandleImportEvent(part, context, importLayoutContext => {
                 var layoutDataElement = context.Data.Element(part.PartDefinition.Name).Element("LayoutData");
                 if (layoutDataElement.FirstNode is XCData)
                     part.LayoutData = ReadFormattedLayoutData(((XCData)layoutDataElement.FirstNode).Value);
@@ -138,32 +158,50 @@ namespace Orchard.Layouts.Drivers {
                     part.LayoutData = layoutDataElement.Value;
                 _layoutManager.Importing(importLayoutContext);
                 context.ImportAttribute(part.PartDefinition.Name, "TemplateId", s => part.TemplateId = GetTemplateId(context, s));
+            });
+        }
+
         protected override void Imported(LayoutPart part, ImportContentContext context) {
             HandleImportEvent(part, context, importLayoutContext => _layoutManager.Imported(importLayoutContext));
+        }
+
         protected override void ImportCompleted(LayoutPart part, ImportContentContext context) {
             HandleImportEvent(part, context, importLayoutContext => _layoutManager.ImportCompleted(importLayoutContext));
+        }
+
         private void HandleImportEvent(LayoutPart part, ImportContentContext context, Action<ImportLayoutContext> callback) {
             // Don't do anything if the tag is not specified.
             if (context.Data.Element(part.PartDefinition.Name) == null) {
                 return;
+            }
             callback(new ImportLayoutContext {
                 Layout = part,
                 Session = new ImportContentContextWrapper(context)
+            });
+        }
+
         private static int? GetTemplateId(ImportContentContext context, string templateIdentity) {
             if (String.IsNullOrWhiteSpace(templateIdentity))
                 return null;
             var template = context.GetItemFromSession(templateIdentity);
             return template != null ? template.Id : default(int?);
-        private string WriteFormattedLayoutData(string layoutDataString)
+        }
+
+        private string WriteFormattedLayoutData(string layoutDataString) {
             var layoutData = JsonConvert.DeserializeObject(layoutDataString);
             var formattedLayoutData = JsonConvert.SerializeObject(layoutData, Formatting.Indented);
             return String.Format("\n{0}\n", formattedLayoutData);
-        private string ReadFormattedLayoutData(string formattedLayoutData)
+        }
+
+        private string ReadFormattedLayoutData(string formattedLayoutData) {
             var layoutData = JsonConvert.DeserializeObject(formattedLayoutData);
             var layoutDataString = JsonConvert.SerializeObject(layoutData, Formatting.None);
             return layoutDataString;
+        }
+
         protected override void Cloning(LayoutPart originalPart, LayoutPart clonePart, CloneContentContext context) {
             clonePart.LayoutData = originalPart.LayoutData;
             clonePart.TemplateId = originalPart.TemplateId;
+        }
     }
 }

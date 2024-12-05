@@ -1,12 +1,4 @@
-using Orchard.ContentManagement;
-using Orchard.Security;
-using Orchard.UI.Admin;
-using Orchard.DisplayManagement;
-using Orchard.Localization;
-using Orchard.Services;
-using System.Web.Mvc;
-using Orchard.Mvc.Filters;
-﻿using System.Linq;
+using System.Linq;
 using Orchard.Caching;
 using Orchard.Environment;
 using Orchard.Environment.Configuration;
@@ -15,15 +7,18 @@ using Orchard.Environment.Extensions;
 namespace Orchard.MessageBus.Services {
     public interface IDistributedShellStarter : ISingletonDependency {
     }
+
     [OrchardFeature("Orchard.MessageBus.DistributedShellRestart")]
     public class DistributedShellStarter : IDistributedShellStarter, IOrchardShellEvents {
         private readonly IWorkContextAccessor _workContextAccessor;
         private readonly IMessageBus _messageBus;
-        public readonly static string Channel = "ShellChanged";
+        public static readonly string Channel = "ShellChanged";
+
         public DistributedShellStarter(IMessageBus messageBus, IWorkContextAccessor workContextAccessor) {
             _messageBus = messageBus;
             _workContextAccessor = workContextAccessor;
         }
+
         public void Activated() {
             _messageBus.Subscribe(Channel, (channel, tenantName) => {
                 // todo: this only handles changed tenants, we should consider handling started and stopped tenants
@@ -41,5 +36,9 @@ namespace Orchard.MessageBus.Services {
                     }
                 }
             });
+        }
+
         public void Terminating() {
+        }
+    }
 }
