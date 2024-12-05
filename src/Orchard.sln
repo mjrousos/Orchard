@@ -306,8 +306,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{
 		..\.github\workflows\compile.yml = ..\.github\workflows\compile.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orchard.Compat", "Orchard.Compat\Orchard.Compat.csproj", "{B0226115-4F7C-4543-BF4E-31E7F7D550CA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		CodeCoverage|Any CPU = CodeCoverage|Any CPU
@@ -1144,14 +1142,6 @@ Global
 		{42E217C1-E163-4B6B-9E8F-42BEE21B6896}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{42E217C1-E163-4B6B-9E8F-42BEE21B6896}.Release|Any CPU.Build.0 = Release|Any CPU
 		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.Coverage|Any CPU.ActiveCfg = Release|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.Coverage|Any CPU.Build.0 = Release|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.FxCop|Any CPU.ActiveCfg = Release|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.FxCop|Any CPU.Build.0 = Release|Any CPU
-		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71E17466-D937-49D7-8C7D-77CCBAB8CCF4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A17BE797-D4AF-4CB4-A9FD-AE7BA09A95BD}.CodeCoverage|Any CPU.ActiveCfg = Release|Any CPU
 		{A17BE797-D4AF-4CB4-A9FD-AE7BA09A95BD}.CodeCoverage|Any CPU.Build.0 = Release|Any CPU
