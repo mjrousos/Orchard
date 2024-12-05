@@ -1,12 +1,4 @@
-using Orchard.ContentManagement;
-using Orchard.Security;
-using Orchard.UI.Admin;
-using Orchard.DisplayManagement;
-using Orchard.Localization;
-using Orchard.Services;
-using System.Web.Mvc;
-using Orchard.Mvc.Filters;
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Orchard.Environment.Extensions;
 using Orchard.MediaLibrary.WebSearch.Controllers.Api;
@@ -21,19 +13,25 @@ namespace Orchard.MediaLibrary.WebSearch.Providers {
         private const string PixabayBaseUrl = "https://pixabay.com";
         private readonly ISiteService _siteService;
         private readonly IJsonConverter _jsonConverter;
+
         public PixabayWebSearchProvider(ISiteService siteService, IJsonConverter jsonConverter) {
             _siteService = siteService;
             _jsonConverter = jsonConverter;
         }
+
         public string Name => "Pixabay";
+
         private PixabayWebSearchSettingsPart _settings =>
-           _siteService.GetSiteSettings().As<PixabayWebSearchSettingsPart>();
+            _siteService.GetSiteSettings().As<PixabayWebSearchSettingsPart>();
+
         public IWebSearchSettings Settings => _settings;
+
         public IEnumerable<WebSearchResult> GetImages(string query) {
             var client = RestClient.For<IPixabayApi>(PixabayBaseUrl);
             var apiResponse = client.GetImagesAsync(this.GetApiKey(), query);
             var apiResult = _jsonConverter.Deserialize<dynamic>(apiResponse.Result);
             var webSearchResult = new List<WebSearchResult>();
+
             foreach (var hit in apiResult.hits) {
                 webSearchResult.Add(new WebSearchResult() {
                     ThumbnailUrl = hit.previewURL,
@@ -45,5 +43,6 @@ namespace Orchard.MediaLibrary.WebSearch.Providers {
                 });
             }
             return webSearchResult.Any() ? webSearchResult : Enumerable.Empty<WebSearchResult>();
+        }
     }
 }

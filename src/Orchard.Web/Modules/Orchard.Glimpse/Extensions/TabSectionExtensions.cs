@@ -1,11 +1,3 @@
-using Orchard.ContentManagement;
-using Orchard.Security;
-using Orchard.UI.Admin;
-using Orchard.DisplayManagement;
-using Orchard.Localization;
-using Orchard.Services;
-using System.Web.Mvc;
-using Orchard.Mvc.Filters;
 using System.Collections.Generic;
 using System.Linq;
 using Glimpse.Core.Tab.Assist;
@@ -17,12 +9,16 @@ namespace Orchard.Glimpse.Extensions {
             if (!section.Rows.Any()) {
                 return;
             }
+
             var columnCount = section.Rows.First().Columns.Count();
             var row = section.AddRow();
             var itemCount = messages.Count();
             row.Column($"{itemCount} item{(itemCount == 1 ? "" : "s")}");
+
             for (int i = 0; i < columnCount - 3; i++) {
                 row.Column("");
+            }
+
             row.Column("Total time:");
             row.Column(messages.Sum(m => m.Duration.TotalMilliseconds).ToTimingString());
             row.Selected();

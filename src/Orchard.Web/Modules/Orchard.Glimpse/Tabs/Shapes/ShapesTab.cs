@@ -1,12 +1,4 @@
-using Orchard.ContentManagement;
-using Orchard.Security;
-using Orchard.UI.Admin;
-using Orchard.DisplayManagement;
-using Orchard.Localization;
-using Orchard.Services;
-using System.Web.Mvc;
-using Orchard.Mvc.Filters;
-﻿using System.Linq;
+using System.Linq;
 using Glimpse.Core.Extensibility;
 using Glimpse.Core.Extensions;
 
@@ -19,10 +11,15 @@ namespace Orchard.Glimpse.Tabs.Shapes {
             }
             return messages;
         }
+
         public override string Name => "Shapes";
+
         public void Setup(ITabSetupContext context) {
             context.PersistMessages<ShapeMessage>();
+        }
+
         public string Key => "glimpse_orchard_shapes";
+
         public bool KeysHeadings => false;
     }
 }
